@@ -15,6 +15,7 @@ import net.minecraft.init.Blocks;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemSeeds;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.BlockPos;
 import net.minecraft.util.IIcon;
 import net.minecraft.world.World;
 
@@ -135,8 +136,9 @@ public class BlockModPlant extends BlockCrops implements IGrowable {
     }
 
     //check if the plant is mature
-    public boolean isMature(World world, int x, int y, int z) {
-        return this.getPlantMetadata(world,x,y,z)==7;
+    public boolean isMature(World world, BlockPos pos) {
+        int age = ((Integer) world.getBlockState(pos).getValue(AGE)).intValue();
+        return age == 7;
     }
 
     //render different stages

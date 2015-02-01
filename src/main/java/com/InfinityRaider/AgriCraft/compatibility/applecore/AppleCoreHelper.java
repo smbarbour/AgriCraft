@@ -1,11 +1,11 @@
 package com.InfinityRaider.AgriCraft.compatibility.applecore;
 
-import cpw.mods.fml.common.Loader;
-import cpw.mods.fml.common.Optional;
-import cpw.mods.fml.common.eventhandler.Event;
 import net.minecraft.block.Block;
+import net.minecraft.util.BlockPos;
 import net.minecraft.world.World;
-import squeek.applecore.api.AppleCoreAPI;
+import net.minecraftforge.fml.common.Loader;
+import net.minecraftforge.fml.common.Optional;
+import net.minecraftforge.fml.common.eventhandler.Event;
 
 import java.util.Random;
 
@@ -22,31 +22,31 @@ public class AppleCoreHelper {
     }
 
     @Optional.Method(modid = AppleCoreHelper.MODID)
-    private static Event.Result validateAppleCoreGrowthTick(Block block, World world, int x, int y, int z, Random random) {
+    private static Event.Result validateAppleCoreGrowthTick(Block block, World world, BlockPos pos, Random random) {
         Event.Result result = Event.Result.DEFAULT;
-        if(AppleCoreAPI.dispatcher!=null) {
-            result = AppleCoreAPI.dispatcher.validatePlantGrowth(block, world, x, y, z, random);
-        }
+        //if(AppleCoreAPI.dispatcher!=null) {
+        //    result = AppleCoreAPI.dispatcher.validatePlantGrowth(block, world, x, y, z, random);
+        //}
         return result;
     }
 
     @Optional.Method(modid = AppleCoreHelper.MODID)
-    private static void announceAppleCoreGrowthTick(Block block, World world, int x, int y, int z) {
-        if(AppleCoreAPI.dispatcher!=null) {
-            AppleCoreAPI.dispatcher.announcePlantGrowth(block, world, x, y, z);
-        }
+    private static void announceAppleCoreGrowthTick(Block block, World world, BlockPos pos) {
+        //if(AppleCoreAPI.dispatcher!=null) {
+        // AppleCoreAPI.dispatcher.announcePlantGrowth(block, world, x, y, z);
+        // }
     }
 
-    public static Event.Result validateGrowthTick(Block block, World world, int x, int y, int z, Random random) {
+    public static Event.Result validateGrowthTick(Block block, World world, BlockPos pos, Random random) {
         if (hasDispatcher)
-            return validateAppleCoreGrowthTick(block, world, x, y, z, random);
+            return validateAppleCoreGrowthTick(block, world, pos, random);
         else
             return Event.Result.DEFAULT;
     }
 
-    public static void announceGrowthTick(Block block, World world, int x, int y, int z) {
+    public static void announceGrowthTick(Block block, World world, BlockPos pos) {
         if (hasDispatcher) {
-            announceAppleCoreGrowthTick(block, world, x, y, z);
+            announceAppleCoreGrowthTick(block, world, pos);
         }
     }
 }

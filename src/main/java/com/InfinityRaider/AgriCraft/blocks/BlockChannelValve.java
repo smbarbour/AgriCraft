@@ -5,14 +5,15 @@ import com.InfinityRaider.AgriCraft.reference.Constants;
 import com.InfinityRaider.AgriCraft.tileentity.TileEntityValve;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockLever;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.IIcon;
+import net.minecraft.util.BlockPos;
+import net.minecraft.util.EnumFacing;
 import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
-import net.minecraftforge.common.util.ForgeDirection;
 
 
 public class BlockChannelValve extends BlockCustomWood {
@@ -23,41 +24,36 @@ public class BlockChannelValve extends BlockCustomWood {
     }
 
     @Override
-    public void onNeighborBlockChange(World world, int x, int y, int z, Block block) {
+    public void onNeighborBlockChange(World world, BlockPos pos, IBlockState state, Block neighborBlock) {
         if (!world.isRemote) {
-            updatePowerStatus(world, x, y, z);
-            if(block instanceof BlockLever) {
-                world.markBlockForUpdate(x, y, z);
+            updatePowerStatus(world, pos);
+            if (neighborBlock instanceof BlockLever) {
+                world.markBlockForUpdate(pos);
             }
-        }
-    }
-
-    @Override
-    public void dropBlockAsItemWithChance(World world, int x, int y, int z, int meta, float f, int i) {
-        if(!world.isRemote) {
-            ItemStack drop = new ItemStack(com.InfinityRaider.AgriCraft.init.Blocks.blockChannelValve, 1);
-            this.setTag(world, x, y, z, drop);
-            this.dropBlockAsItem(world, x, y, z, drop);
         }
     }
 
     //creative item picking
     @Override
-    public ItemStack getPickBlock(MovingObjectPosition target, World world, int x, int y, int z) {
-        ItemStack stack = new ItemStack(com.InfinityRaider.AgriCraft.init.Blocks.blockChannelValve, 1, world.getBlockMetadata(x, y, z));
-        this.setTag(world, x, y, z, stack);
+    public ItemStack getPickBlock(MovingObjectPosition target, World world, BlockPos pos) {
+        // TODO: replace meta with blockstate
+        // world.getBlockState(pos)
+        ItemStack stack = new ItemStack(com.InfinityRaider.AgriCraft.init.Blocks.blockChannelValve, 1, 0);
+        this.setTag(world, pos, stack);
         return stack;
     }
 
-    @Override
-    public void onPostBlockPlaced(World world, int x, int y, int z, int metadata) {
-        if (!world.isRemote) {
-            updatePowerStatus(world, x, y, z);
-        }
-    }
 
-    private void updatePowerStatus(World world, int x, int y, int z) {
-        TileEntity te = world.getTileEntity(x, y, z);
+    // TODO: Figure out where onPostBlockPlaced went
+    /* @Override
+    public void onPostBlockPlaced(World world, BlockPos pos, int metadata) {
+        if (!world.isRemote) {
+            updatePowerStatus(world, pos);
+        }
+    } */
+
+    private void updatePowerStatus(World world, BlockPos pos) {
+        TileEntity te = world.getTileEntity(pos);
         if (te !=null && te instanceof TileEntityValve) {
             TileEntityValve valve = (TileEntityValve) te;
             valve.updatePowerStatus();
@@ -66,8 +62,8 @@ public class BlockChannelValve extends BlockCustomWood {
 
     //allows levers to be attached to the block
     @Override
-    public boolean isSideSolid(IBlockAccess world, int x, int y, int z, ForgeDirection side) {
-        return side!=ForgeDirection.UP;
+    public boolean isSideSolid(IBlockAccess world, BlockPos pos, EnumFacing side) {
+        return side!= EnumFacing.UP;
     }
 
     @Override
@@ -81,22 +77,18 @@ public class BlockChannelValve extends BlockCustomWood {
     }
 
     @Override
-    public boolean renderAsNormalBlock() {
-        return false;
-    }
-
-    @Override
     public boolean isOpaqueCube() {
         return false;
     }
 
     @Override
-    public boolean shouldSideBeRendered(IBlockAccess world, int x, int y, int z, int i) {
+    public boolean shouldSideBeRendered(IBlockAccess worldIn, BlockPos pos, EnumFacing side) {
         return true;
     }
 
-    @Override
+    // TODO: texture handling in 1.8?
+    /*@Override
     public IIcon getIcon(int side, int meta) {
         return Blocks.planks.getIcon(0, 0);
-    }
+    }*/
 }
