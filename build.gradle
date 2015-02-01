@@ -48,8 +48,15 @@ group = "com.InfinityRaider.AgriCraft" // http://maven.apache.org/guides/mini/gu
 archivesBaseName = "AgriCraft"
 
 minecraft {
-    version = "${config.version.minecraft}-${config.version.forge}"
+    version = "1.8-11.14.0.1290-1.8"
     runDir = "eclipse"
+
+    // the mappings can be changed at any time, and must be in the following format.
+    // snapshot_YYYYMMDD   snapshot are built nightly.
+    // stable_#            stables are built at the discretion of the MCP team.
+    // Use non-default mappings at your own risk. they may not allways work.
+    // simply re-run your setup task after changing the mappings to update your workspace.
+    mappings = "snapshot_nodoc_20141130"
 
     replaceIn "reference/Reference.java"
     replace "@MAJOR@", config.version.mod.major
@@ -58,19 +65,6 @@ minecraft {
 }
 
 dependencies {
-    // http://files.minecraftforge.net/CodeChickenLib/
-    compile "codechicken:CodeChickenLib:1.7.10-1.1.1.104:dev"
-
-    // http://chickenbones.net/maven
-    compile "codechicken:CodeChickenCore:1.7.10-1.0.3.26:dev"
-    compile "codechicken:NotEnoughItems:1.7.10-1.0.3.67:dev"
-
-    // http://mobiusstrip.eu/maven
-    compile "mcp.mobius.waila:Waila:1.5.5_1.7.10:dev"
-
-    // http://www.ryanliptak.com/maven/
-    compile "applecore:AppleCore:1.7.10-1.0.2+87.f5270:api"
-
     // Test dependencies
     testCompile "junit:junit:4.12"
     testCompile "org.mockito:mockito-core:1.10.8"
