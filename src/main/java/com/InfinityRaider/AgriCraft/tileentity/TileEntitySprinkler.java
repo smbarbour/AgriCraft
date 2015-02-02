@@ -9,9 +9,11 @@ import net.minecraft.block.Block;
 import net.minecraft.block.BlockBush;
 import net.minecraft.block.BlockFarmland;
 import net.minecraft.client.Minecraft;
-import net.minecraft.init.Blocks;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.BlockPos;
 import net.minecraft.util.Vec3;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 
 public class TileEntitySprinkler extends TileEntityAgricraft {
 
@@ -50,19 +52,22 @@ public class TileEntitySprinkler extends TileEntityAgricraft {
 
     //checks if the sprinkler is connected to an irrigation channel
     public boolean isConnected() {
-        return this.worldObj.getBlock(this.xCoord, this.yCoord+1, this.zCoord) instanceof BlockWaterChannel;
+        return worldObj.getBlockState(pos.up()).getBlock() instanceof BlockWaterChannel;
     }
 
+    // TODO: textures in 1.8?
+    /*
     public IIcon getChannelIcon() {
         if(this.isConnected()) {
-            TileEntityChannel channel = (TileEntityChannel) this.worldObj.getTileEntity(this.xCoord, this.yCoord+1, this.zCoord);
+            TileEntityChannel channel = (TileEntityChannel) this.worldObj.getTileEntity(pos.up());
             return channel.getIcon();
         }
         return Blocks.planks.getIcon(0, 0);
     }
+    */
 
     @Override
-    public void updateEntity() {
+    public void updateContainingBlockInfo() {
         if (!worldObj.isRemote) {
             if (this.sprinkle()) {
                 counter = ++counter % ConfigurationHandler.sprinklerGrowthIntervalTicks;
@@ -71,7 +76,7 @@ public class TileEntitySprinkler extends TileEntityAgricraft {
                 for (int yOffset = 1; yOffset < 5; yOffset++) {
                     for (int xOffset = -3; xOffset <= 3; xOffset++) {
                         for (int zOffset = -3; zOffset <= 3; zOffset++) {
-                            this.irrigate(this.xCoord + xOffset, this.yCoord - yOffset, this.zCoord + zOffset);
+                            irrigate(pos.add(xOffset, yOffset, zOffset));
                         }
                     }
                 }
@@ -85,7 +90,7 @@ public class TileEntitySprinkler extends TileEntityAgricraft {
     }
 
     public boolean canSprinkle() {
-        return this.isConnected() && ((TileEntityChannel) this.worldObj.getTileEntity(this.xCoord, this.yCoord+1, this.zCoord)).getFluidLevel() > 0;
+        return this.isConnected() && ((TileEntityChannel) this.worldObj.getTileEntity(pos.up())).getFluidLevel() > 0;
     }
 
     private boolean sprinkle() {
@@ -98,16 +103,16 @@ public class TileEntitySprinkler extends TileEntityAgricraft {
     }
 
     /** Depending on the block type either irrigates farmland or forces plant growth (based on chance) */
-    private void irrigate(int x, int y, int z) {
-        Block block = this.worldObj.getBlock(x, y, z);
+    private void irrigate(BlockPos pos) {
+        Block block = worldObj.getBlockState(pos).getBlock();
         if (block != null) {
-            if (block instanceof BlockFarmland && this.worldObj.getBlockMetadata(x, y, z) < 7) {
+            if (block instanceof BlockFarmland && block.getMetaFromState(worldObj.getBlockState(pos)) < 7) {
                 // irrigate farmland
-                this.worldObj.setBlockMetadataWithNotify(x, y, z, 7, 2);
+                worldObj.setBlockState(pos, block.getStateFromMeta(7), 2);
             } else if (block instanceof BlockBush) {
                 // x chance to force growth tick on plant every y ticks
                 if (counter == 0 && Constants.rand.nextDouble() <= ConfigurationHandler.sprinklerGrowthChancePercent) {
-                    block.updateTick(this.worldObj, x, y, z, Constants.rand);
+                    block.updateTick(worldObj, pos, worldObj.getBlockState(pos), Constants.rand);
                 }
             }
         }
@@ -116,7 +121,7 @@ public class TileEntitySprinkler extends TileEntityAgricraft {
     /** Called once per tick, drains water out of the WaterChannel one y-level above */
     private void drainWaterFromChannel() {
         if (counter % 10 == 0) {
-            TileEntityChannel channel = (TileEntityChannel) this.worldObj.getTileEntity(this.xCoord, this.yCoord + 1, this.zCoord);
+            TileEntityChannel channel = (TileEntityChannel) this.worldObj.getTileEntity(pos.up());
             channel.drainFluid(ConfigurationHandler.sprinklerRatePerHalfSecond);
         }
     }
@@ -131,7 +136,7 @@ public class TileEntitySprinkler extends TileEntityAgricraft {
             float radius = 0.3F;
             for(int j=0;j<=4;j++) {
                 float beta = -j*((float)Math.PI)/(8.0F);
-                Vec3 vector = Vec3.createVectorHelper(radius*Math.cos(alpha), radius*Math.sin(beta), radius*Math.sin(alpha));
+                Vec3 vector = new Vec3(radius*Math.cos(alpha), radius*Math.sin(beta), radius*Math.sin(alpha));
                 this.spawnLiquidSpray(xOffset*(4-j)/4, zOffset*(4-j)/4, vector);
             }
         }
@@ -139,7 +144,7 @@ public class TileEntitySprinkler extends TileEntityAgricraft {
 
     @SideOnly(Side.CLIENT)
     private void spawnLiquidSpray(double xOffset, double zOffset, Vec3 vector) {
-        LiquidSprayFX liquidSpray = new LiquidSprayFX(this.worldObj, this.xCoord+0.5F+xOffset, this.yCoord+5* Constants.unit, this.zCoord+0.5F+zOffset, 0.3F, 0.7F, vector);
+        LiquidSprayFX liquidSpray = new LiquidSprayFX(this.worldObj, pos.getX()+0.5F+xOffset, pos.getY()+5* Constants.unit, pos.getZ()+0.5F+zOffset, 0.3F, 0.7F, vector);
         Minecraft.getMinecraft().effectRenderer.addEffect(liquidSpray);
     }
 
