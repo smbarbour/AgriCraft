@@ -46,7 +46,7 @@ public class ItemModSeed extends ItemSeeds implements IPlantable{
     }
 
     public BlockModPlant getPlant() {
-        return (BlockModPlant) this.getPlant(null, BlockPos.ORIGIN);
+        return (BlockModPlant) this.getPlant(null, BlockPos.ORIGIN).getBlock();
     }
 
     @SideOnly(Side.CLIENT)
