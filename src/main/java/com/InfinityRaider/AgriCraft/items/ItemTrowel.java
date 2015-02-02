@@ -6,23 +6,26 @@ import com.InfinityRaider.AgriCraft.reference.Names;
 import com.InfinityRaider.AgriCraft.tileentity.TileEntityCrop;
 import com.InfinityRaider.AgriCraft.utility.LogHelper;
 import com.InfinityRaider.AgriCraft.utility.SeedHelper;
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
-import net.minecraft.client.renderer.texture.IIconRegister;
+import net.minecraft.block.Block;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemSeeds;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.IIcon;
+import net.minecraft.util.BlockPos;
+import net.minecraft.util.EnumFacing;
 import net.minecraft.util.StatCollector;
 import net.minecraft.world.World;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 
 import java.util.List;
 
 public class ItemTrowel extends ModItem {
-    private IIcon[] icons = new IIcon[2];
+
+    // TODO: textures in 1.8?
+    // private IIcon[] icons = new IIcon[2];
 
     public ItemTrowel() {
         super();
@@ -36,10 +39,11 @@ public class ItemTrowel extends ModItem {
 
     //this is called when you right click with this item in hand
     @Override
-    public boolean onItemUseFirst(ItemStack stack, EntityPlayer player, World world, int x, int y, int z, int side, float hitX, float hitY, float hitZ) {
-        if(!world.isRemote) {
-            if (world.getBlock(x, y, z) != null && world.getBlock(x, y, z) instanceof BlockCrop) {
-                TileEntity te = world.getTileEntity(x, y, z);
+    public boolean onItemUseFirst(ItemStack stack, EntityPlayer player, World world, BlockPos pos, EnumFacing side, float hitX, float hitY, float hitZ) {
+        if (!world.isRemote) {
+            Block block = world.getBlockState(pos).getBlock();
+            if (block != null && block instanceof BlockCrop) {
+                TileEntity te = world.getTileEntity(pos);
                 if (te != null && te instanceof TileEntityCrop) {
                     TileEntityCrop crop = (TileEntityCrop) te;
                     //clear weed
@@ -56,7 +60,7 @@ public class ItemTrowel extends ModItem {
                         tag.setBoolean(Names.NBT.analyzed, crop.analyzed);
                         tag.setString(Names.Objects.seed, crop.getSeedString());
                         tag.setShort(Names.NBT.meta, (short) crop.seedMeta);
-                        tag.setShort(Names.NBT.materialMeta, (short) world.getBlockMetadata(x, y, z));
+                        tag.setShort(Names.NBT.materialMeta, (short) block.getMetaFromState(world.getBlockState(pos)));
                         stack.setTagCompound(tag);
                         stack.setItemDamage(1);
                         //clear crop
@@ -70,14 +74,15 @@ public class ItemTrowel extends ModItem {
                         NBTTagCompound tag = stack.getTagCompound();
                         ItemSeeds seed = (ItemSeeds) Item.itemRegistry.getObject(tag.getString(Names.Objects.seed));
                         int seedMeta = tag.getShort(Names.NBT.meta);
-                        if(SeedHelper.isCorrectSoil(world.getBlock(x, y-1, z), world.getBlockMetadata(x, y - 1, z), seed, seedMeta)) {
+                        Block blockBelow = world.getBlockState(pos.down()).getBlock();
+                        if(SeedHelper.isCorrectSoil(blockBelow, blockBelow.getMetaFromState(world.getBlockState(pos.down())), seed, seedMeta)) {
                             crop.growth = tag.getShort(Names.NBT.growth);
                             crop.gain = tag.getShort(Names.NBT.gain);
                             crop.strength = tag.getShort(Names.NBT.strength);
                             crop.analyzed = tag.getBoolean(Names.NBT.analyzed);
                             crop.seed = seed;
                             crop.seedMeta = seedMeta;
-                            world.setBlockMetadataWithNotify(x, y, z, tag.getShort(Names.NBT.materialMeta), 3);
+                            world.setBlockState(pos, block.getStateFromMeta(tag.getShort(Names.NBT.materialMeta)), 3);
                             crop.markDirtyAndMarkForUpdate();
                             //clear trowel
                             stack.setTagCompound(null);
@@ -97,13 +102,15 @@ public class ItemTrowel extends ModItem {
         if(stack.getItemDamage()==0) {
             list.add(StatCollector.translateToLocal("agricraft_tooltip.trowel"));
         }
-        else if(stack.hasTagCompound() && stack.stackTagCompound.hasKey(Names.Objects.seed) && stack.stackTagCompound.hasKey(Names.NBT.meta)) {
+        else if(stack.hasTagCompound() && stack.getTagCompound().hasKey(Names.Objects.seed) && stack.getTagCompound().hasKey(Names.NBT.meta)) {
             NBTTagCompound tag = stack.getTagCompound();
             ItemStack seed = new ItemStack((Item) Item.itemRegistry.getObject(tag.getString(Names.Objects.seed)), 1, tag.getShort(Names.NBT.meta));
             list.add(StatCollector.translateToLocal("agricraft_tooltip.seed")+": "+ seed.getItem().getItemStackDisplayName(seed));
         }
     }
 
+    // TODO: textures in 1.8?
+    /*
     @Override
     @SideOnly(Side.CLIENT)
     public void registerIcons(IIconRegister reg) {
@@ -120,4 +127,5 @@ public class ItemTrowel extends ModItem {
         }
         return null;
     }
+    */
 }
