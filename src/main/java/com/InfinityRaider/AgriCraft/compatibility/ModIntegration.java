@@ -1,16 +1,9 @@
 package com.InfinityRaider.AgriCraft.compatibility;
 
-import com.InfinityRaider.AgriCraft.compatibility.minefactoryreloaded.AgriCraftHarvestable;
-import com.InfinityRaider.AgriCraft.compatibility.minetweaker.*;
-import com.InfinityRaider.AgriCraft.compatibility.thaumcraft.Aspects;
-import com.InfinityRaider.AgriCraft.init.Blocks;
 import com.InfinityRaider.AgriCraft.reference.Names;
 import com.InfinityRaider.AgriCraft.utility.LogHelper;
-import cpw.mods.fml.common.Loader;
-import cpw.mods.fml.common.event.FMLInterModComms;
-import minetweaker.MineTweakerAPI;
-import net.minecraft.item.ItemStack;
-import powercrystals.minefactoryreloaded.api.FactoryRegistry;
+import net.minecraftforge.fml.common.Loader;
+import net.minecraftforge.fml.common.event.FMLInterModComms;
 
 public class ModIntegration {
 
@@ -19,27 +12,9 @@ public class ModIntegration {
         if(LoadedMods.hungerOverhaul) {
             FMLInterModComms.sendMessage("HungerOverhaul", "BlacklistRightClick", "com.InfinityRaider.AgriCraft.blocks.BlockCrop");
         }
-        //MFR
-        if(LoadedMods.mfr) {
-            FactoryRegistry.sendMessage("registerHarvestable", new AgriCraftHarvestable());
-        }
-        //Thaumcraft
-        if(LoadedMods.thaumcraft) {
-            FMLInterModComms.sendMessage(Names.Mods.thaumcraft, "harvestClickableCrop", new ItemStack(Blocks.blockCrop, 1, 7));
-            Aspects.registerAspects();
-        }
         //Waila
         if(LoadedMods.waila) {
             FMLInterModComms.sendMessage(Names.Mods.waila, "register", "com.InfinityRaider.AgriCraft.compatibility.waila.WailaRegistry.initWaila");
-        }
-        //Minetweaker
-        if (LoadedMods.minetweaker) {
-            MineTweakerAPI.registerClass(CustomWood.class);
-            MineTweakerAPI.registerClass(SeedMutation.class);
-            MineTweakerAPI.registerClass(SeedBlacklist.class);
-            MineTweakerAPI.registerClass(SoilWhitelister.class);
-            MineTweakerAPI.registerClass(SpreadChance.class);
-            MineTweakerAPI.registerClass(CropProduct.class);
         }
     }
     public static class LoadedMods {
