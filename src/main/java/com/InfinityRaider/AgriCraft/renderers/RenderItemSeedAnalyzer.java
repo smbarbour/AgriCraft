@@ -4,8 +4,8 @@ import com.InfinityRaider.AgriCraft.tileentity.TileEntitySeedAnalyzer;
 import net.minecraft.client.renderer.tileentity.TileEntitySpecialRenderer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.EnumFacing;
 import net.minecraftforge.client.IItemRenderer;
-import net.minecraftforge.common.util.ForgeDirection;
 
 public class RenderItemSeedAnalyzer implements IItemRenderer {
     TileEntitySpecialRenderer renderer;
@@ -28,7 +28,7 @@ public class RenderItemSeedAnalyzer implements IItemRenderer {
 
     @Override
     public void renderItem(ItemRenderType type, ItemStack item, Object... data) {
-        seedAnalyzer.direction = ForgeDirection.SOUTH;
-        this.renderer.renderTileEntityAt(seedAnalyzer, 0.0, 0.0, 0.0, 0.0F);
+        seedAnalyzer.direction = EnumFacing.SOUTH;
+        this.renderer.renderTileEntityAt(seedAnalyzer, 0.0, 0.0, 0.0, 0.0F, 0);
     }
 }

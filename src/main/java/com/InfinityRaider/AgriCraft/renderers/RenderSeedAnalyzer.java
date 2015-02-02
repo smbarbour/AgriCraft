@@ -1,6 +1,5 @@
 package com.InfinityRaider.AgriCraft.renderers;
 
-import com.InfinityRaider.AgriCraft.container.ContainerSeedAnalyzer;
 import com.InfinityRaider.AgriCraft.handler.ConfigurationHandler;
 import com.InfinityRaider.AgriCraft.reference.Constants;
 import com.InfinityRaider.AgriCraft.reference.Reference;
@@ -12,8 +11,8 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.tileentity.TileEntitySpecialRenderer;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ResourceLocation;
-import net.minecraftforge.common.util.ForgeDirection;
 import org.lwjgl.opengl.GL11;
 
 public class RenderSeedAnalyzer extends TileEntitySpecialRenderer {
@@ -30,7 +29,7 @@ public class RenderSeedAnalyzer extends TileEntitySpecialRenderer {
     }
 
     @Override
-    public void renderTileEntityAt(TileEntity tileEntity, double x, double y, double z, float f) {
+    public void renderTileEntityAt(TileEntity tileEntity, double x, double y, double z, float f, int p) {
         TileEntitySeedAnalyzer analyzer= (TileEntitySeedAnalyzer) tileEntity;
         //render the model
         GL11.glPushMatrix();                                                            //initiate first gl renderer
@@ -55,9 +54,9 @@ public class RenderSeedAnalyzer extends TileEntitySpecialRenderer {
     //renders the seed
     private void renderSeed(TileEntitySeedAnalyzer analyzer, double x, double y, double z) {
         //set up the tessellator
-        Tessellator tessellator = Tessellator.instance;
+        Tessellator tessellator = Tessellator.getInstance();
         //grab the texture
-        ResourceLocation resource = RenderHelper.getResource(analyzer.getStackInSlot(ContainerSeedAnalyzer.seedSlotId).getItem(),analyzer.getStackInSlot(ContainerSeedAnalyzer.seedSlotId).getItemDamage());
+        // ResourceLocation resource = RenderHelper.getResource(analyzer.getStackInSlot(ContainerSeedAnalyzer.seedSlotId).getItem(),analyzer.getStackInSlot(ContainerSeedAnalyzer.seedSlotId).getItemDamage());
         //define rotation angle in function of system time
         float angle = (float) (720.0 * (System.currentTimeMillis() & 0x3FFFL) / 0x3FFFL);   //credits to Pahimar
         GL11.glPushMatrix();
@@ -68,9 +67,9 @@ public class RenderSeedAnalyzer extends TileEntitySpecialRenderer {
             //rotate the renderer
             GL11.glRotatef(angle, 0.0F, 1.0F, 0.0F);
             //bind texture
-            Minecraft.getMinecraft().renderEngine.bindTexture(resource);
+            // Minecraft.getMinecraft().renderEngine.bindTexture(resource);
             //start drawing
-            tessellator.startDrawingQuads();
+            tessellator.getWorldRenderer().startDrawingQuads();
                 //front
                 RenderHelper.addScaledVertexWithUV(tessellator, 0-8, 0, 0, 16, 16);
                 RenderHelper.addScaledVertexWithUV(tessellator, 0-8, 16, 0, 16, 0);
@@ -88,17 +87,17 @@ public class RenderSeedAnalyzer extends TileEntitySpecialRenderer {
     }
 
     //gets the rotation angle based on the direction of the tile entity
-    private int getAngle(ForgeDirection direction) {
-        if(direction == ForgeDirection.NORTH) {
+    private int getAngle(EnumFacing direction) {
+        if(direction == EnumFacing.NORTH) {
             return 0;
         }
-        if(direction == ForgeDirection.WEST) {
+        if(direction == EnumFacing.WEST) {
             return 90;
         }
-        if(direction == ForgeDirection.SOUTH) {
+        if(direction == EnumFacing.SOUTH) {
             return 180;
         }
-        if(direction == ForgeDirection.EAST) {
+        if(direction == EnumFacing.EAST) {
             return 270;
         }
         return 0;

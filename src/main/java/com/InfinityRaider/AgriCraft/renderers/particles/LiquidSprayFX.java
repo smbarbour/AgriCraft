@@ -13,7 +13,7 @@ public class LiquidSprayFX extends EntityFX {
         this.lastTickPosX = this.prevPosX = this.posX = x;
         this.lastTickPosY = this.prevPosY = this.posY = y;
         this.lastTickPosZ = this.prevPosZ = this.posZ = z;
-        this.setParticleIcon(FluidRegistry.WATER.getStillIcon());
+        setParticleTextureIndex(FluidRegistry.WATER.getSpriteNumber());
         this.particleGravity = gravity;
         this.particleScale = scale;
         this.particleMaxAge = 15;

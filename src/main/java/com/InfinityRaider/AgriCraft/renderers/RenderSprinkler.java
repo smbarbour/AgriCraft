@@ -21,7 +21,7 @@ public class RenderSprinkler extends TileEntitySpecialRenderer {
     }
 
     @Override
-    public void renderTileEntityAt(TileEntity tileEntity, double x, double y, double z, float f) {
+    public void renderTileEntityAt(TileEntity tileEntity, double x, double y, double z, float f, int p) {
         TileEntitySprinkler sprinkler= (TileEntitySprinkler) tileEntity;
         //render the model
         GL11.glPushMatrix();                                                            //initiate first gl renderer
@@ -40,17 +40,17 @@ public class RenderSprinkler extends TileEntitySpecialRenderer {
 
     private void renderConnection(TileEntitySprinkler sprinkler, double x, double y, double z) {
         //set up tessellator
-        Tessellator tessellator = Tessellator.instance;
+        Tessellator tessellator = Tessellator.getInstance();
         //grab the texture
-        ResourceLocation resource = RenderHelper.getBlockResource(sprinkler.getChannelIcon());
+        // ResourceLocation resource = RenderHelper.getBlockResource(sprinkler.getChannelIcon());
         //start GL
         GL11.glPushMatrix();
             GL11.glTranslated(x,y,z);
             //disable lighting so the plants render bright
             GL11.glDisable(GL11.GL_LIGHTING);
             //bind the texture
-            Minecraft.getMinecraft().renderEngine.bindTexture(resource);
-            tessellator.startDrawingQuads();
+            // Minecraft.getMinecraft().renderEngine.bindTexture(resource);
+            tessellator.getWorldRenderer().startDrawingQuads();
                 //first face
                 RenderHelper.addScaledVertexWithUV(tessellator, 4, 20, 12, 4, -4);
                 RenderHelper.addScaledVertexWithUV(tessellator, 4, 12, 12, 4, 4);

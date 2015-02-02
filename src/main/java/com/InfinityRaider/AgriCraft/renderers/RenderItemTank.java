@@ -2,7 +2,6 @@ package com.InfinityRaider.AgriCraft.renderers;
 
 import com.InfinityRaider.AgriCraft.tileentity.TileEntityTank;
 import com.InfinityRaider.AgriCraft.utility.RenderHelper;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
@@ -34,7 +33,7 @@ public class RenderItemTank implements IItemRenderer {
     }
 
     public void renderModel(TileEntityTank tank, double x, double y, double z, int meta) {
-        Tessellator tessellator = Tessellator.instance;
+        Tessellator tessellator = Tessellator.getInstance();
         //render the model
         GL11.glPushMatrix();
             //translate the matrix to the right spot
@@ -51,11 +50,11 @@ public class RenderItemTank implements IItemRenderer {
 
     private void drawWoodTank(TileEntityTank tank, Tessellator tessellator) {
         //bind the texture
-        Minecraft.getMinecraft().renderEngine.bindTexture(RenderHelper.getBlockResource(tank.getIcon()));
+        //Minecraft.getMinecraft().renderEngine.bindTexture(RenderHelper.getBlockResource(tank.getIcon()));
         //disable lighting
         GL11.glDisable(GL11.GL_LIGHTING);
         //tell the tessellator to start drawing
-        tessellator.startDrawingQuads();
+        tessellator.getWorldRenderer().startDrawingQuads();
             //draw first plane front
             RenderHelper.addScaledVertexWithUV(tessellator, 0, 16, 16, 0, 0);
             RenderHelper.addScaledVertexWithUV(tessellator, 0, 0, 16, 0, 16);
@@ -133,11 +132,11 @@ public class RenderItemTank implements IItemRenderer {
 
     private void drawIronTank(TileEntityTank tank, Tessellator tessellator) {
         //bind the texture
-        Minecraft.getMinecraft().renderEngine.bindTexture(RenderHelper.getBlockResource(tank.getIcon()));
+        // Minecraft.getMinecraft().renderEngine.bindTexture(RenderHelper.getBlockResource(tank.getIcon()));
         //disable lighting
         GL11.glDisable(GL11.GL_LIGHTING);
         //tell the tessellator to start drawing
-        tessellator.startDrawingQuads();
+        tessellator.getWorldRenderer().startDrawingQuads();
 
         tessellator.draw();
         //enable lighting

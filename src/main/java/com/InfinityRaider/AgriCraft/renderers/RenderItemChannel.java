@@ -34,7 +34,7 @@ public class RenderItemChannel implements IItemRenderer {
     }
 
     public void renderModel(TileEntityChannel channel, double x, double y, double z, int meta) {
-        Tessellator tessellator = Tessellator.instance;
+        Tessellator tessellator = Tessellator.getInstance();
         //render the model
         GL11.glPushMatrix();
         //translate the matrix to the right spot
@@ -59,11 +59,11 @@ public class RenderItemChannel implements IItemRenderer {
 
     private void renderBottom(TileEntityChannel channel, Tessellator tessellator) {
         //bind the texture
-        Minecraft.getMinecraft().renderEngine.bindTexture(RenderHelper.getBlockResource(channel.getIcon()));
+        // Minecraft.getMinecraft().renderEngine.bindTexture(RenderHelper.getBlockResource(channel.getIcon()));
         //disable lighting
         GL11.glDisable(GL11.GL_LIGHTING);
         //tell the tessellator to start drawing
-        tessellator.startDrawingQuads();
+        tessellator.getWorldRenderer().startDrawingQuads();
             //draw first plane front
             RenderHelper.addScaledVertexWithUV(tessellator, 4, 5, 4, 4, 4);
             RenderHelper.addScaledVertexWithUV(tessellator, 4, 5, 12, 4, 12);
@@ -84,11 +84,11 @@ public class RenderItemChannel implements IItemRenderer {
         if((axis=='x' || axis=='z') && (direction==1 || direction==-1)) {
             boolean x = axis == 'x';
             //bind the texture
-            Minecraft.getMinecraft().renderEngine.bindTexture(RenderHelper.getBlockResource(channel.getIcon()));
+            // Minecraft.getMinecraft().renderEngine.bindTexture(RenderHelper.getBlockResource(channel.getIcon()));
             //disable lighting
             GL11.glDisable(GL11.GL_LIGHTING);
             //tell the tessellator to start drawing
-            tessellator.startDrawingQuads();
+            tessellator.getWorldRenderer().startDrawingQuads();
                 //draw edge front
                 RenderHelper.addScaledVertexWithUV(tessellator, x?(8.5F+3.5F*direction):4, 12, x?12:(8.5F+3.5F*direction), 4, 4);
                 RenderHelper.addScaledVertexWithUV(tessellator, x?(8.5F+3.5F*direction):4, 4, x?12:(8.5F+3.5F*direction), 4, 12);
@@ -111,6 +111,6 @@ public class RenderItemChannel implements IItemRenderer {
     }
 
     private void drawIronChannel(TileEntityChannel channel, Tessellator tessellator) {
-        Minecraft.getMinecraft().renderEngine.bindTexture(RenderHelper.getBlockResource(channel.getIcon()));
+        // Minecraft.getMinecraft().renderEngine.bindTexture(RenderHelper.getBlockResource(channel.getIcon()));
     }
 }

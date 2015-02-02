@@ -26,7 +26,7 @@ public class VillageCreationHandler {
 
         @Override
         public Object buildComponent(StructureVillagePieces.PieceWeight villagePiece, StructureVillagePieces.Start startPiece, List pieces, Random random, int p1, int p2, int p3, EnumFacing facing, int p5) {
-            return StructureGreenhouse.buildComponent(startPiece, pieces, random, p1, p2, p3, facing, p5);
+            return StructureGreenhouse.func_175857_a(startPiece, pieces, random, p1, p2, p3, facing, p5);
         }
     }
 
@@ -45,7 +45,7 @@ public class VillageCreationHandler {
 
         @Override
         public Object buildComponent(StructureVillagePieces.PieceWeight villagePiece, StructureVillagePieces.Start startPiece, List pieces, Random random, int p1, int p2, int p3, EnumFacing facing, int p5) {
-            return StructureGreenhouseIrrigated.buildComponent(startPiece, pieces, random, p1, p2, p3, facing, p5);
+            return StructureGreenhouseIrrigated.func_175857_a(startPiece, pieces, random, p1, p2, p3, facing, p5);
         }
     }
 }

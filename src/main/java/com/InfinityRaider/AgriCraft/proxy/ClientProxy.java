@@ -40,7 +40,7 @@ public class ClientProxy extends CommonProxy {
     public void registerRenderers() {
         //crops
         // cropRenderId = RenderingRegistry.getNextAvailableRenderId();
-        RenderCrop renderCrops = new RenderCrop();
+        // RenderCrop renderCrops = new RenderCrop();
         // RenderingRegistry.registerBlockHandler(cropRenderId, renderCrops);
 
         //seed analyzer
@@ -50,21 +50,21 @@ public class ClientProxy extends CommonProxy {
 
         //water tank
         //tankRenderId = RenderingRegistry.getNextAvailableRenderId();
-        RenderTank renderTank = new RenderTank();
+        // RenderTank renderTank = new RenderTank();
         //RenderingRegistry.registerBlockHandler(tankRenderId, renderTank);
         MinecraftForgeClient.registerItemRenderer(Item.getItemFromBlock(Blocks.blockWaterTank), new RenderItemTank(new TileEntityTank()));
 
         //water channel
         //channelRenderId = RenderingRegistry.getNextAvailableRenderId();
-        RenderChannel renderChannel = new RenderChannel();
+        // RenderChannel renderChannel = new RenderChannel();
         //RenderingRegistry.registerBlockHandler(channelRenderId, renderChannel);
         MinecraftForgeClient.registerItemRenderer(Item.getItemFromBlock(Blocks.blockWaterChannel), new RenderItemChannel(new TileEntityChannel()));
 
         //channel valve
         // valveRenderId = RenderingRegistry.getNextAvailableRenderId();
-        RenderValve renderValve = new RenderValve();
+        // RenderValve renderValve = new RenderValve();
         // RenderingRegistry.registerBlockHandler(valveRenderId, renderValve);
-        MinecraftForgeClient.registerItemRenderer(Item.getItemFromBlock(Blocks.blockChannelValve), new RenderItemValve(new TileEntityValve()));
+        // MinecraftForgeClient.registerItemRenderer(Item.getItemFromBlock(Blocks.blockChannelValve), new RenderItemValve(new TileEntityValve()));
 
         //sprinkler
         TileEntitySpecialRenderer renderSprinkler = new RenderSprinkler();

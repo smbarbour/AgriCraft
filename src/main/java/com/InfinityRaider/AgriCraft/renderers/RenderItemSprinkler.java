@@ -5,7 +5,6 @@ import com.InfinityRaider.AgriCraft.renderers.models.ModelSprinkler;
 import com.InfinityRaider.AgriCraft.utility.RenderHelper;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.Tessellator;
-import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.client.IItemRenderer;
@@ -52,17 +51,17 @@ public class RenderItemSprinkler implements IItemRenderer {
 
     private void renderConnection(double x, double y, double z) {
         //set up tessellator
-        Tessellator tessellator = Tessellator.instance;
+        Tessellator tessellator = Tessellator.getInstance();
         //grab the texture
-        ResourceLocation resource = RenderHelper.getBlockResource(Blocks.planks.getIcon(0, 0));
+        // ResourceLocation resource = RenderHelper.getBlockResource(Blocks.planks.getIcon(0, 0));
         //start GL
         GL11.glPushMatrix();
             GL11.glTranslated(x,y,z);
             //disable lighting so the plants render bright
             GL11.glDisable(GL11.GL_LIGHTING);
             //bind the texture
-            Minecraft.getMinecraft().renderEngine.bindTexture(resource);
-            tessellator.startDrawingQuads();
+            // Minecraft.getMinecraft().renderEngine.bindTexture(resource);
+            tessellator.getWorldRenderer().startDrawingQuads();
                 //first face
                 RenderHelper.addScaledVertexWithUV(tessellator, 4, 20, 12, 4, -4);
                 RenderHelper.addScaledVertexWithUV(tessellator, 4, 12, 12, 4, 4);

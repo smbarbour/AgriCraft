@@ -25,7 +25,6 @@ import com.InfinityRaider.AgriCraft.init.*;
 import com.InfinityRaider.AgriCraft.proxy.IProxy;
 import com.InfinityRaider.AgriCraft.reference.Reference;
 import com.InfinityRaider.AgriCraft.utility.LogHelper;
-import com.InfinityRaider.AgriCraft.utility.RenderLogger;
 import com.InfinityRaider.AgriCraft.utility.SeedHelper;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.Mod;
@@ -53,9 +52,6 @@ public class AgriCraft {
         //setting up configuration file
         ConfigurationHandler.init(event);
         FMLCommonHandler.instance().bus().register(new ConfigurationHandler());
-        if (ConfigurationHandler.debug) {
-            FMLCommonHandler.instance().bus().register(new RenderLogger());
-        }
         //initialize blocks
         Blocks.init();
         //initialize crops
