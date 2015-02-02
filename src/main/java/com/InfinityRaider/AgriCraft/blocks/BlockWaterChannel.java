@@ -3,22 +3,23 @@ package com.InfinityRaider.AgriCraft.blocks;
 import com.InfinityRaider.AgriCraft.AgriCraft;
 import com.InfinityRaider.AgriCraft.reference.Constants;
 import com.InfinityRaider.AgriCraft.tileentity.TileEntityChannel;
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.Entity;
-import net.minecraft.init.Blocks;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.AxisAlignedBB;
-import net.minecraft.util.IIcon;
+import net.minecraft.util.BlockPos;
 import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.world.World;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 
 import java.util.List;
 
 public class BlockWaterChannel extends BlockCustomWood {
+
     public BlockWaterChannel() {
         super();
         this.setBlockBounds(4*Constants.unit, 4*Constants.unit, 4*Constants.unit, 12*Constants.unit, 12*Constants.unit, 12*Constants.unit);
@@ -30,19 +31,20 @@ public class BlockWaterChannel extends BlockCustomWood {
     }
 
     @Override
-    public void dropBlockAsItemWithChance(World world, int x, int y, int z, int meta, float f, int i) {
-        if(!world.isRemote) {
+    public void dropBlockAsItemWithChance(World world, BlockPos pos, IBlockState state, float chance, int fortune) {
+        if (!world.isRemote) {
+            // FIXME: will most likely end up in an infinity loop
             ItemStack drop = new ItemStack(com.InfinityRaider.AgriCraft.init.Blocks.blockWaterChannel, 1);
-            this.setTag(world, x, y, z, drop);
-            this.dropBlockAsItem(world, x, y, z, drop);
+            setTag(world, pos, drop);
+            dropBlockAsItem(world, pos, state, 0);
         }
     }
 
     //creative item picking
     @Override
-    public ItemStack getPickBlock(MovingObjectPosition target, World world, int x, int y, int z) {
-        ItemStack stack = new ItemStack(com.InfinityRaider.AgriCraft.init.Blocks.blockWaterChannel, 1, world.getBlockMetadata(x, y, z));
-        this.setTag(world, x, y, z, stack);
+    public ItemStack getPickBlock(MovingObjectPosition target, World world, BlockPos pos){
+        ItemStack stack = new ItemStack(com.InfinityRaider.AgriCraft.init.Blocks.blockWaterChannel, 1);
+        setTag(world, pos, stack);
         return stack;
     }
 
@@ -51,53 +53,37 @@ public class BlockWaterChannel extends BlockCustomWood {
      * mask.) Parameters: World, X, Y, Z, mask, list, colliding entity
      */
     @Override
-    public void addCollisionBoxesToList(World world, int x, int y, int z, AxisAlignedBB mask, List list, Entity entity) {
+    public void addCollisionBoxesToList(World world, BlockPos pos, IBlockState state, AxisAlignedBB mask, List list, Entity entity) {
         //adjacent boxes
-        TileEntityChannel channel = (TileEntityChannel) world.getTileEntity(x, y, z);
+        TileEntityChannel channel = (TileEntityChannel) world.getTileEntity(pos);
         float f = Constants.unit;   //one 16th of a block
         float min = 4*f;
         float max = 12*f;
         if(channel.hasNeighbour('x', 1)) {
             this.setBlockBounds(max-f, min, min, f*16, max, max);
-            super.addCollisionBoxesToList(world, x, y, z, mask, list, entity);
+            super.addCollisionBoxesToList(world, pos, state, mask, list, entity);
         }
         if(channel.hasNeighbour('x', -1)) {
             this.setBlockBounds(0, min, min, min+f, max, max);
-            super.addCollisionBoxesToList(world, x, y, z, mask, list, entity);
+            super.addCollisionBoxesToList(world, pos, state, mask, list, entity);
         }
         if(channel.hasNeighbour('z', 1)) {
             this.setBlockBounds(min, min, max-f, max, max,  f*16);
-            super.addCollisionBoxesToList(world, x, y, z, mask, list, entity);
+            super.addCollisionBoxesToList(world, pos, state, mask, list, entity);
         }
         if(channel.hasNeighbour('z', -1)) {
             this.setBlockBounds(min, min, 0, max, max, min+f);
-            super.addCollisionBoxesToList(world, x, y, z, mask, list, entity);
+            super.addCollisionBoxesToList(world, pos, state, mask, list, entity);
         }
         //central box
         this.setBlockBounds(min, min, min, max, max, max);
-        super.addCollisionBoxesToList(world, x, y, z, mask, list, entity);
+        super.addCollisionBoxesToList(world, pos, state, mask, list, entity);
     }
 
     @Override
-    public AxisAlignedBB getSelectedBoundingBoxFromPool(World world, int x, int y, int z) {
-        TileEntityChannel channel = (TileEntityChannel) world.getTileEntity(x, y, z);
-        float f = Constants.unit;
-        AxisAlignedBB minBB = AxisAlignedBB.getBoundingBox(4 * f, 4 * f, 4 * f, 12 * f, 12 * f, 12 * f);
-        float min = 4 * f;
-        float max = 12 * f;
-        if (channel.hasNeighbour('x', 1)) {
-            minBB.setBounds(minBB.minX, min, minBB.minZ, 1, max, minBB.maxZ);
-        }
-        if (channel.hasNeighbour('x', -1)) {
-            minBB.setBounds(0, min, minBB.minZ, minBB.maxX, max, minBB.maxZ);
-        }
-        if (channel.hasNeighbour('z', 1)) {
-            minBB.setBounds(minBB.minX, min, minBB.minZ, minBB.maxX, max, 1);
-        }
-        if (channel.hasNeighbour('z', -1)) {
-            minBB.setBounds(minBB.minX, min, 0, minBB.maxX, max, minBB.maxZ);
-        }
-        return minBB.getOffsetBoundingBox(x, y, z);
+    public AxisAlignedBB getSelectedBoundingBox(World world, BlockPos pos) {
+        // TODO: implement this, old implementation which uses 1.7 API can be found in git
+        return super.getSelectedBoundingBox(world, pos);
     }
 
     @Override
@@ -107,8 +93,9 @@ public class BlockWaterChannel extends BlockCustomWood {
     }
 
     @Override
-    public int damageDropped(int meta) {
-        return meta;
+    public int damageDropped(IBlockState state) {
+        // TODO: implement this as it was in 1.7
+        return super.damageDropped(state);
     }
 
     //render methods
@@ -117,9 +104,9 @@ public class BlockWaterChannel extends BlockCustomWood {
     public int getRenderType() {return AgriCraft.proxy.getRenderId(Constants.channelId);}
     @Override
     public boolean isOpaqueCube() {return false;}           //tells minecraft that this is not a block (no levers can be placed on it, it's transparent, ...)
-    @Override
-    public boolean renderAsNormalBlock() {return false;}    //tells minecraft that this has custom rendering
 
+    // TODO: textures in 1.8?
+    /*
     @Override
     @SideOnly(Side.CLIENT)
     public IIcon getIcon(int side, int meta) {
@@ -131,4 +118,5 @@ public class BlockWaterChannel extends BlockCustomWood {
         }
         return null;
     }
+    */
 }
