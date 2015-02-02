@@ -184,7 +184,7 @@ public class TileEntityCrop extends TileEntityAgricraft implements IDebuggable{
     //clear the weed
     public void clearWeed() {
         weed = false;
-        worldObj.setBlockState(pos, worldObj.getBlockState(pos).getBlock().getDefaultState(), 2);
+        worldObj.setBlockState(pos, getBlockType().getDefaultState(), 2);
         markDirtyAndMarkForUpdate();
     }
 
@@ -207,7 +207,7 @@ public class TileEntityCrop extends TileEntityAgricraft implements IDebuggable{
             this.seed = seed;
             this.analyzed = analyzed;
             this.seedMeta = seedMeta;
-            worldObj.setBlockState(pos, worldObj.getBlockState(pos).getBlock().getDefaultState(), 3);
+            worldObj.setBlockState(pos, getBlockType().getDefaultState(), 3);
             this.markDirtyAndMarkForUpdate();
         }
     }
@@ -222,7 +222,7 @@ public class TileEntityCrop extends TileEntityAgricraft implements IDebuggable{
             this.seedMeta = 0;
             this.analyzed = false;
             this.weed = false;
-            worldObj.setBlockState(pos, worldObj.getBlockState(pos).getBlock().getDefaultState(), 3);
+            worldObj.setBlockState(pos, getBlockType().getDefaultState(), 3);
             this.markDirtyAndMarkForUpdate();
         }
     }

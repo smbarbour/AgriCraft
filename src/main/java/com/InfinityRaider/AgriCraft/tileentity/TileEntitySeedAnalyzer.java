@@ -11,13 +11,15 @@ import net.minecraft.item.ItemSeeds;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
-import net.minecraftforge.common.util.ForgeDirection;
+import net.minecraft.util.EnumFacing;
+import net.minecraft.util.IChatComponent;
 
 public class TileEntitySeedAnalyzer extends TileEntityAgricraft implements ISidedInventory {
+
     public ItemStack seed = null;
     public ItemStack journal = null;
     public int progress = 0;
-    public ForgeDirection direction;
+    public EnumFacing direction;
 
     //this saves the data on the tile entity
     @Override
@@ -63,7 +65,7 @@ public class TileEntitySeedAnalyzer extends TileEntityAgricraft implements ISide
 
     //sets the direction based on an int
     public void setDirection(int direction) {
-        this.direction = ForgeDirection.getOrientation(direction);
+        this.direction = EnumFacing.getFront(direction);
     }
 
     //returns the seed currently being processed
@@ -81,8 +83,8 @@ public class TileEntitySeedAnalyzer extends TileEntityAgricraft implements ISide
             if(!SeedHelper.isValidSeed((ItemSeeds) stack.getItem(), stack.getItemDamage())) {
                 return false;
             }
-            if(stack.stackTagCompound != null && stack.stackTagCompound.hasKey(Names.NBT.analyzed)) {
-                return !stack.stackTagCompound.getBoolean(Names.NBT.analyzed);
+            if(stack.getTagCompound() != null && stack.getTagCompound().hasKey(Names.NBT.analyzed)) {
+                return !stack.getTagCompound().getBoolean(Names.NBT.analyzed);
             }
             else {
                 return true;
@@ -93,9 +95,9 @@ public class TileEntitySeedAnalyzer extends TileEntityAgricraft implements ISide
 
     //gets called every tick
     @Override
-    public void updateEntity() {
+    public void updateContainingBlockInfo() {
         boolean change = false;
-        if(!this.worldObj.isRemote && this.isAnalyzing()) {
+        if (!this.worldObj.isRemote && this.isAnalyzing()) {
             //increment progress counter
             this.progress=progress<this.maxProgress()?progress+1:this.maxProgress();
             //if progress is complete analyze the seed
@@ -104,10 +106,11 @@ public class TileEntitySeedAnalyzer extends TileEntityAgricraft implements ISide
             }
             change = true;
         }
-        if(change) {
+
+        if (change) {
             this.markDirtyAndMarkForUpdate();
-            this.worldObj.addBlockEvent(this.xCoord, this.yCoord, this.zCoord, this.worldObj.getBlock(this.xCoord, this.yCoord, this.zCoord), 0, 0);
-            this.worldObj.notifyBlockChange(this.xCoord, this.yCoord, this.zCoord, this.getBlockType());
+            this.worldObj.addBlockEvent(pos, worldObj.getBlockState(pos).getBlock(), 0, 0);
+            this.worldObj.notifyBlockOfStateChange(pos, getBlockType());
         }
     }
 
@@ -124,7 +127,7 @@ public class TileEntitySeedAnalyzer extends TileEntityAgricraft implements ISide
         }
         else {
             this.seed.setTagCompound(new NBTTagCompound());
-            SeedHelper.setNBT(this.seed.stackTagCompound, (short) 0, (short) 0, (short) 0, true);
+            SeedHelper.setNBT(this.seed.getTagCompound(), (short) 0, (short) 0, (short) 0, true);
         }
         //register the seed in the journal if there is a journal present
         if(this.hasJournal()) {
@@ -132,7 +135,7 @@ public class TileEntitySeedAnalyzer extends TileEntityAgricraft implements ISide
             if(!this.journal.hasTagCompound()) {
                 this.journal.setTagCompound(new NBTTagCompound());
             }
-            NBTTagCompound tag = this.journal.stackTagCompound;
+            NBTTagCompound tag = this.journal.getTagCompound();
             //check if the NBT tag has a list of discovered seeds and if it doesn't, create a new one
             NBTTagList list;
             if(tag.hasKey(Names.NBT.discoveredSeeds)) {
@@ -146,7 +149,7 @@ public class TileEntitySeedAnalyzer extends TileEntityAgricraft implements ISide
                 NBTTagCompound seedTag = new NBTTagCompound();
                 ItemStack write = this.seed.copy();
                 write.stackSize = 1;
-                write.stackTagCompound = null;
+                write.setTagCompound(null);
                 write.writeToNBT(seedTag);
                 list.appendTag(seedTag);
             }
@@ -158,8 +161,8 @@ public class TileEntitySeedAnalyzer extends TileEntityAgricraft implements ISide
 
     //checks if the analyzer is analyzing
     public boolean isAnalyzing() {
-        if(this.hasSeed() && this.seed.hasTagCompound() && this.seed.stackTagCompound.hasKey(Names.NBT.analyzed)) {
-            return (this.progress<this.maxProgress()) && !this.seed.stackTagCompound.getBoolean(Names.NBT.analyzed);
+        if(this.hasSeed() && this.seed.hasTagCompound() && this.seed.getTagCompound().hasKey(Names.NBT.analyzed)) {
+            return (this.progress<this.maxProgress()) && !this.seed.getTagCompound().getBoolean(Names.NBT.analyzed);
         }
         else {
             return this.hasSeed() && progress < maxProgress();
@@ -173,26 +176,27 @@ public class TileEntitySeedAnalyzer extends TileEntityAgricraft implements ISide
 
     //returns the scaled progress percentage
     public int getProgressScaled(int scale) {
-        return (int) Math.round(((float) this.progress*scale)/((float) this.maxProgress()));
+        return Math.round(((float) this.progress*scale)/((float) this.maxProgress()));
     }
 
     @Override
     public boolean receiveClientEvent(int id, int value) {
-        this.worldObj.markBlockForUpdate(xCoord,yCoord,zCoord);
+        worldObj.markBlockForUpdate(pos);
         return true;
     }
 
 
     //Inventory methods
     //-----------------
+
     @Override
-    public int[] getAccessibleSlotsFromSide(int side) {
+    public int[] getSlotsForFace(EnumFacing side) {
         return new int[]{ContainerSeedAnalyzer.seedSlotId,ContainerSeedAnalyzer.journalSlotId};
     }
 
     //check if item can be inserted
     @Override
-    public boolean canInsertItem(int slot, ItemStack stack, int side) {
+    public boolean canInsertItem(int slot, ItemStack stack, EnumFacing direction) {
         if(slot==ContainerSeedAnalyzer.seedSlotId) {
             if (stack.getItem() instanceof ItemSeeds) {
                 if (!SeedHelper.isValidSeed((ItemSeeds) stack.getItem(), stack.getItemDamage())) {
@@ -209,7 +213,7 @@ public class TileEntitySeedAnalyzer extends TileEntityAgricraft implements ISide
 
     //check if an item can be extracted
     @Override
-    public boolean canExtractItem(int slot, ItemStack stack, int side) {
+    public boolean canExtractItem(int slot, ItemStack stack, EnumFacing direction) {
         if(slot==ContainerSeedAnalyzer.seedSlotId &&this.seed !=null && this.seed.hasTagCompound()) {
             NBTTagCompound tag = this.seed.getTagCompound();
             return tag.hasKey("analyzed") && tag.getBoolean("analyzed");
@@ -283,18 +287,6 @@ public class TileEntitySeedAnalyzer extends TileEntityAgricraft implements ISide
         }
     }
 
-    //returns the unlocalized inventory name
-    @Override
-    public String getInventoryName() {
-        return "container.agricraft:seedAnalyzer";
-    }
-
-    //if this has a custom inventory name
-    @Override
-    public boolean hasCustomInventoryName() {
-        return true;
-    }
-
     //returns the maximum stacksize
     @Override
     public int getInventoryStackLimit() {
@@ -307,16 +299,14 @@ public class TileEntitySeedAnalyzer extends TileEntityAgricraft implements ISide
         return true;
     }
 
-    //opens the inventory
     @Override
-    public void openInventory() {
-
+    public void openInventory(EntityPlayer player) {
+        // do nothing
     }
 
-    //closes the inventory
     @Override
-    public void closeInventory() {
-
+    public void closeInventory(EntityPlayer player) {
+        // do nothing
     }
 
     //checks if a stack is valid for a slot
@@ -329,8 +319,45 @@ public class TileEntitySeedAnalyzer extends TileEntityAgricraft implements ISide
         }
     }
 
+    @Override
+    public int getField(int id) {
+        // TODO: check what to implement here
+        return 0;
+    }
+
+    @Override
+    public void setField(int id, int value) {
+        // TODO: check what to implement here
+    }
+
+    @Override
+    public int getFieldCount() {
+        // TODO: check what to implement here
+        return 0;
+    }
+
+    @Override
+    public void clear() {
+        // TODO: check what to implement here
+    }
+
     //check if a stack can stack with the current seed stack
     public boolean canStack(ItemStack stack) {
-        return this.seed.getItem()==stack.getItem()&&this.seed.getItemDamage()==stack.getItemDamage()&&this.seed.stackTagCompound==stack.stackTagCompound&&(this.seed.stackSize+stack.stackSize<=64);
+        return this.seed.getItem()==stack.getItem()&&this.seed.getItemDamage()==stack.getItemDamage()&&this.seed.getTagCompound()==stack.getTagCompound()&&(this.seed.stackSize+stack.stackSize<=64);
+    }
+
+    @Override
+    public String getName() {
+        return "container.agricraft:seedAnalyzer";
+    }
+
+    @Override
+    public boolean hasCustomName() {
+        return true;
+    }
+
+    @Override
+    public IChatComponent getDisplayName() {
+        return null;
     }
 }
