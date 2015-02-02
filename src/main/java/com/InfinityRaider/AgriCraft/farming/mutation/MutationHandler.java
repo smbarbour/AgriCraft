@@ -34,14 +34,14 @@ public abstract class MutationHandler {
         //print registered mutations to the log
         LogHelper.info("Registered Mutations:");
         for (Mutation mutation:mutations) {
-            String result = mutation.result.getItem() != null ? (Item.itemRegistry.getNameForObject(mutation.result.getItem()) + ':' + mutation.result.getItemDamage()) : "null";
-            String parent1 = mutation.parent1.getItem() != null ? (Item.itemRegistry.getNameForObject(mutation.parent1.getItem())) + ':' + mutation.parent1.getItemDamage() : "null";
-            String parent2 = mutation.parent2.getItem() != null ? (Item.itemRegistry.getNameForObject(mutation.parent2.getItem())) + ':' + mutation.parent2.getItemDamage() : "null";
+            String result = mutation.result.getItem() != null ? (Item.itemRegistry.getNameForObject(mutation.result.getItem()).toString() + ':' + mutation.result.getItemDamage()) : "null";
+            String parent1 = mutation.parent1.getItem() != null ? (Item.itemRegistry.getNameForObject(mutation.parent1.getItem())).toString() + ':' + mutation.parent1.getItemDamage() : "null";
+            String parent2 = mutation.parent2.getItem() != null ? (Item.itemRegistry.getNameForObject(mutation.parent2.getItem())).toString() + ':' + mutation.parent2.getItemDamage() : "null";
             String info = " - " + result + " = " + parent1 + " + " + parent2;
             if (mutation.id == 0) {
                 LogHelper.info(info);
             } else {
-                String block = mutation.requirement != null ? (Block.blockRegistry.getNameForObject(mutation.requirement) + ':' + mutation.requirementMeta) : "null";
+                String block = mutation.requirement != null ? (Block.blockRegistry.getNameForObject(mutation.requirement).toString() + ':' + mutation.requirementMeta) : "null";
                 String location = "";
                 if (mutation.id == 1) {
                     location = "below";
@@ -92,7 +92,7 @@ public abstract class MutationHandler {
                             }
                             else {
                                 ItemStack reqBlockStack = IOHelper.getStack(data[2]);
-                                Block reqBlock = (reqBlockStack!=null && reqBlockStack.getItem() instanceof ItemBlock)?((ItemBlock) reqBlockStack.getItem()).field_150939_a:null;
+                                Block reqBlock = (reqBlockStack!=null && reqBlockStack.getItem() instanceof ItemBlock)?((ItemBlock) reqBlockStack.getItem()).block:null;
                                 success = reqBlock!=null;
                                 errorMsg = "invalid required block";
                                 if(success) {

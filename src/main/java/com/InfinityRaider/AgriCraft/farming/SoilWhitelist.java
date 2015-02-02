@@ -23,7 +23,7 @@ public class SoilWhitelist {
             return true;
         } else {
             for (ItemStack soil : soilWhitelist) {
-                Block soilBlock = ((ItemBlock) soil.getItem()).field_150939_a;
+                Block soilBlock = ((ItemBlock) soil.getItem()).block;
                 if (block == soilBlock && meta == soil.getItemDamage()) {
                     return true;
                 }
@@ -38,7 +38,7 @@ public class SoilWhitelist {
         for(String line:data) {
             LogHelper.debug("parsing " + line);
             ItemStack stack = IOHelper.getStack(line);
-            Block block = (stack!=null && stack.getItem() instanceof ItemBlock)?((ItemBlock) stack.getItem()).field_150939_a:null;
+            Block block = (stack!=null && stack.getItem() instanceof ItemBlock)?((ItemBlock) stack.getItem()).block:null;
             boolean success = block!=null;
             String errorMsg = "Invalid block";
             if(success && !soilWhitelist.contains(stack)) {
@@ -51,7 +51,7 @@ public class SoilWhitelist {
 
         LogHelper.info("Registered soil whitelist:");
         for (ItemStack soil : soilWhitelist) {
-            Block soilBlock = ((ItemBlock) soil.getItem()).field_150939_a;
+            Block soilBlock = ((ItemBlock) soil.getItem()).block;
             LogHelper.info(" - " + Block.blockRegistry.getNameForObject(soilBlock) + ":" + soil.getItemDamage());
         }
     }
