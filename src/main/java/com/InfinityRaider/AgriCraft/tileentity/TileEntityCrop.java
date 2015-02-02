@@ -10,17 +10,17 @@ import com.InfinityRaider.AgriCraft.utility.OreDictHelper;
 import com.InfinityRaider.AgriCraft.utility.RenderHelper;
 import com.InfinityRaider.AgriCraft.utility.SeedHelper;
 import com.InfinityRaider.AgriCraft.utility.interfaces.IDebuggable;
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockBush;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemSeeds;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.IIcon;
 import net.minecraftforge.common.IPlantable;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 
 import java.util.List;
 
@@ -124,10 +124,10 @@ public class TileEntityCrop extends TileEntityAgricraft implements IDebuggable{
     //finds neighbouring crops
     private TileEntityCrop[] findNeighbours() {
         TileEntityCrop[] neighbours = new TileEntityCrop[4];
-        neighbours[0] = (this.worldObj.getTileEntity(this.xCoord - 1, this.yCoord, this.zCoord) instanceof TileEntityCrop) ? (TileEntityCrop) this.worldObj.getTileEntity(this.xCoord - 1, this.yCoord, this.zCoord) : null;
-        neighbours[1] = (this.worldObj.getTileEntity(this.xCoord + 1, this.yCoord, this.zCoord) instanceof TileEntityCrop) ? (TileEntityCrop) this.worldObj.getTileEntity(this.xCoord + 1, this.yCoord, this.zCoord) : null;
-        neighbours[2] = (this.worldObj.getTileEntity(this.xCoord, this.yCoord, this.zCoord - 1) instanceof TileEntityCrop) ? (TileEntityCrop) this.worldObj.getTileEntity(this.xCoord, this.yCoord, this.zCoord - 1) : null;
-        neighbours[3] = (this.worldObj.getTileEntity(this.xCoord, this.yCoord, this.zCoord + 1) instanceof TileEntityCrop) ? (TileEntityCrop) this.worldObj.getTileEntity(this.xCoord, this.yCoord, this.zCoord + 1) : null;
+        neighbours[0] = (this.worldObj.getTileEntity(pos.west()) instanceof TileEntityCrop) ? (TileEntityCrop) this.worldObj.getTileEntity(pos.west()) : null;
+        neighbours[1] = (this.worldObj.getTileEntity(pos.east()) instanceof TileEntityCrop) ? (TileEntityCrop) this.worldObj.getTileEntity(pos.east()) : null;
+        neighbours[2] = (this.worldObj.getTileEntity(pos.north()) instanceof TileEntityCrop) ? (TileEntityCrop) this.worldObj.getTileEntity(pos.north()) : null;
+        neighbours[3] = (this.worldObj.getTileEntity(pos.south()) instanceof TileEntityCrop) ? (TileEntityCrop) this.worldObj.getTileEntity(pos.south()) : null;
         return neighbours;
     }
 
@@ -139,7 +139,9 @@ public class TileEntityCrop extends TileEntityAgricraft implements IDebuggable{
             //id = 2: block near has to be the req block
             switch(id) {
                 case 0: return true;
-                case 1: return (this.worldObj.getBlock(this.xCoord, this.yCoord-2, this.zCoord)==req && this.worldObj.getBlockMetadata(this.xCoord, this.yCoord-2, this.zCoord)==reqMeta);
+                case 1:
+                    IBlockState state = worldObj.getBlockState(pos.down(2));
+                    return state.getBlock() == req && state.getBlock().getMetaFromState(state) == reqMeta;
                 case 2: return isBlockNear(req, reqMeta);
             }
         }
@@ -151,7 +153,8 @@ public class TileEntityCrop extends TileEntityAgricraft implements IDebuggable{
         for(int x=-3;x<=3;x++) {
             for(int y=0;y<=3;y++) {
                 for(int z=-3;z<=3;z++) {
-                    if(this.worldObj.getBlock(this.xCoord+x, this.yCoord+y, this.zCoord+z)==block && this.worldObj.getBlockMetadata(this.xCoord+x, this.yCoord+y, this.zCoord+z)==meta) {
+                    IBlockState state = worldObj.getBlockState(pos.add(x, y, z));
+                    if (state.getBlock() == block && state.getBlock().getMetaFromState(state) == meta) {
                         return true;
                     }
                 }
@@ -180,9 +183,9 @@ public class TileEntityCrop extends TileEntityAgricraft implements IDebuggable{
 
     //clear the weed
     public void clearWeed() {
-        this.weed=false;
-        this.worldObj.setBlockMetadataWithNotify(this.xCoord, this.yCoord, this.zCoord, 0, 2);
-        this.markDirtyAndMarkForUpdate();
+        weed = false;
+        worldObj.setBlockState(pos, worldObj.getBlockState(pos).getBlock().getDefaultState(), 2);
+        markDirtyAndMarkForUpdate();
     }
 
     //weed spawn chance
@@ -204,7 +207,7 @@ public class TileEntityCrop extends TileEntityAgricraft implements IDebuggable{
             this.seed = seed;
             this.analyzed = analyzed;
             this.seedMeta = seedMeta;
-            this.worldObj.setBlockMetadataWithNotify(this.xCoord, this.yCoord, this.zCoord, 0, 3);
+            worldObj.setBlockState(pos, worldObj.getBlockState(pos).getBlock().getDefaultState(), 3);
             this.markDirtyAndMarkForUpdate();
         }
     }
@@ -219,24 +222,24 @@ public class TileEntityCrop extends TileEntityAgricraft implements IDebuggable{
             this.seedMeta = 0;
             this.analyzed = false;
             this.weed = false;
-            this.worldObj.setBlockMetadataWithNotify(this.xCoord, this.yCoord, this.zCoord, 0, 3);
+            worldObj.setBlockState(pos, worldObj.getBlockState(pos).getBlock().getDefaultState(), 3);
             this.markDirtyAndMarkForUpdate();
         }
     }
 
     @Override
     public boolean receiveClientEvent(int id, int value) {
-        if(worldObj.isRemote && id == 1) {
-            this.worldObj.markBlockForUpdate(xCoord,yCoord,zCoord);
-            this.worldObj.func_147451_t(this.xCoord, this.yCoord, this.zCoord);
-            Minecraft.getMinecraft().renderGlobal.markBlockForUpdate(xCoord, yCoord, zCoord);
+        if (worldObj.isRemote && id == 1) {
+            worldObj.markBlockForUpdate(pos);
+            worldObj.notifyLightSet(pos);
+            Minecraft.getMinecraft().renderGlobal.markBlockForUpdate(pos);
         }
         return true;
     }
 
     //check to see if there is a plant here
     public boolean hasPlant() {
-        return ((this.seed!=null)&&(this.seed.getPlant(this.worldObj, this.xCoord, this.yCoord, this.zCoord)!=null));
+        return seed != null && seed.getPlant(this.worldObj, pos) != null;
     }
 
     //check if the crop is fertile
@@ -246,18 +249,24 @@ public class TileEntityCrop extends TileEntityAgricraft implements IDebuggable{
 
     //check the block if the plant is mature
     public boolean isMature() {
-        return !this.worldObj.isRemote && this.worldObj.getBlock(xCoord, yCoord, zCoord) != null && this.worldObj.getBlock(xCoord, yCoord, zCoord) instanceof BlockCrop && ((BlockCrop) this.worldObj.getBlock(xCoord, yCoord, zCoord)).isMature(this.worldObj, this.xCoord, this.yCoord, this.zCoord);
+        Block block = worldObj.getBlockState(pos).getBlock();
+        boolean success = !worldObj.isRemote && block != null && block instanceof BlockCrop;
+        success = success && ((BlockCrop) block).isMature(worldObj, pos);
+        return success;
     }
 
     //check if the seed can grow
     private boolean canGrow(ItemSeeds seed, int seedMeta) {
         BlockBush plant = SeedHelper.getPlant(seed);
-        Block soil = this.worldObj.getBlock(this.xCoord,this.yCoord-1,this.zCoord);
-        int soilMeta = this.worldObj.getBlockMetadata(this.xCoord, this.yCoord - 1, this.zCoord);
-        if(SeedHelper.isCorrectSoil(soil, soilMeta, seed, seedMeta) && this.worldObj.getBlockLightValue(this.xCoord,this.yCoord+1,this.zCoord)>8) {
+        IBlockState soilState =  worldObj.getBlockState(pos.down());
+        Block soil = soilState.getBlock();
+        int soilMeta = soil.getMetaFromState(soilState);
+        if(SeedHelper.isCorrectSoil(soil, soilMeta, seed, seedMeta) && worldObj.getLight(pos.up()) > 8) {
             if(plant instanceof BlockModPlant) {
                 BlockModPlant blockModPlant = (BlockModPlant) plant;
-                return blockModPlant.base == null || OreDictHelper.isSameOre(blockModPlant.base, blockModPlant.baseMeta, this.worldObj.getBlock(this.xCoord, this.yCoord - 2, this.zCoord), this.worldObj.getBlockMetadata(this.xCoord, this.yCoord-2, this.zCoord));
+                IBlockState soilBaseState = worldObj.getBlockState(pos.down(2));
+                return blockModPlant.base == null || OreDictHelper.isSameOre(blockModPlant.base, blockModPlant.baseMeta,
+                        soilBaseState.getBlock(), soilBaseState.getBlock().getMetaFromState(soilBaseState));
             }
             return true;
         }
@@ -274,7 +283,7 @@ public class TileEntityCrop extends TileEntityAgricraft implements IDebuggable{
 
     //a helper method for ItemSeed <-> String conversion for storing seed as a string in NBT
     public String getSeedString() {
-        return this.seed==null?"none":Item.itemRegistry.getNameForObject(this.seed);
+        return seed == null ? "none" : Item.itemRegistry.getNameForObject(seed).toString();
     }
 
     //a helper method for ItemSeed <-> String conversion for storing seed as a string in NBT
@@ -282,6 +291,8 @@ public class TileEntityCrop extends TileEntityAgricraft implements IDebuggable{
         this.seed = input.equalsIgnoreCase("none")?null:(ItemSeeds) Item.itemRegistry.getObject(input);
     }
 
+    // TODO: textures in 1.8?
+    /*
     //get the plant icon
     @SideOnly(Side.CLIENT)
     public IIcon getPlantIcon() {
@@ -295,6 +306,7 @@ public class TileEntityCrop extends TileEntityAgricraft implements IDebuggable{
         }
         return icon;
     }
+    */
 
     //get the rendertype
     @SideOnly(Side.CLIENT)

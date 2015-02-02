@@ -13,7 +13,7 @@ import net.minecraft.init.Blocks;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.Vec3;
 
-public class TileEntitySprinkler extends TileEntityAgricraft{
+public class TileEntitySprinkler extends TileEntityAgricraft {
 
     private int counter = 0;
     public float angle = 0.0F;
