@@ -5,19 +5,21 @@ import com.InfinityRaider.AgriCraft.creativetab.AgriCraftTab;
 import com.InfinityRaider.AgriCraft.init.Blocks;
 import com.InfinityRaider.AgriCraft.utility.LogHelper;
 import com.InfinityRaider.AgriCraft.utility.SeedHelper;
-import cpw.mods.fml.common.FMLCommonHandler;
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
 import net.minecraft.block.Block;
-import net.minecraft.client.renderer.texture.IIconRegister;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemSeeds;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.BlockPos;
+import net.minecraft.util.EnumFacing;
 import net.minecraft.world.World;
 import net.minecraftforge.common.IPlantable;
+import net.minecraftforge.fml.common.FMLCommonHandler;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 
 public class ItemModSeed extends ItemSeeds implements IPlantable{
     private String displayName;
+
     @SideOnly(Side.CLIENT)
     private String information;
 
@@ -44,7 +46,7 @@ public class ItemModSeed extends ItemSeeds implements IPlantable{
     }
 
     public BlockModPlant getPlant() {
-        return (BlockModPlant) this.getPlant(null, 0, 0, 0);
+        return (BlockModPlant) this.getPlant(null, BlockPos.ORIGIN);
     }
 
     @SideOnly(Side.CLIENT)
@@ -53,23 +55,27 @@ public class ItemModSeed extends ItemSeeds implements IPlantable{
     }
 
     @Override
-    public boolean onItemUse(ItemStack stack, EntityPlayer player, World world, int x, int y, int z, int side, float f1, float f2, float f3) {
-        if(world.getBlock(x,y,z)==Blocks.blockCrop) {
+    public boolean onItemUse(ItemStack stack, EntityPlayer playerIn, World worldIn, BlockPos pos, EnumFacing side, float hitX, float hitY, float hitZ) {
+        Block block = worldIn.getBlockState(pos).getBlock();
+        if (block == Blocks.blockCrop) {
             LogHelper.debug("Trying to plant seed "+stack.getItem().getUnlocalizedName()+" on crops");
             return true;
         }
-        if(SeedHelper.isCorrectSoil(world.getBlock(x, y, z), world.getBlockMetadata(x, y, z), (ItemSeeds) stack.getItem(), stack.getItemDamage())) {
-            super.onItemUse(stack,player,world,x,y,z,side,f1,f2,f3);
+        if(SeedHelper.isCorrectSoil(block, block.getMetaFromState(worldIn.getBlockState(pos)), (ItemSeeds) stack.getItem(), stack.getItemDamage())) {
+            super.onItemUse(stack, playerIn, worldIn, pos, side, hitX, hitY, hitZ);
         }
         return false;
     }
 
+    // TODO: textures in 1.8?
+    /*
     @Override
     @SideOnly(Side.CLIENT)
     public void registerIcons(IIconRegister reg) {
         LogHelper.debug("registering icon for: " + this.getUnlocalizedName());
         itemIcon = reg.registerIcon(this.getUnlocalizedName().substring(this.getUnlocalizedName().indexOf('.')+1));
     }
+    */
 
     @Override
     public String getItemStackDisplayName(ItemStack stack) {
