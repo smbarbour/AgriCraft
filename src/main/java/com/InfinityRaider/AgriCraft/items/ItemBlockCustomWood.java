@@ -5,24 +5,28 @@ import com.InfinityRaider.AgriCraft.creativetab.AgriCraftTab;
 import com.InfinityRaider.AgriCraft.reference.Names;
 import com.InfinityRaider.AgriCraft.tileentity.TileEntityCustomWood;
 import com.InfinityRaider.AgriCraft.utility.NBTHelper;
-import cpw.mods.fml.common.FMLCommonHandler;
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
 import net.minecraft.block.Block;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.BlockPos;
+import net.minecraft.util.EnumFacing;
 import net.minecraft.util.StatCollector;
 import net.minecraft.world.World;
+import net.minecraftforge.fml.common.FMLCommonHandler;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.oredict.OreDictionary;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class ItemBlockCustomWood extends ItemBlock {
+
     public ItemBlockCustomWood(Block block) {
         super(block);
         this.setHasSubtypes(true);
@@ -30,16 +34,17 @@ public class ItemBlockCustomWood extends ItemBlock {
     }
 
     @Override
-    public boolean placeBlockAt(ItemStack stack, EntityPlayer player, World world, int x, int y, int z, int side, float hitX, float hitY, float hitZ, int metadata) {
-        NBTTagCompound tag = stack.stackTagCompound;
-        if (!world.setBlock(x, y, z, field_150939_a, metadata, 3)) {
+    public boolean placeBlockAt(ItemStack stack, EntityPlayer player, World world, BlockPos pos, EnumFacing side, float hitX, float hitY, float hitZ, IBlockState newState) {
+        NBTTagCompound tag = stack.getTagCompound();
+        if (!world.setBlockState(pos, newState, 3)) {
             return false;
         }
-        if (world.getBlock(x, y, z) == field_150939_a) {
-            field_150939_a.onBlockPlacedBy(world, x, y, z, player, stack);
-            field_150939_a.onPostBlockPlaced(world, x, y, z, metadata);
-            if(world.getTileEntity(x, y, z)!=null && world.getTileEntity(x, y, z) instanceof TileEntityCustomWood) {
-                TileEntityCustomWood tileEntity = (TileEntityCustomWood) world.getTileEntity(x, y, z);
+
+        IBlockState state = world.getBlockState(pos);
+        if (state.getBlock() == this.block) {
+            block.onBlockPlacedBy(world, pos, state, player, stack);
+            if (world.getTileEntity(pos) != null && world.getTileEntity(pos) instanceof TileEntityCustomWood) {
+                TileEntityCustomWood tileEntity = (TileEntityCustomWood) world.getTileEntity(pos);
                 tileEntity.setMaterial(tag);
             }
         }
@@ -54,13 +59,13 @@ public class ItemBlockCustomWood extends ItemBlock {
 
     //create this method to allow getting sub blocks server side as well
     public void getSubItems(List list) {
-        ArrayList<ItemStack> registeredMaterials = new ArrayList<ItemStack>();
-        ArrayList<ItemStack> planks = OreDictionary.getOres(Names.OreDict.plankWood);
+        List<ItemStack> registeredMaterials = new ArrayList<ItemStack>();
+        List<ItemStack> planks = OreDictionary.getOres(Names.OreDict.plankWood);
         for(ItemStack plank:planks) {
             if(plank.getItem() instanceof ItemBlock) {
                 // Skip the ExU stuff for now as we don't support its textures yet
                 // TODO: Find out how ExU generates the colored textures and integrate it
-                if (ModIntegration.LoadedMods.extraUtilities && ((ItemBlock) plank.getItem()).field_150939_a.getClass().getSimpleName().equals("BlockColor"))
+                if (ModIntegration.LoadedMods.extraUtilities && ((ItemBlock) plank.getItem()).block.getClass().getSimpleName().equals("BlockColor"))
                     continue;
 
                 if (plank.getItemDamage() == OreDictionary.WILDCARD_VALUE) {
@@ -86,7 +91,7 @@ public class ItemBlockCustomWood extends ItemBlock {
     }
 
     //checks if a list of materials (item stacks) has this material
-    private boolean hasMaterial(ArrayList<ItemStack> registeredMaterials, ItemStack material) {
+    private boolean hasMaterial(List<ItemStack> registeredMaterials, ItemStack material) {
         for(ItemStack stack:registeredMaterials) {
             if(material.getItem()==stack.getItem() && material.getItemDamage()==stack.getItemDamage()) {
                 return true;
@@ -96,9 +101,9 @@ public class ItemBlockCustomWood extends ItemBlock {
     }
 
     //adds a material (item stack) to a list if it's not registered in a list already
-    private void addMaterialToList(ItemStack stack, List list, int objectMeta, ArrayList<ItemStack> registeredMaterials) {
+    private void addMaterialToList(ItemStack stack, List list, int objectMeta, List<ItemStack> registeredMaterials) {
         if(!this.hasMaterial(registeredMaterials, stack)) {
-            ItemStack entry = new ItemStack(this.field_150939_a, 1, objectMeta);
+            ItemStack entry = new ItemStack(this.block, 1, objectMeta);
             NBTTagCompound tag = NBTHelper.getMaterialTag(stack);
             if (tag != null) {
                 entry.setTagCompound(tag);
