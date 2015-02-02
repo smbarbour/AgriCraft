@@ -5,8 +5,11 @@ import com.InfinityRaider.AgriCraft.farming.SoilWhitelist;
 import com.InfinityRaider.AgriCraft.init.Blocks;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.BlockPos;
+import net.minecraft.util.EnumFacing;
 import net.minecraft.world.World;
 
 import java.util.Arrays;
@@ -24,10 +27,13 @@ public class ItemCrop extends ModItem {
 
     //this is called when you right click with this item in hand
     @Override
-    public boolean onItemUseFirst(ItemStack stack, EntityPlayer player, World world, int x, int y, int z, int side, float hitX, float hitY, float hitZ) {
+    public boolean onItemUseFirst(ItemStack stack, EntityPlayer player, World world, BlockPos pos, EnumFacing side, float hitX, float hitY, float hitZ) {
         if (!world.isRemote) {
-            if (isSoilValid(world.getBlock(x, y, z), world.getBlockMetadata(x, y, z)) && world.getBlock(x, y + 1, z).getMaterial()== Material.air && side == 1) {
-                world.setBlock(x, y + 1, z, Blocks.blockCrop);
+            IBlockState state = world.getBlockState(pos);
+            // TODO: check if side.getIndex() does mean the same here
+            if (isSoilValid(state.getBlock(), state.getBlock().getMetaFromState(state))
+                    && world.getBlockState(pos.up()).getBlock().getMaterial()== Material.air && side.getIndex() == 1) {
+                world.setBlockState(pos.up(), Blocks.blockCrop.getDefaultState());
                 stack.stackSize = player.capabilities.isCreativeMode ? stack.stackSize : stack.stackSize - 1;
                 return false;
             }

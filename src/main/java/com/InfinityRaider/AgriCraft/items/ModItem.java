@@ -1,9 +1,5 @@
 package com.InfinityRaider.AgriCraft.items;
 
-import com.InfinityRaider.AgriCraft.utility.LogHelper;
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
-import net.minecraft.client.renderer.texture.IIconRegister;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.item.Item;
 
@@ -14,10 +10,13 @@ public class ModItem extends Item {
         this.setMaxStackSize(64);
     }
 
+    // TODO: textures in 1.8?
+    /*
     @Override
     @SideOnly(Side.CLIENT)
     public void registerIcons(IIconRegister reg) {
         LogHelper.debug("registering icon for: " + this.getUnlocalizedName());
         itemIcon = reg.registerIcon(this.getUnlocalizedName().substring(this.getUnlocalizedName().indexOf('.')+1));
     }
+    */
 }
