@@ -6,22 +6,20 @@ import com.InfinityRaider.AgriCraft.reference.Constants;
 import com.InfinityRaider.AgriCraft.reference.Names;
 import com.InfinityRaider.AgriCraft.reference.Reference;
 import com.InfinityRaider.AgriCraft.tileentity.TileEntitySeedStorage;
-import com.InfinityRaider.AgriCraft.utility.RenderHelper;
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.client.renderer.OpenGlHelper;
 import net.minecraft.client.renderer.Tessellator;
+import net.minecraft.client.renderer.WorldRenderer;
 import net.minecraft.entity.player.InventoryPlayer;
-import net.minecraft.inventory.Container;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemSeeds;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.ResourceLocation;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 import org.lwjgl.opengl.GL11;
 
 import java.util.ArrayList;
@@ -170,13 +168,14 @@ public class GuiSeedStorage extends GuiContainer {
     }
 
     //seed button class
-    protected static class SeedButton extends GuiButton {
+    protected class SeedButton extends GuiButton {
         public ResourceLocation texture;
         public String tooltip;
 
         public SeedButton(int id, int xPos, int yPos, ItemStack seedStack) {
             super(id, xPos, yPos, 16, 16, "");
-            this.texture = RenderHelper.getItemResource(seedStack.getItem().getIconFromDamage(seedStack.getItemDamage()));
+            // TODO: textures in 1.8
+            // this.texture = RenderHelper.getItemResource(seedStack.getItem().getIconFromDamage(seedStack.getItemDamage()));
             this.tooltip = seedStack.getDisplayName();
         }
 
@@ -187,7 +186,7 @@ public class GuiSeedStorage extends GuiContainer {
                 minecraft.getTextureManager().bindTexture(this.texture);
                 GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
                 //checks if the button is highlighted or not
-                this.field_146123_n = cursorX >= this.xPosition && cursorY >= this.yPosition && cursorX < this.xPosition + this.width && cursorY < this.yPosition + this.height;
+                this.hovered = cursorX >= this.xPosition && cursorY >= this.yPosition && cursorX < this.xPosition + this.width && cursorY < this.yPosition + this.height;
                 GL11.glEnable(GL11.GL_BLEND);
                 OpenGlHelper.glBlendFunc(770, 771, 1, 0);
                 GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
@@ -198,15 +197,15 @@ public class GuiSeedStorage extends GuiContainer {
 
         public void drawSeedSlot(SlotSeedStorage slot) {
             ItemStack stack = slot.getStack();
-            FontRenderer fontRendererObj = Minecraft.getMinecraft().fontRenderer;
+            FontRenderer fontRendererObj = Minecraft.getMinecraft().fontRendererObj;
             GL11.glTranslatef(0.0F, 0.0F, 32.0F);
             this.zLevel = 200.0F;
             itemRender.zLevel = 200.0F;
             FontRenderer font = null;
             if (stack != null) font = stack.getItem().getFontRenderer(stack);
             if (font == null) font = fontRendererObj;
-            itemRender.renderItemAndEffectIntoGUI(font, Minecraft.getMinecraft().getTextureManager(), stack, slot.xDisplayPosition, slot.yDisplayPosition);
-            itemRender.renderItemOverlayIntoGUI(font, Minecraft.getMinecraft().getTextureManager(), stack, slot.xDisplayPosition, slot.yDisplayPosition, null);
+            itemRender.renderItemAndEffectIntoGUI(stack, slot.xDisplayPosition, slot.yDisplayPosition);
+            itemRender.renderItemOverlayIntoGUI(font, stack, slot.xDisplayPosition, slot.yDisplayPosition, null);
             this.zLevel = 0.0F;
             itemRender.zLevel = 0.0F;
         }
@@ -214,13 +213,13 @@ public class GuiSeedStorage extends GuiContainer {
         @Override
         public void drawTexturedModalRect(int xPos, int yPos, int u, int v, int width, int height) {
             float f = Constants.unit;
-            Tessellator tessellator = Tessellator.instance;
-            tessellator.startDrawingQuads();
-            tessellator.addVertexWithUV(xPos, yPos + height, this.zLevel, (double) u*f, (double) (v+height)*f);
-            tessellator.addVertexWithUV(xPos + width, yPos + height, this.zLevel, (double) (u+width)*f, (double) (v+height)*f);
-            tessellator.addVertexWithUV(xPos + width, yPos, this.zLevel, (double) (u+width)*f, (double) v*f);
-            tessellator.addVertexWithUV(xPos, yPos, this.zLevel, (double) u*f, (double) v*f);
-            tessellator.draw();
+            WorldRenderer renderer = Tessellator.getInstance().getWorldRenderer();
+            renderer.startDrawingQuads();
+            renderer.addVertexWithUV(xPos, yPos + height, this.zLevel, (double) u*f, (double) (v+height)*f);
+            renderer.addVertexWithUV(xPos + width, yPos + height, this.zLevel, (double) (u+width)*f, (double) (v+height)*f);
+            renderer.addVertexWithUV(xPos + width, yPos, this.zLevel, (double) (u+width)*f, (double) v*f);
+            renderer.addVertexWithUV(xPos, yPos, this.zLevel, (double) u*f, (double) v*f);
+            Tessellator.getInstance().draw();
         }
     }
 }
