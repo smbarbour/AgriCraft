@@ -37,6 +37,7 @@ import java.util.Random;
 
 public class BlockCrop extends BlockModPlant implements ITileEntityProvider, IGrowable {
 
+    // TODO: textures in 1.8?
     // @SideOnly(Side.CLIENT)
     // private IIcon[] weedIcons;
 
@@ -410,6 +411,6 @@ public class BlockCrop extends BlockModPlant implements ITileEntityProvider, IGr
 
     /** Returns the AGE property of the BlockState at the given position */
     private int getAge(World world, BlockPos pos) {
-        return ((Integer) world.getBlockState(pos).getValue(AGE)).intValue();
+        return getMetaFromState(world.getBlockState(pos));
     }
 }
