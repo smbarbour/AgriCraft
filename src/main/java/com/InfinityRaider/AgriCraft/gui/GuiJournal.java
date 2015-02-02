@@ -1,23 +1,17 @@
 package com.InfinityRaider.AgriCraft.gui;
 
-import com.InfinityRaider.AgriCraft.farming.mutation.Mutation;
-import com.InfinityRaider.AgriCraft.farming.mutation.MutationHandler;
 import com.InfinityRaider.AgriCraft.items.ItemJournal;
 import com.InfinityRaider.AgriCraft.reference.Names;
 import com.InfinityRaider.AgriCraft.reference.Reference;
 import com.InfinityRaider.AgriCraft.utility.IOHelper;
-import com.InfinityRaider.AgriCraft.utility.RenderHelper;
 import com.InfinityRaider.AgriCraft.utility.SeedHelper;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;
-import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemSeeds;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
-import net.minecraft.util.IIcon;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.StatCollector;
 import org.lwjgl.opengl.GL11;
@@ -49,13 +43,14 @@ public class GuiJournal extends GuiScreen {
     private int guiTop;
     private final int black = 1644054;
     private int textStart;
+    // TODO: textures in 1.8?
     //the textures for a seed page
-    protected IIcon[] plantIcons;
-    protected IIcon seedIcon;
-    protected IIcon[][] parentsIcons;
-    protected IIcon[] coParentsIcons;
-    protected IIcon[] mutationIcons;
-    protected IIcon[] fruitIcons;
+    //protected IIcon[] plantIcons;
+    //protected IIcon seedIcon;
+    //protected IIcon[][] parentsIcons;
+    //protected IIcon[] coParentsIcons;
+    //protected IIcon[] mutationIcons;
+    //protected IIcon[] fruitIcons;
     //list of buttons
     protected List buttonList = new ArrayList();
 
@@ -314,7 +309,7 @@ public class GuiJournal extends GuiScreen {
 
     //loads seed textures for a seed page
     private void getSeedTextures(int index) {
-        ItemStack seed = discoveredSeeds[index];
+        /*ItemStack seed = discoveredSeeds[index];
         //get the seed icon
         seedIcon = RenderHelper.getIcon(seed.getItem(), seed.getItemDamage());
         //get the fruit icons
@@ -373,15 +368,15 @@ public class GuiJournal extends GuiScreen {
         this.coParentsIcons = coParentsIconList.toArray(new IIcon[coParentsIconList.size()]);
         this.mutationIcons = mutationsIconList.toArray(new IIcon[mutationsIconList.size()]);
         this.discoveredCoParents = coParentsList.toArray(new ItemStack[coParentsList.size()]);
-        this.discoveredMutations = mutationsList.toArray(new ItemStack[mutationsList.size()]);
+        this.discoveredMutations = mutationsList.toArray(new ItemStack[mutationsList.size()]);*/
     }
 
     //draw the seed page title bar
     private void drawSeedTitle(int index) {
         ItemStack seed = discoveredSeeds[index];
         String title = seed.getDisplayName();
-        Minecraft.getMinecraft().getTextureManager().bindTexture(RenderHelper.getItemResource(seedIcon));
-        this.renderIconInGui(this.guiLeft + 25, this.guiTop + 11, RenderHelper.getItemResource(seedIcon));
+        //Minecraft.getMinecraft().getTextureManager().bindTexture(RenderHelper.getItemResource(seedIcon));
+        //this.renderIconInGui(this.guiLeft + 25, this.guiTop + 11, RenderHelper.getItemResource(seedIcon));
         float scale = 0.8F;
         while(this.fontRendererObj.getStringWidth(title)*scale>74) {
             scale = scale - 0.1F;
@@ -423,7 +418,7 @@ public class GuiJournal extends GuiScreen {
         int xOffset = this.guiLeft+30;
         int yOffset = this.guiTop+91;
         float scale;
-        for(int i=0;i<fruitIcons.length;i++) {
+        /*for(int i=0;i<fruitIcons.length;i++) {
             if(fruitIcons[i]!=null) {
             //draw an outline
             GL11.glDisable(GL11.GL_LIGHTING);
@@ -446,12 +441,12 @@ public class GuiJournal extends GuiScreen {
         scale = 0.5F;
         GL11.glScalef(scale, scale, scale);
         this.fontRendererObj.drawString(StatCollector.translateToLocal("agricraft_journal.fruits")+": ", (int) (this.textStart/scale), (int) ((yOffset-7)/scale), this.black);
-        GL11.glScalef(1/scale, 1/scale, 1/scale);
+        GL11.glScalef(1/scale, 1/scale, 1/scale);*/
     }
 
     //draws the plant growth stages
     private void drawSeedGrowthStages() {
-        int xOffset = this.guiLeft + 30;
+        /*int xOffset = this.guiLeft + 30;
         int yOffset = this.guiTop + 124;
         float scale = 1F;
         for(int i=0;i< plantIcons.length;i++) {
@@ -462,11 +457,12 @@ public class GuiJournal extends GuiScreen {
         GL11.glScalef(scale, scale, scale);
         this.fontRendererObj.drawString(StatCollector.translateToLocal("agricraft_journal.growthStages")+": ", (int) (this.textStart/scale), (int) ((yOffset-7)/scale), this.black);
         GL11.glScalef(1/scale, 1/scale, 1/scale);
+        */
     }
 
     //draws the mutations
     private void drawSeedMutations() {
-        int xOffset = this.guiLeft+132;
+        /*int xOffset = this.guiLeft+132;
         int yOffset = 20;
         int yPosition;
         //draw the mutations that can produce this seed
@@ -507,7 +503,7 @@ public class GuiJournal extends GuiScreen {
         float scale = 0.5F;
         GL11.glScalef(scale, scale, scale);
         this.fontRendererObj.drawString(StatCollector.translateToLocal("agricraft_journal.mutations")+": ", (int) ((xOffset/scale)), (int) ((this.guiTop+yOffset-7)/scale), this.black);
-        GL11.glScalef(1/scale, 1/scale, 1/scale);
+        GL11.glScalef(1/scale, 1/scale, 1/scale);*/
     }
 
     //draws the background
@@ -526,7 +522,7 @@ public class GuiJournal extends GuiScreen {
 
     //utility method: renders an icon in the gui because the superclass method doesn't seem to work
     private void renderIconInGui(int x, int y, ResourceLocation resource) {
-        int xSize = 16;
+        /*int xSize = 16;
         int ySize = 16;
         Tessellator tessellator = Tessellator.instance;
         Minecraft.getMinecraft().getTextureManager().bindTexture(resource);
@@ -538,7 +534,7 @@ public class GuiJournal extends GuiScreen {
             tessellator.addVertexWithUV(x+xSize, y, this.zLevel, 1, 0);
             tessellator.addVertexWithUV(x, y, this.zLevel, 0, 0);
         tessellator.draw();
-        GL11.glEnable(GL11.GL_LIGHTING);
+        GL11.glEnable(GL11.GL_LIGHTING);*/
     }
 
     //utility method: splits the string in different lines so it will fit on the page
