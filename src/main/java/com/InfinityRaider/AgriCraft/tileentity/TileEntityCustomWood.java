@@ -7,11 +7,11 @@ import net.minecraft.init.Blocks;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.IIcon;
 
 import java.util.List;
 
 public class TileEntityCustomWood extends TileEntityAgricraft implements IDebuggable {
+
     protected String materialName;
     protected int materialMeta;
 
@@ -50,7 +50,7 @@ public class TileEntityCustomWood extends TileEntityAgricraft implements IDebugg
 
     //set material from stack
     public void setMaterial(ItemStack stack) {
-        this.materialName = Block.blockRegistry.getNameForObject(stack.getItem());
+        this.materialName = Block.blockRegistry.getNameForObject(stack.getItem()).toString();
         this.materialMeta = stack.getItemDamage();
     }
 
@@ -87,12 +87,14 @@ public class TileEntityCustomWood extends TileEntityAgricraft implements IDebugg
         }
         else {
             //default to oak planks
-            tag.setString(Names.NBT.material, Block.blockRegistry.getNameForObject(Blocks.planks));
+            tag.setString(Names.NBT.material, Block.blockRegistry.getNameForObject(Blocks.planks).toString());
             tag.setInteger(Names.NBT.materialMeta, 0);
         }
         return tag;
     }
 
+    // TODO: textures in 1.8?
+    /*
     public IIcon getIcon() {
         if(this.materialName !=null && !this.materialName.equals("")) {
             Block material = (Block) Block.blockRegistry.getObject(this.materialName);
@@ -102,6 +104,7 @@ public class TileEntityCustomWood extends TileEntityAgricraft implements IDebugg
             return Blocks.planks.getIcon(0, 0);
         }
     }
+    */
 
     @Override
     public void addDebugInfo(List<String> list) {
