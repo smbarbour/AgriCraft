@@ -2,18 +2,14 @@ package com.InfinityRaider.AgriCraft.reference;
 
 //yes, I got the information for most harvestcraft plants from wikipedia, go ahead, call the fucking cops.
 
-import chococraft.common.config.ChocoCraftItems;
-import com.InfinityRaider.AgriCraft.compatibility.ModIntegration;
 import com.InfinityRaider.AgriCraft.items.ItemModSeed;
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
-import mods.natura.common.NContent;
 import net.minecraft.init.Items;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemSeeds;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.StatCollector;
-import plantmegapack.PlantMegaPack;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 
 import java.util.HashMap;
 
@@ -26,81 +22,6 @@ public final class SeedInformation {
         informationTable.put(Items.wheat_seeds, new String[]{wheat});
         informationTable.put(Items.pumpkin_seeds, new String[]{pumpkin});
         informationTable.put(Items.melon_seeds, new String[]{melon});
-        if(ModIntegration.LoadedMods.natura) {
-            informationTable.put(NContent.seeds, new String[]{barleyNatura,cottonNatura});
-        }
-        if(ModIntegration.LoadedMods.harvestcraft) {
-            informationTable.put(com.pam.harvestcraft.ItemRegistry.artichokeseedItem, new String[]{hc_Artichoke});
-            informationTable.put(com.pam.harvestcraft.ItemRegistry.asparagusseedItem, new String[]{hc_Asparagus});
-            informationTable.put(com.pam.harvestcraft.ItemRegistry.bambooshootseedItem, new String[]{hc_BambooShoot});
-            informationTable.put(com.pam.harvestcraft.ItemRegistry.barleyseedItem, new String[]{hc_Barley});
-            informationTable.put(com.pam.harvestcraft.ItemRegistry.beanseedItem, new String[]{hc_Bean});
-            informationTable.put(com.pam.harvestcraft.ItemRegistry.beetseedItem, new String[]{hc_Beet});
-            informationTable.put(com.pam.harvestcraft.ItemRegistry.bellpepperseedItem, new String[]{hc_Bellpepper});
-            informationTable.put(com.pam.harvestcraft.ItemRegistry.blackberryseedItem, new String[]{hc_Blackberry});
-            informationTable.put(com.pam.harvestcraft.ItemRegistry.blueberryseedItem, new String[]{hc_Blueberry});
-            informationTable.put(com.pam.harvestcraft.ItemRegistry.broccoliseedItem, new String[]{hc_Broccoli});
-            informationTable.put(com.pam.harvestcraft.ItemRegistry.brusselsproutseedItem, new String[]{hc_BrusselsSprout});
-            informationTable.put(com.pam.harvestcraft.ItemRegistry.cabbageseedItem, new String[]{hc_Cabbage});
-            informationTable.put(com.pam.harvestcraft.ItemRegistry.cactusfruitseedItem, new String[]{hc_CactusFruit});
-            informationTable.put(com.pam.harvestcraft.ItemRegistry.candleberryseedItem, new String[]{hc_CandleBerry});
-            informationTable.put(com.pam.harvestcraft.ItemRegistry.cantaloupeseedItem, new String[]{hc_Cantaloupe});
-            informationTable.put(com.pam.harvestcraft.ItemRegistry.cauliflowerseedItem, new String[]{hc_Cauliflower});
-            informationTable.put(com.pam.harvestcraft.ItemRegistry.celeryseedItem, new String[]{hc_Celery});
-            informationTable.put(com.pam.harvestcraft.ItemRegistry.chilipepperseedItem, new String[]{hc_ChiliPepper});
-            informationTable.put(com.pam.harvestcraft.ItemRegistry.coffeeseedItem, new String[]{hc_Coffee});
-            informationTable.put(com.pam.harvestcraft.ItemRegistry.cornseedItem, new String[]{hc_Corn});
-            informationTable.put(com.pam.harvestcraft.ItemRegistry.cottonseedItem, new String[]{hc_Cotton});
-            informationTable.put(com.pam.harvestcraft.ItemRegistry.cranberryseedItem, new String[]{hc_Cranberry});
-            informationTable.put(com.pam.harvestcraft.ItemRegistry.cucumberseedItem, new String[]{hc_Cucumber});
-            informationTable.put(com.pam.harvestcraft.ItemRegistry.eggplantseedItem, new String[]{hc_Eggplant});
-            informationTable.put(com.pam.harvestcraft.ItemRegistry.garlicseedItem, new String[]{hc_Garlic});
-            informationTable.put(com.pam.harvestcraft.ItemRegistry.gingerseedItem, new String[]{hc_Ginger});
-            informationTable.put(com.pam.harvestcraft.ItemRegistry.grapeseedItem, new String[]{hc_Grape});
-            informationTable.put(com.pam.harvestcraft.ItemRegistry.kiwiseedItem, new String[]{hc_Kiwi});
-            informationTable.put(com.pam.harvestcraft.ItemRegistry.leekseedItem, new String[]{hc_Leek});
-            informationTable.put(com.pam.harvestcraft.ItemRegistry.lettuceseedItem, new String[]{hc_Lettuce});
-            informationTable.put(com.pam.harvestcraft.ItemRegistry.mustardseedItem, new String[]{hc_Mustard});
-            informationTable.put(com.pam.harvestcraft.ItemRegistry.oatsseedItem, new String[]{hc_Oats});
-            informationTable.put(com.pam.harvestcraft.ItemRegistry.okraseedItem, new String[]{hc_Okra});
-            informationTable.put(com.pam.harvestcraft.ItemRegistry.onionseedItem, new String[]{hc_Onion});
-            informationTable.put(com.pam.harvestcraft.ItemRegistry.parsnipseedItem, new String[]{hc_Parsnip});
-            informationTable.put(com.pam.harvestcraft.ItemRegistry.peanutseedItem, new String[]{hc_Peanut});
-            informationTable.put(com.pam.harvestcraft.ItemRegistry.peasseedItem, new String[]{hc_Peas});
-            informationTable.put(com.pam.harvestcraft.ItemRegistry.pineappleseedItem, new String[]{hc_Pineapple});
-            informationTable.put(com.pam.harvestcraft.ItemRegistry.radishseedItem, new String[]{hc_Radish});
-            informationTable.put(com.pam.harvestcraft.ItemRegistry.raspberryseedItem, new String[]{hc_Raspberry});
-            informationTable.put(com.pam.harvestcraft.ItemRegistry.rhubarbseedItem, new String[]{hc_Rhubarb});
-            informationTable.put(com.pam.harvestcraft.ItemRegistry.riceseedItem, new String[]{hc_Rice});
-            informationTable.put(com.pam.harvestcraft.ItemRegistry.rutabagaseedItem, new String[]{hc_Rutabaga});
-            informationTable.put(com.pam.harvestcraft.ItemRegistry.ryeseedItem, new String[]{hc_Rye});
-            informationTable.put(com.pam.harvestcraft.ItemRegistry.scallionseedItem, new String[]{hc_Scallion});
-            informationTable.put(com.pam.harvestcraft.ItemRegistry.seaweedseedItem, new String[]{hc_Seaweed});
-            informationTable.put(com.pam.harvestcraft.ItemRegistry.soybeanseedItem, new String[]{hc_Soybean});
-            informationTable.put(com.pam.harvestcraft.ItemRegistry.spiceleafseedItem, new String[]{hc_SpiceLeaf});
-            informationTable.put(com.pam.harvestcraft.ItemRegistry.strawberryseedItem, new String[]{hc_Strawberry});
-            informationTable.put(com.pam.harvestcraft.ItemRegistry.sweetpotatoseedItem, new String[]{hc_SweetPotato});
-            informationTable.put(com.pam.harvestcraft.ItemRegistry.teaseedItem, new String[]{hc_Tea});
-            informationTable.put(com.pam.harvestcraft.ItemRegistry.tomatoseedItem, new String[]{hc_Tomato});
-            informationTable.put(com.pam.harvestcraft.ItemRegistry.turnipseedItem, new String[]{hc_Turnip});
-            informationTable.put(com.pam.harvestcraft.ItemRegistry.whitemushroomseedItem, new String[]{hc_WhiteMushroom});
-            informationTable.put(com.pam.harvestcraft.ItemRegistry.wintersquashseedItem, new String[]{hc_WinterSquash});
-            informationTable.put(com.pam.harvestcraft.ItemRegistry.zucchiniseedItem, new String[]{hc_Zucchini});
-        }
-        if(ModIntegration.LoadedMods.plantMegaPack) {
-            informationTable.put(PlantMegaPack.items.seedBeet, new String[]{pmp_Onion});
-            informationTable.put(PlantMegaPack.items.seedSpinach, new String[]{pmp_Spinach});
-            informationTable.put(PlantMegaPack.items.seedCelery, new String[]{pmp_Celery});
-            informationTable.put(PlantMegaPack.items.seedLettuce, new String[]{pmp_lettuce});
-            informationTable.put(PlantMegaPack.items.seedBellPepperYellow, new String[]{pmp_Bellpepper});
-            informationTable.put(PlantMegaPack.items.seedCorn, new String[]{pmp_Corn});
-            informationTable.put(PlantMegaPack.items.seedCucumber, new String[]{pmp_Cucumber});
-            informationTable.put(PlantMegaPack.items.seedTomato, new String[]{pmp_Tomato});
-            informationTable.put(PlantMegaPack.items.seedBeet, new String[]{pmp_Beet});
-        }
-        if(ModIntegration.LoadedMods.chococraft) {
-            informationTable.put(ChocoCraftItems.gysahlSeedsItem, new String[]{cc_gysahl});
-        }
     }
 
     //retrieve seed information

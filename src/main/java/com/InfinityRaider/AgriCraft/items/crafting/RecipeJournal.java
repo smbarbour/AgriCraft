@@ -54,4 +54,9 @@ public class RecipeJournal implements IRecipe {
     public ItemStack getRecipeOutput() {
         return null;
     }
+
+    @Override
+    public ItemStack[] getRemainingItems(InventoryCrafting p_179532_1_) {
+        return new ItemStack[0];
+    }
 }
