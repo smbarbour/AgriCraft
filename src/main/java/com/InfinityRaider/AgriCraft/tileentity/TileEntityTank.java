@@ -8,6 +8,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.init.Blocks;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.EnumFacing;
 import net.minecraft.world.biome.BiomeGenBase;
 import net.minecraftforge.common.util.ForgeDirection;
 import net.minecraftforge.fluids.*;
@@ -452,13 +453,13 @@ public class TileEntityTank extends TileEntityCustomWood implements IFluidHandle
     }
 
     //try to fill the tank
-    public int fill(ForgeDirection from, int amount, boolean doFill) {
+    public int fill(EnumFacing from, int amount, boolean doFill) {
         return this.fill(from, new FluidStack(FluidRegistry.WATER, amount), doFill);
     }
 
     //try to fill the tank
     @Override
-    public int fill(ForgeDirection from, FluidStack resource, boolean doFill) {
+    public int fill(EnumFacing from, FluidStack resource, boolean doFill) {
         if(resource==null || !this.canFill(from, resource.getFluid())) {
             return 0;
         }
@@ -472,7 +473,7 @@ public class TileEntityTank extends TileEntityCustomWood implements IFluidHandle
 
     //try to drain from the tank
     @Override
-    public FluidStack drain(ForgeDirection from, FluidStack resource, boolean doDrain) {
+    public FluidStack drain(EnumFacing from, FluidStack resource, boolean doDrain) {
         if(resource==null || !this.canDrain(from, resource.getFluid())) {
            return null;
         }
@@ -486,7 +487,7 @@ public class TileEntityTank extends TileEntityCustomWood implements IFluidHandle
 
     //try to drain from the tank
     @Override
-    public FluidStack drain(ForgeDirection from, int maxDrain, boolean doDrain) {
+    public FluidStack drain(EnumFacing from, int maxDrain, boolean doDrain) {
         return this.drain(from, new FluidStack(FluidRegistry.WATER, maxDrain), doDrain);
     }
 
@@ -503,7 +504,7 @@ public class TileEntityTank extends TileEntityCustomWood implements IFluidHandle
     }
 
     @Override
-    public FluidTankInfo[] getTankInfo(ForgeDirection from) {
+    public FluidTankInfo[] getTankInfo(EnumFacing from) {
         FluidTankInfo[] info = new FluidTankInfo[1];
         info[0] = new FluidTankInfo(this.getContents(), this.getTotalCapacity());
         return info;

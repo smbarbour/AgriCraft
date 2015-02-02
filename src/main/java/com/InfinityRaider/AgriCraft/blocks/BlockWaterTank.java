@@ -5,18 +5,17 @@ import com.InfinityRaider.AgriCraft.handler.ConfigurationHandler;
 import com.InfinityRaider.AgriCraft.reference.Constants;
 import com.InfinityRaider.AgriCraft.tileentity.TileEntityTank;
 import com.InfinityRaider.AgriCraft.utility.LogHelper;
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
-import net.minecraft.block.Block;
+import net.minecraft.block.state.BlockState;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.IIcon;
+import net.minecraft.util.BlockPos;
+import net.minecraft.util.EnumFacing;
 import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
-import net.minecraftforge.common.util.ForgeDirection;
 import net.minecraftforge.fluids.FluidContainerRegistry;
 import net.minecraftforge.fluids.FluidRegistry;
 import net.minecraftforge.fluids.FluidStack;
@@ -33,46 +32,38 @@ public class BlockWaterTank extends BlockCustomWood{
     }
 
     @Override
-    public void dropBlockAsItemWithChance(World world, int x, int y, int z, int meta, float f, int i) {
-        if(!world.isRemote) {
+    public void dropBlockAsItemWithChance(World world, BlockPos pos, IBlockState state, float chance, int fortune) {
+        if (!world.isRemote) {
+            // FIXME: will end up in an infinity loop
             ItemStack drop = new ItemStack(com.InfinityRaider.AgriCraft.init.Blocks.blockWaterTank, 1);
-            this.setTag(world, x, y, z, drop);
-            this.dropBlockAsItem(world, x, y, z, drop);
+            setTag(world, pos, drop);
+            dropBlockAsItem(world, pos, state, 0);
         }
     }
-/*
-    //when the block is harvested
-    @Override
-    public void harvestBlock(World world, EntityPlayer player, int x, int y, int z, int meta) {
-        if((!world.isRemote)) {
-            if(!player.capabilities.isCreativeMode) {       //drop items if the player is not in creative
-                this.dropBlockAsItem(world, x, y, z, meta, 0);
-            }
-        }
-    }
-*/
+
     //creative item picking
     @Override
-    public ItemStack getPickBlock(MovingObjectPosition target, World world, int x, int y, int z) {
-        ItemStack stack = new ItemStack(com.InfinityRaider.AgriCraft.init.Blocks.blockWaterTank, 1, world.getBlockMetadata(x, y, z));
-        this.setTag(world, x, y, z, stack);
+    public ItemStack getPickBlock(MovingObjectPosition target, World world, BlockPos pos) {
+        // TODO: check if a BlockState / meta value is needed here
+        ItemStack stack = new ItemStack(com.InfinityRaider.AgriCraft.init.Blocks.blockWaterTank, 1);
+        this.setTag(world, pos, stack);
         return stack;
     }
 
     //This gets called when the block is right clicked
     @Override
-    public boolean onBlockActivated(World world, int x, int y, int z, EntityPlayer player, int side, float fX, float fY, float fZ) {
+    public boolean onBlockActivated(World world, BlockPos pos, IBlockState state, EntityPlayer player, EnumFacing side, float hitX, float hitY, float hitZ) {
         boolean update=false;
-        if(!world.isRemote) {
-            TileEntityTank tank = (TileEntityTank) world.getTileEntity(x, y, z);
+        if (!world.isRemote) {
+            TileEntityTank tank = (TileEntityTank) world.getTileEntity(pos);
             ItemStack stack = player.getCurrentEquippedItem();
             if(stack!=null && stack.getItem()!=null) {
                 FluidStack liquid = FluidContainerRegistry.getFluidForFilledItem(stack);
                 //put water from liquid container in tank
                 if(liquid!=null && liquid.getFluid()==FluidRegistry.WATER) {
-                    int quantity = tank.fill(ForgeDirection.UNKNOWN, liquid, false);
+                    int quantity = tank.fill(null, liquid, false);
                     if(quantity==liquid.amount) {
-                        tank.fill(ForgeDirection.UNKNOWN, liquid, true);
+                        tank.fill(null, liquid, true);
                         update = true;
                         //change the inventory if player is not in creative mode
                         if(!player.capabilities.isCreativeMode) {
@@ -93,7 +84,7 @@ public class BlockWaterTank extends BlockCustomWood{
                 }
                 //put water from tank in empty liquid container
                 else {
-                    FluidStack tankContents = tank.getTankInfo(ForgeDirection.UNKNOWN)[0].fluid;
+                    FluidStack tankContents = tank.getTankInfo(null)[0].fluid;
                     if(tankContents!=null) {
                         ItemStack filledContainer = FluidContainerRegistry.fillFluidContainer(tankContents, stack);
                         FluidStack filledLiquid = FluidContainerRegistry.getFluidForFilledItem(filledContainer);
@@ -118,7 +109,7 @@ public class BlockWaterTank extends BlockCustomWood{
                                     }
                                 }
                             }
-                            tank.drain(ForgeDirection.UNKNOWN, filledLiquid.amount, true);
+                            tank.drain(null, filledLiquid.amount, true);
                             update = true;
                         }
                     }
@@ -126,7 +117,7 @@ public class BlockWaterTank extends BlockCustomWood{
             }
             if(update) {
                 tank.markDirtyAndMarkForUpdate();
-                world.markBlockForUpdate(x, y, z);
+                world.markBlockForUpdate(pos);
                 return true;
             }
             else {
@@ -138,29 +129,30 @@ public class BlockWaterTank extends BlockCustomWood{
 
     //when the block is broken
     @Override
-    public void breakBlock(World world, int x, int y, int z, Block block, int meta) {
+    public void breakBlock(World world, BlockPos pos, IBlockState state) {
         if(!world.isRemote) {
             LogHelper.debug("breaking tank");
             boolean placeWater = false;
-            LogHelper.debug("TileEntity found: " + (world.getTileEntity(x, y, z) != null));
-            if (world.getTileEntity(x, y, z) != null && world.getTileEntity(x, y, z) instanceof TileEntityTank) {
-                TileEntityTank tank = (TileEntityTank) world.getTileEntity(x, y, z);
+            LogHelper.debug("TileEntity found: " + (world.getTileEntity(pos) != null));
+            if (world.getTileEntity(pos) != null && world.getTileEntity(pos) instanceof TileEntityTank) {
+                TileEntityTank tank = (TileEntityTank) world.getTileEntity(pos);
                 tank.breakMultiBlock();
                 placeWater = tank.getFluidLevel() >= Constants.mB;
             }
-            world.removeTileEntity(x, y, z);
+            world.removeTileEntity(pos);
             if (ConfigurationHandler.placeWater && placeWater) {
-                world.setBlock(x, y, z, Blocks.water, 0, 3);
-                Blocks.water.onNeighborBlockChange(world, x, y, z, null);
+                world.setBlockState(pos, new BlockState(Blocks.water).getBaseState(), 3);
+                Blocks.water.onNeighborBlockChange(world, pos, state, null);
             } else {
-                world.setBlockToAir(x, y, z);
+                world.setBlockToAir(pos);
             }
         }
     }
 
     @Override
-    public int damageDropped(int meta) {
-        return meta;
+    public int damageDropped(IBlockState state) {
+        // TODO: implement it as it was in 1.7
+        return super.damageDropped(state);
     }
 
 
@@ -170,11 +162,14 @@ public class BlockWaterTank extends BlockCustomWood{
     public int getRenderType() {return AgriCraft.proxy.getRenderId(Constants.tankId);}                 //get the correct renderId
     @Override
     public boolean isOpaqueCube() {return false;}           //tells minecraft that this is not a block (no levers can be placed on it, it's transparent, ...)
-    @Override
-    public boolean renderAsNormalBlock() {return false;}    //tells minecraft that this has custom rendering
-    @Override
-    public boolean shouldSideBeRendered(IBlockAccess world, int x, int y, int z, int i) {return true;}
 
+    @Override
+    public boolean shouldSideBeRendered(IBlockAccess worldIn, BlockPos pos, EnumFacing side) {
+        return true;
+    }
+
+    // TODO: textures in 1.8?
+    /*
     @Override
     @SideOnly(Side.CLIENT)
     public IIcon getIcon(int side, int meta) {
@@ -186,13 +181,11 @@ public class BlockWaterTank extends BlockCustomWood{
         }
         return null;
     }
+    */
 
     @Override
-    public boolean onBlockEventReceived(World world, int x, int y, int z, int id, int data) {
-        super.onBlockEventReceived(world, x, y , z, id, data);
-        if(world.getTileEntity(x, y, z)!=null) {
-            return (world.getTileEntity(x, y, z)).receiveClientEvent(id, data);
-        }
-        return false;
+    public boolean onBlockEventReceived(World world, BlockPos pos, IBlockState state, int eventID, int eventParam) {
+        super.onBlockEventReceived(world, pos, state, eventID, eventParam);
+        return world.getTileEntity(pos) != null && world.getTileEntity(pos).receiveClientEvent(eventID, eventParam);
     }
 }
