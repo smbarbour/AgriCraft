@@ -1,10 +1,12 @@
 package com.InfinityRaider.AgriCraft.items;
 
-import com.InfinityRaider.AgriCraft.blocks.BlockWaterChannel;
 import com.InfinityRaider.AgriCraft.creativetab.AgriCraftTab;
 import com.InfinityRaider.AgriCraft.init.Blocks;
+import net.minecraft.block.Block;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.BlockPos;
+import net.minecraft.util.EnumFacing;
 import net.minecraft.world.World;
 
 public class ItemSprinkler extends ModItem {
@@ -19,10 +21,12 @@ public class ItemSprinkler extends ModItem {
 
     //this is called when you right click with this item in hand
     @Override
-    public boolean onItemUseFirst(ItemStack stack, EntityPlayer player, World world, int x, int y, int z, int side, float hitX, float hitY, float hitZ) {
+    public boolean onItemUseFirst(ItemStack stack, EntityPlayer player, World world, BlockPos pos, EnumFacing side, float hitX, float hitY, float hitZ) {
         if (!world.isRemote) {
-            if (world.getBlock(x, y, z) instanceof BlockWaterChannel && world.getBlock(x, y - 1, z) == net.minecraft.init.Blocks.air) {
-                world.setBlock(x, y - 1, z, Blocks.blockSprinkler);
+            Block channel = world.getBlockState(pos).getBlock();
+            Block belowChannel = world.getBlockState(pos.down()).getBlock();
+            if (channel == Blocks.blockWaterChannel && belowChannel == net.minecraft.init.Blocks.air) {
+                world.setBlockState(pos.down(), Blocks.blockSprinkler.getDefaultState());
                 stack.stackSize = player.capabilities.isCreativeMode ? stack.stackSize : stack.stackSize - 1;
                 return false;
             }
