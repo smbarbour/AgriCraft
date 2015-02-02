@@ -52,7 +52,7 @@ public class CustomCrops {
                         success = soil==null || ItemCrop.isSoilValid(soil, 0);
                         if(success) {
                             ItemStack base = IOHelper.getStack(cropData[3]);
-                            Block baseBlock = base != null ? ((ItemBlock) base.getItem()).field_150939_a : null;
+                            Block baseBlock = base != null ? ((ItemBlock) base.getItem()).block : null;
                             int baseMeta = base != null ? base.getItemDamage() : 0;
                             int tier = Integer.parseInt(cropData[4]);
                             int renderType = Integer.parseInt(cropData[5]);

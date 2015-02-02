@@ -9,9 +9,8 @@ import com.InfinityRaider.AgriCraft.reference.SeedInformation;
 import com.InfinityRaider.AgriCraft.utility.LogHelper;
 import com.InfinityRaider.AgriCraft.utility.OreDictHelper;
 import com.InfinityRaider.AgriCraft.utility.RegisterHelper;
-import cpw.mods.fml.common.Loader;
-import mods.natura.common.NContent;
 import net.minecraft.item.Item;
+import net.minecraftforge.fml.common.Loader;
 import net.minecraftforge.oredict.OreDictionary;
 
 public class Seeds {
@@ -31,24 +30,6 @@ public class Seeds {
     public static ItemModSeed seedCactus;
     public static ItemModSeed seedShroomRed;
     public static ItemModSeed seedShroomBrown;
-
-    //botania flower seeds
-    public static ItemModSeed seedBotaniaWhite;
-    public static ItemModSeed seedBotaniaOrange;
-    public static ItemModSeed seedBotaniaMagenta;
-    public static ItemModSeed seedBotaniaLightBlue;
-    public static ItemModSeed seedBotaniaYellow;
-    public static ItemModSeed seedBotaniaLime;
-    public static ItemModSeed seedBotaniaPink;
-    public static ItemModSeed seedBotaniaGray;    //I'm in favor of the British grey, but I'm just being consistent with Vazkii being consistent with Vanilla
-    public static ItemModSeed seedBotaniaLightGray;
-    public static ItemModSeed seedBotaniaCyan;
-    public static ItemModSeed seedBotaniaPurple;
-    public static ItemModSeed seedBotaniaBlue;
-    public static ItemModSeed seedBotaniaBrown;
-    public static ItemModSeed seedBotaniaGreen;
-    public static ItemModSeed seedBotaniaRed;
-    public static ItemModSeed seedBotaniaBlack;
 
     //resource crop seeds
     public static ItemModSeed seedDiamahlia;
@@ -99,43 +80,6 @@ public class Seeds {
         RegisterHelper.registerSeed(seedCactus, Names.Seeds.seedCactus, Crops.cactus);
         RegisterHelper.registerSeed(seedShroomRed, Names.Seeds.seedShroomRed, Crops.shroomRed);
         RegisterHelper.registerSeed(seedShroomBrown, Names.Seeds.seedShroomBrown, Crops.shroomBrown);
-
-        //botania flower seeds
-        if(ConfigurationHandler.integration_Botania) {
-            seedBotaniaWhite = new ItemModSeed(Crops.botaniaWhite, SeedInformation.botaniaWhite);
-            seedBotaniaOrange = new ItemModSeed(Crops.botaniaOrange, SeedInformation.botaniaOrange);
-            seedBotaniaMagenta = new ItemModSeed(Crops.botaniaMagenta, SeedInformation.botaniaMagenta);
-            seedBotaniaLightBlue = new ItemModSeed(Crops.botaniaLightBlue, SeedInformation.botaniaBlue);
-            seedBotaniaYellow = new ItemModSeed(Crops.botaniaYellow, SeedInformation.botaniaYellow);
-            seedBotaniaLime = new ItemModSeed(Crops.botaniaLime, SeedInformation.botaniaLime);
-            seedBotaniaPink = new ItemModSeed(Crops.botaniaPink, SeedInformation.botaniaPink);
-            seedBotaniaGray = new ItemModSeed(Crops.botaniaGray, SeedInformation.botaniaGray);
-            seedBotaniaLightGray = new ItemModSeed(Crops.botaniaLightGray, SeedInformation.botaniaLightGray);
-            seedBotaniaCyan = new ItemModSeed(Crops.botaniaCyan, SeedInformation.botaniaCyan);
-            seedBotaniaPurple = new ItemModSeed(Crops.botaniaPurple, SeedInformation.botaniaPurple);
-            seedBotaniaBlue = new ItemModSeed(Crops.botaniaBlue, SeedInformation.botaniaBlue);
-            seedBotaniaBrown = new ItemModSeed(Crops.botaniaBrown, SeedInformation.botaniaBrown);
-            seedBotaniaGreen = new ItemModSeed(Crops.botaniaGreen, SeedInformation.botaniaGreen);
-            seedBotaniaRed = new ItemModSeed(Crops.botaniaRed, SeedInformation.botaniaRed);
-            seedBotaniaBlack = new ItemModSeed(Crops.botaniaBlack, SeedInformation.botaniaBlack);
-
-            RegisterHelper.registerSeed(seedBotaniaWhite, Names.Seeds.seedBotaniaWhite, Crops.botaniaWhite);
-            RegisterHelper.registerSeed(seedBotaniaOrange, Names.Seeds.seedBotaniaOrange, Crops.botaniaOrange);
-            RegisterHelper.registerSeed(seedBotaniaMagenta, Names.Seeds.seedBotaniaMagenta, Crops.botaniaMagenta);
-            RegisterHelper.registerSeed(seedBotaniaLightBlue, Names.Seeds.seedBotaniaLightBlue, Crops.botaniaLightBlue);
-            RegisterHelper.registerSeed(seedBotaniaYellow, Names.Seeds.seedBotaniaYellow, Crops.botaniaYellow);
-            RegisterHelper.registerSeed(seedBotaniaLime, Names.Seeds.seedBotaniaLime, Crops.botaniaLime);
-            RegisterHelper.registerSeed(seedBotaniaPink, Names.Seeds.seedBotaniaPink, Crops.botaniaPink);
-            RegisterHelper.registerSeed(seedBotaniaGray, Names.Seeds.seedBotaniaGray, Crops.botaniaGray);
-            RegisterHelper.registerSeed(seedBotaniaLightGray, Names.Seeds.seedBotaniaLightGray, Crops.botaniaLightGray);
-            RegisterHelper.registerSeed(seedBotaniaCyan, Names.Seeds.seedBotaniaCyan, Crops.botaniaCyan);
-            RegisterHelper.registerSeed(seedBotaniaPurple, Names.Seeds.seedBotaniaPurple, Crops.botaniaPurple);
-            RegisterHelper.registerSeed(seedBotaniaBlue, Names.Seeds.seedBotaniaBlue, Crops.botaniaBlue);
-            RegisterHelper.registerSeed(seedBotaniaBrown, Names.Seeds.seedBotaniaBrown, Crops.botaniaBrown);
-            RegisterHelper.registerSeed(seedBotaniaGreen, Names.Seeds.seedBotaniaGreen, Crops.botaniaGreen);
-            RegisterHelper.registerSeed(seedBotaniaRed, Names.Seeds.seedBotaniaRed, Crops.botaniaRed);
-            RegisterHelper.registerSeed(seedBotaniaBlack, Names.Seeds.seedBotaniaBlack, Crops.botaniaBlack);
-        }
 
         //resource crop seeds
         if(ConfigurationHandler.resourcePlants) {
@@ -188,10 +132,6 @@ public class Seeds {
             }
         }
 
-        //register natura seeds to the ore dictionary if natura is installed
-        if(ModIntegration.LoadedMods.natura) {
-            OreDictionary.registerOre(Names.OreDict.listAllseed, NContent.plantItem);
-        }
         //register ex nihilo seeds to the ore dictionary if ex nihilo is installed
         if(ModIntegration.LoadedMods.exNihilo) {
             OreDictionary.registerOre(Names.OreDict.listAllseed, ExNihiloHelper.seedCarrot);
