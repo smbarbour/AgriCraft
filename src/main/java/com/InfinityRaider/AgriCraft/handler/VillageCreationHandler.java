@@ -2,13 +2,15 @@ package com.InfinityRaider.AgriCraft.handler;
 
 import com.InfinityRaider.AgriCraft.world.StructureGreenhouse;
 import com.InfinityRaider.AgriCraft.world.StructureGreenhouseIrrigated;
-import cpw.mods.fml.common.registry.VillagerRegistry;
+import net.minecraft.util.EnumFacing;
 import net.minecraft.world.gen.structure.StructureVillagePieces;
+import net.minecraftforge.fml.common.registry.VillagerRegistry;
 
 import java.util.List;
 import java.util.Random;
 
 public class VillageCreationHandler {
+
     public static class GreenhouseHandler implements VillagerRegistry.IVillageCreationHandler {
         //get the weight to spawn the greenhouse
         @Override
@@ -23,8 +25,8 @@ public class VillageCreationHandler {
         }
 
         @Override
-        public Object buildComponent(StructureVillagePieces.PieceWeight villagePiece, StructureVillagePieces.Start startPiece, List pieces, Random random, int p1, int p2, int p3, int p4, int p5) {
-            return StructureGreenhouse.buildComponent(startPiece, pieces, random, p1, p2, p3, p4, p5);
+        public Object buildComponent(StructureVillagePieces.PieceWeight villagePiece, StructureVillagePieces.Start startPiece, List pieces, Random random, int p1, int p2, int p3, EnumFacing facing, int p5) {
+            return StructureGreenhouse.buildComponent(startPiece, pieces, random, p1, p2, p3, facing, p5);
         }
     }
 
@@ -42,8 +44,8 @@ public class VillageCreationHandler {
         }
 
         @Override
-        public Object buildComponent(StructureVillagePieces.PieceWeight villagePiece, StructureVillagePieces.Start startPiece, List pieces, Random random, int p1, int p2, int p3, int p4, int p5) {
-            return StructureGreenhouseIrrigated.buildComponent(startPiece, pieces, random, p1, p2, p3, p4, p5);
+        public Object buildComponent(StructureVillagePieces.PieceWeight villagePiece, StructureVillagePieces.Start startPiece, List pieces, Random random, int p1, int p2, int p3, EnumFacing facing, int p5) {
+            return StructureGreenhouseIrrigated.buildComponent(startPiece, pieces, random, p1, p2, p3, facing, p5);
         }
     }
 }

@@ -2,22 +2,23 @@ package com.InfinityRaider.AgriCraft.handler;
 
 import com.InfinityRaider.AgriCraft.items.ItemCrop;
 import com.InfinityRaider.AgriCraft.reference.Names;
-import cpw.mods.fml.client.FMLClientHandler;
-import cpw.mods.fml.common.eventhandler.Event;
-import cpw.mods.fml.common.eventhandler.EventPriority;
-import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import net.minecraft.block.Block;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.play.client.C08PacketPlayerBlockPlacement;
 import net.minecraftforge.common.IPlantable;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
+import net.minecraftforge.fml.client.FMLClientHandler;
+import net.minecraftforge.fml.common.eventhandler.Event;
+import net.minecraftforge.fml.common.eventhandler.EventPriority;
+import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 public class PlayerInteractEventHandler {
+
     @SubscribeEvent(priority = EventPriority.HIGHEST)
     public void onPlayerUseItemEvent(PlayerInteractEvent event) {
         if (event.action == PlayerInteractEvent.Action.RIGHT_CLICK_BLOCK) {
-            Block block = event.world.getBlock(event.x, event.y, event.z);
-            int meta = event.world.getBlockMetadata(event.x, event.y, event.z);
+            Block block = event.world.getBlockState(event.pos).getBlock();
+            int meta = block.getMetaFromState(event.world.getBlockState(event.pos));
             if (ItemCrop.isSoilValid(block, meta)) {
                 if (event.entityPlayer.getCurrentEquippedItem() != null && event.entityPlayer.getCurrentEquippedItem().stackSize > 0 && event.entityPlayer.getCurrentEquippedItem().getItem() != null && event.entityPlayer.getCurrentEquippedItem().getItem() instanceof IPlantable) {
                     if (ConfigurationHandler.disableVanillaFarming) {
@@ -42,7 +43,7 @@ public class PlayerInteractEventHandler {
         event.useBlock = Event.Result.DENY;
         if (sendToServer) {
             //send the right click to the server manually (cancelling the event will prevent the client from telling the server a right click happened, and nothing will happen, but we still want stuff to happen)
-            FMLClientHandler.instance().getClientPlayerEntity().sendQueue.addToSendQueue(new C08PacketPlayerBlockPlacement(event.x, event.y, event.z, event.face, event.entityPlayer.inventory.getCurrentItem(), 0f, 0f, 0f));
+            FMLClientHandler.instance().getClientPlayerEntity().sendQueue.addToSendQueue(new C08PacketPlayerBlockPlacement(event.pos, event.face.getIndex(), event.entityPlayer.inventory.getCurrentItem(), 0f, 0f, 0f));
         }
         event.setCanceled(true);
     }
