@@ -9,12 +9,14 @@ import net.minecraft.item.ItemSeeds;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
-import net.minecraftforge.common.util.ForgeDirection;
+import net.minecraft.util.EnumFacing;
+import net.minecraft.util.IChatComponent;
 
 import java.util.ArrayList;
 
-public class TileEntitySeedStorage extends TileEntityCustomWood implements IInventory{
-    public ForgeDirection direction;
+public class TileEntitySeedStorage extends TileEntityCustomWood implements IInventory {
+
+    public EnumFacing direction;
     public int usingPlayers;
     private ArrayList<ItemStack> inventory = new ArrayList<ItemStack>();
 
@@ -68,7 +70,7 @@ public class TileEntitySeedStorage extends TileEntityCustomWood implements IInve
 
     //sets the direction based on an int
     public void setDirection(int direction) {
-        this.direction = ForgeDirection.getOrientation(direction);
+        this.direction = EnumFacing.getFront(direction);
     }
 
 
@@ -136,13 +138,18 @@ public class TileEntitySeedStorage extends TileEntityCustomWood implements IInve
     }
 
     @Override
-    public String getInventoryName() {
+    public String getName() {
         return Reference.MOD_ID.toLowerCase()+":"+Names.Objects.seedStorage;
     }
 
     @Override
-    public boolean hasCustomInventoryName() {
+    public boolean hasCustomName() {
         return true;
+    }
+
+    @Override
+    public IChatComponent getDisplayName() {
+        return null;
     }
 
     @Override
@@ -156,15 +163,15 @@ public class TileEntitySeedStorage extends TileEntityCustomWood implements IInve
     }
 
     @Override
-    public void openInventory() {
+    public void openInventory(EntityPlayer player) {
         this.usingPlayers++;
-        this.worldObj.addBlockEvent(this.xCoord, this.yCoord, this.zCoord, Blocks.blockSeedStorage, 0, this.usingPlayers);
+        this.worldObj.addBlockEvent(pos, Blocks.blockSeedStorage, 0, this.usingPlayers);
     }
 
     @Override
-    public void closeInventory() {
+    public void closeInventory(EntityPlayer player) {
         this.usingPlayers--;
-        this.worldObj.addBlockEvent(this.xCoord, this.yCoord, this.zCoord, Blocks.blockSeedStorage, 0, this.usingPlayers);
+        this.worldObj.addBlockEvent(pos, Blocks.blockSeedStorage, 0, this.usingPlayers);
     }
 
     @Override
@@ -177,5 +184,25 @@ public class TileEntitySeedStorage extends TileEntityCustomWood implements IInve
             }
         }
         return allow;
+    }
+
+    @Override
+    public int getField(int id) {
+        return 0;
+    }
+
+    @Override
+    public void setField(int id, int value) {
+
+    }
+
+    @Override
+    public int getFieldCount() {
+        return 0;
+    }
+
+    @Override
+    public void clear() {
+
     }
 }
