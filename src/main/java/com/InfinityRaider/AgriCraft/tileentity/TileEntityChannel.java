@@ -64,8 +64,8 @@ public class TileEntityChannel extends TileEntityCustomWood implements IDebuggab
     public boolean hasNeighbour(char axis, int direction) {
         TileEntity tileEntityAt;
         switch(axis) {
-            case 'x': tileEntityAt = this.worldObj.getTileEntity(this.xCoord+direction, this.yCoord, this.zCoord);break;
-            case 'z': tileEntityAt = this.worldObj.getTileEntity(this.xCoord, this.yCoord, this.zCoord+direction);break;
+            case 'x': tileEntityAt = this.worldObj.getTileEntity(pos.add(direction, 0, 0));break;
+            case 'z': tileEntityAt = this.worldObj.getTileEntity(pos.add(0, 0, direction));break;
             default: return false;
         }
         return (tileEntityAt!=null) && (tileEntityAt instanceof TileEntityCustomWood) && (this.isSameMaterial((TileEntityCustomWood) tileEntityAt));
@@ -73,7 +73,7 @@ public class TileEntityChannel extends TileEntityCustomWood implements IDebuggab
 
     //updates the tile entity every tick
     @Override
-    public void updateEntity() {
+    public void updateContainingBlockInfo() {
         if (!this.worldObj.isRemote) {
             //Only send update to the client every 5 ticks to reduce network stress (thanks, Marcin212)
         	timer++;
@@ -91,10 +91,10 @@ public class TileEntityChannel extends TileEntityCustomWood implements IDebuggab
 
             //find neighbours
             ArrayList<TileEntityCustomWood> neighbours = new ArrayList<TileEntityCustomWood>();
-            if(this.hasNeighbour('x', 1)) {neighbours.add((TileEntityCustomWood) this.worldObj.getTileEntity(this.xCoord + 1, this.yCoord, this.zCoord));}
-            if(this.hasNeighbour('x', -1)) {neighbours.add((TileEntityCustomWood) this.worldObj.getTileEntity(this.xCoord - 1, this.yCoord, this.zCoord));}
-            if(this.hasNeighbour('z', 1)) {neighbours.add((TileEntityCustomWood) this.worldObj.getTileEntity(this.xCoord, this.yCoord, this.zCoord + 1));}
-            if(this.hasNeighbour('z', -1)) {neighbours.add((TileEntityCustomWood) this.worldObj.getTileEntity(this.xCoord, this.yCoord, this.zCoord - 1));}
+            if(this.hasNeighbour('x', 1)) {neighbours.add((TileEntityCustomWood) this.worldObj.getTileEntity(pos.east()));}
+            if(this.hasNeighbour('x', -1)) {neighbours.add((TileEntityCustomWood) this.worldObj.getTileEntity(pos.west()));}
+            if(this.hasNeighbour('z', 1)) {neighbours.add((TileEntityCustomWood) this.worldObj.getTileEntity(pos.south()));}
+            if(this.hasNeighbour('z', -1)) {neighbours.add((TileEntityCustomWood) this.worldObj.getTileEntity(pos.north()));}
             //calculate total fluid lvl and capacity
             int totalLvl=0;
             int nr = 1;
