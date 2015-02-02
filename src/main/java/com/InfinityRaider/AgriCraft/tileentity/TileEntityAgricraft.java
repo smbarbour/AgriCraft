@@ -7,29 +7,30 @@ import net.minecraft.network.play.server.S35PacketUpdateTileEntity;
 import net.minecraft.tileentity.TileEntity;
 
 public class TileEntityAgricraft extends TileEntity {
+
     @Override
     public Packet getDescriptionPacket(){
         NBTTagCompound nbtTag = new NBTTagCompound();
         writeToNBT(nbtTag);
-        return new S35PacketUpdateTileEntity(xCoord, yCoord, zCoord, this.blockMetadata, nbtTag);
+        return new S35PacketUpdateTileEntity(pos, getBlockMetadata(), nbtTag);
     }
 
     //read data from packet
     @Override
-    public void onDataPacket(NetworkManager net, S35PacketUpdateTileEntity pkt){
-        readFromNBT(pkt.func_148857_g());
+    public void onDataPacket(NetworkManager net, S35PacketUpdateTileEntity pkt) {
+        readFromNBT(pkt.getNbtCompound());
     }
 
     public void markDirtyAndMarkForUpdate() {
-        worldObj.func_147451_t(xCoord, yCoord, zCoord);
+        worldObj.notifyLightSet(pos);
         markDirty();
-        worldObj.markBlockForUpdate(xCoord, yCoord, zCoord);
+        worldObj.markBlockForUpdate(pos);
     }
 
     @Override
     public void readFromNBT(NBTTagCompound tag) {
-        if(worldObj != null) {
-            this.worldObj.markBlockForUpdate(xCoord, yCoord, zCoord);
+        if (worldObj != null) {
+            worldObj.markBlockForUpdate(pos);
         }
         super.readFromNBT(tag);
     }
