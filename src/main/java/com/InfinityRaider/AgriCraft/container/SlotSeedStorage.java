@@ -1,13 +1,13 @@
 package com.InfinityRaider.AgriCraft.container;
 
 import com.InfinityRaider.AgriCraft.reference.Names;
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemSeeds;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 
 public class SlotSeedStorage extends Slot {
     public boolean active = false;
@@ -118,10 +118,7 @@ public class SlotSeedStorage extends Slot {
 
     @Override
     @SideOnly(Side.CLIENT)
-    public boolean func_111238_b() {
-        return this.active;
+    public boolean canBeHovered() {
+        return active;
     }
-
-
-
 }

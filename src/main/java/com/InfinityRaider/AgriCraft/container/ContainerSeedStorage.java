@@ -2,13 +2,13 @@ package com.InfinityRaider.AgriCraft.container;
 
 import com.InfinityRaider.AgriCraft.reference.Names;
 import com.InfinityRaider.AgriCraft.tileentity.TileEntitySeedStorage;
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemSeeds;
 import net.minecraft.item.ItemStack;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -143,7 +143,7 @@ public class ContainerSeedStorage extends ContainerAgricraft {
             else {
                 //try to move item from the player's inventory into the container
                 if(itemstack1.getItem()!=null) {
-                    if(itemstack1.getItem() instanceof ItemSeeds && itemstack1.hasTagCompound() && itemstack1.stackTagCompound.hasKey(Names.NBT.analyzed) && itemstack1.stackTagCompound.getBoolean(Names.NBT.analyzed)) {
+                    if(itemstack1.getItem() instanceof ItemSeeds && itemstack1.hasTagCompound() && itemstack1.getTagCompound().hasKey(Names.NBT.analyzed) && itemstack1.getTagCompound().getBoolean(Names.NBT.analyzed)) {
                         if (this.addSeedToStorage(itemstack1)) {
                             itemstack1.stackSize=0;
                         }
