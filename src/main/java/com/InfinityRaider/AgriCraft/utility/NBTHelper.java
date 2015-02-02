@@ -11,7 +11,7 @@ public abstract class NBTHelper {
     public static NBTTagCompound getMaterialTag(ItemStack stack) {
         NBTTagCompound tag = new NBTTagCompound();
         if(stack!=null && stack.getItem()!=null) {
-            tag.setString(Names.NBT.material, Block.blockRegistry.getNameForObject(((ItemBlock) stack.getItem()).field_150939_a));
+            tag.setString(Names.NBT.material, Block.blockRegistry.getNameForObject(((ItemBlock) stack.getItem()).block).toString());
             tag.setInteger(Names.NBT.materialMeta, stack.getItemDamage());
         }
         return tag;

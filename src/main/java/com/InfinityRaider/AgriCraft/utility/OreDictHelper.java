@@ -95,7 +95,7 @@ public abstract class OreDictHelper {
     public static ItemStack getIngot(String nugget) {
         ItemStack ingot = null;
         if(nugget.length()>6) {
-            ArrayList<ItemStack> entries = OreDictionary.getOres("ingot." + nugget.substring(6));
+            List<ItemStack> entries = OreDictionary.getOres("ingot." + nugget.substring(6));
             if(entries.size()>0 && entries.get(0).getItem()!=null) {
                 ingot = entries.get(0);
             }
@@ -118,7 +118,7 @@ public abstract class OreDictHelper {
                 if (itemStack.getItem() instanceof ItemBlock) {
                     ItemBlock block = (ItemBlock) itemStack.getItem();
 
-                    oreBlocks.put(oreName, block.field_150939_a);
+                    oreBlocks.put(oreName, block.block);
                     oreMetaData.put(oreName, itemStack.getItemDamage());
                     break;
                 }

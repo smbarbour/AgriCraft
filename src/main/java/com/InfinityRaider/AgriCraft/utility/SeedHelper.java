@@ -1,9 +1,7 @@
 package com.InfinityRaider.AgriCraft.utility;
 
-import chococraft.common.items.seeds.ItemGysahlSeeds;
 import com.InfinityRaider.AgriCraft.blocks.BlockModPlant;
 import com.InfinityRaider.AgriCraft.compatibility.ModIntegration;
-import com.InfinityRaider.AgriCraft.compatibility.chococraft.ChococraftHelper;
 import com.InfinityRaider.AgriCraft.compatibility.plantmegapack.PlantMegaPackHelper;
 import com.InfinityRaider.AgriCraft.farming.SoilWhitelist;
 import com.InfinityRaider.AgriCraft.handler.ConfigurationHandler;
@@ -12,7 +10,6 @@ import com.InfinityRaider.AgriCraft.items.ItemModSeed;
 import com.InfinityRaider.AgriCraft.reference.Constants;
 import com.InfinityRaider.AgriCraft.reference.Names;
 import com.InfinityRaider.AgriCraft.reference.SeedInformation;
-import mods.natura.common.NContent;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockBush;
 import net.minecraft.block.BlockCrops;
@@ -22,6 +19,7 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemSeeds;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.oredict.OreDictionary;
 
@@ -178,7 +176,7 @@ public abstract class SeedHelper {
         if(seed instanceof ItemModSeed) {
             return ((ItemModSeed) seed).getPlant().tier;
         }
-        String domain = Item.itemRegistry.getNameForObject(seed).substring(0, Item.itemRegistry.getNameForObject(seed).indexOf(':'));
+        String domain = Item.itemRegistry.getNameForObject(seed).toString().substring(0, Item.itemRegistry.getNameForObject(seed).toString().indexOf(':'));
         if(domain.equalsIgnoreCase("harvestcraft")) {
             return 2;
         }
@@ -220,18 +218,18 @@ public abstract class SeedHelper {
             return Crops.pumpkin;
         }
         else {
-            if(seed.getPlant(null, 0, 0, 0) instanceof BlockCrops) {
-                return (BlockCrops) seed.getPlant(null, 0, 0, 0);
+            if(seed.getPlant(null, BlockPos.ORIGIN) instanceof BlockCrops) {
+                return (BlockCrops) seed.getPlant(null, BlockPos.ORIGIN);
             }
             else {
-                return (BlockBush) seed.getPlant(null, 0, 0, 0);
+                return (BlockBush) seed.getPlant(null, BlockPos.ORIGIN);
             }
         }
     }
 
     //gets the seed domain
     public static String getPlantDomain(ItemSeeds seed) {
-        String name = Item.itemRegistry.getNameForObject(seed);
+        String name = Item.itemRegistry.getNameForObject(seed).toString();
         return name.substring(0, name.indexOf(":")).toLowerCase();
     }
 
@@ -248,17 +246,9 @@ public abstract class SeedHelper {
         else if(plant instanceof BlockModPlant) {
             items.addAll(((BlockModPlant) plant).getFruit(nr, world.rand));
         }
-        //natura crop
-        else if(ModIntegration.LoadedMods.natura && getPlantDomain(seed).equalsIgnoreCase("natura")) {
-            items.add(new ItemStack(NContent.plantItem, nr, meta*3));
-        }
         //harvestcraft crop
         else if(ModIntegration.LoadedMods.harvestcraft && getPlantDomain(seed).equalsIgnoreCase("harvestcraft")) {
-            items.add(new ItemStack(getPlant(seed).getItemDropped(7, new Random(), 0), nr));
-        }
-        //chococraft crop
-        else if(ModIntegration.LoadedMods.chococraft && seed instanceof ItemGysahlSeeds) {
-            items.add(ChococraftHelper.getFruit(gain, nr));
+            items.add(new ItemStack(getPlant(seed).getItemDropped(getPlant(seed).getStateFromMeta(7), new Random(), 0), nr));
         }
         //other crop
         else {
@@ -268,7 +258,8 @@ public abstract class SeedHelper {
                 harvestMeta=PlantMegaPackHelper.getTextureIndex(seed, harvestMeta);
             }
             //other crop
-            ArrayList<ItemStack> defaultDrops = plant.getDrops(world, x, y, z, harvestMeta, 0);
+            BlockPos pos = new BlockPos(x, y, z);
+            List<ItemStack> defaultDrops = plant.getDrops(world, pos, world.getBlockState(pos), 0);
             for (ItemStack drop : defaultDrops) {
                 if (!(drop.getItem() instanceof ItemSeeds) && drop.getItem()!=null) {
                     boolean add = true;
@@ -292,10 +283,6 @@ public abstract class SeedHelper {
         ArrayList<ItemStack> items = new ArrayList<ItemStack>();
         if(plant instanceof BlockModPlant) {
             items.addAll(((BlockModPlant) plant).getFruits());
-        }
-        //chococraft crop
-        else if(ModIntegration.LoadedMods.chococraft && seed instanceof ItemGysahlSeeds) {
-            items.addAll(ChococraftHelper.getFruits());
         }
         //other crop
         else {
@@ -354,7 +341,7 @@ public abstract class SeedHelper {
 
     //get a random seed
     public static ItemStack getRandomSeed(boolean setTag) {
-        ArrayList<ItemStack> seeds = OreDictionary.getOres(Names.OreDict.listAllseed);
+        List<ItemStack> seeds = OreDictionary.getOres(Names.OreDict.listAllseed);
         ItemStack seed = null;
         while(seed==null || !(seed.getItem() instanceof ItemSeeds) || !isValidSeed((ItemSeeds) seed.getItem(), seed.getItemDamage())) {
             seed = seeds.get((int) Math.floor(Math.random()*seeds.size()));
@@ -365,7 +352,7 @@ public abstract class SeedHelper {
             int strength = (int) Math.ceil(Math.random()*7);
             NBTTagCompound tag = new NBTTagCompound();
             setNBT(tag, (short) growth, (short) gain, (short) strength, false);
-            seed.stackTagCompound = tag;
+            seed.setTagCompound(tag);
         }
         return seed;
     }

@@ -34,8 +34,8 @@ public class ShapelessCustomWoodRecipe extends ShapelessRecipes {
                                 && (itemStack.getItemDamage() == 32767 || itemStackToMatch.getItemDamage() == itemStack.getItemDamage())) {
 
                             if (itemStackToMatch.getItem() instanceof ItemBlockCustomWood) {
-                                if (itemStackToMatch.stackTagCompound != null && itemStack.stackTagCompound != null
-                                        && itemStackToMatch.stackTagCompound.equals(itemStack.stackTagCompound)) {
+                                if (itemStackToMatch.getTagCompound() != null && itemStack.getTagCompound() != null
+                                        && itemStackToMatch.getTagCompound().equals(itemStack.getTagCompound())) {
                                     match = true;
                                     recipeItems.remove(itemStack);
                                     break;
