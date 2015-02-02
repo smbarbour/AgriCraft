@@ -4,14 +4,12 @@ import com.InfinityRaider.AgriCraft.AgriCraft;
 import com.InfinityRaider.AgriCraft.creativetab.AgriCraftTab;
 import com.InfinityRaider.AgriCraft.handler.GuiHandler;
 import com.InfinityRaider.AgriCraft.reference.Names;
-import com.InfinityRaider.AgriCraft.utility.LogHelper;
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
-import net.minecraft.client.renderer.texture.IIconRegister;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.StatCollector;
 import net.minecraft.world.World;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 
 import java.util.List;
 
@@ -28,9 +26,9 @@ public class ItemJournal extends ModItem {
     }
 
     //when this item is used in a crafting grid, it stays in the grid
-    @Override
-    public boolean doesContainerItemLeaveCraftingGrid(ItemStack itemStack)
-    {
+    // TODO: find out what happend to this function
+    // @Override
+    public boolean doesContainerItemLeaveCraftingGrid(ItemStack itemStack) {
         return true;
     }
 
@@ -51,16 +49,19 @@ public class ItemJournal extends ModItem {
     @SideOnly(Side.CLIENT)
     public void addInformation(ItemStack stack, EntityPlayer player, List list, boolean flag) {
         int nr = 0;
-        if(stack.hasTagCompound() && stack.stackTagCompound.hasKey(Names.NBT.discoveredSeeds)) {
-            nr = stack.stackTagCompound.getTagList(Names.NBT.discoveredSeeds, 10).tagCount();
+        if(stack.hasTagCompound() && stack.getTagCompound().hasKey(Names.NBT.discoveredSeeds)) {
+            nr = stack.getTagCompound().getTagList(Names.NBT.discoveredSeeds, 10).tagCount();
         }
         list.add(StatCollector.translateToLocal("agricraft_tooltip.discoveredSeeds")+": "+nr);
     }
 
+    // TODO: textures in 1.8?
+    /*
     @Override
     @SideOnly(Side.CLIENT)
     public void registerIcons(IIconRegister reg) {
         LogHelper.debug("registering icon for: " + this.getUnlocalizedName());
         itemIcon = reg.registerIcon(this.getUnlocalizedName().substring(this.getUnlocalizedName().indexOf('.')+1));
     }
+    */
 }
