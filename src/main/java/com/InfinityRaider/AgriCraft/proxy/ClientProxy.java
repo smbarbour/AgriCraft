@@ -1,8 +1,6 @@
 package com.InfinityRaider.AgriCraft.proxy;
 
-import codechicken.nei.api.API;
 import com.InfinityRaider.AgriCraft.compatibility.ModIntegration;
-import com.InfinityRaider.AgriCraft.compatibility.NEI.NEIConfig;
 import com.InfinityRaider.AgriCraft.handler.ItemToolTipHandler;
 import com.InfinityRaider.AgriCraft.init.Blocks;
 import com.InfinityRaider.AgriCraft.init.Items;
@@ -11,20 +9,16 @@ import com.InfinityRaider.AgriCraft.reference.SeedInformation;
 import com.InfinityRaider.AgriCraft.renderers.*;
 import com.InfinityRaider.AgriCraft.tileentity.*;
 import com.InfinityRaider.AgriCraft.utility.LogHelper;
-import cpw.mods.fml.client.registry.ClientRegistry;
-import cpw.mods.fml.client.registry.RenderingRegistry;
-import cpw.mods.fml.common.FMLCommonHandler;
-import cpw.mods.fml.common.Loader;
-import cpw.mods.fml.common.ModContainer;
 import net.minecraft.client.renderer.tileentity.TileEntitySpecialRenderer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.client.MinecraftForgeClient;
 import net.minecraftforge.common.MinecraftForge;
-
-import java.util.Iterator;
+import net.minecraftforge.fml.client.registry.ClientRegistry;
+import net.minecraftforge.fml.common.FMLCommonHandler;
 
 public class ClientProxy extends CommonProxy {
+
     public static int cropRenderId = -1;
     public static int tankRenderId = -1;
     public static int channelRenderId = -1;
@@ -45,9 +39,9 @@ public class ClientProxy extends CommonProxy {
     @Override
     public void registerRenderers() {
         //crops
-        cropRenderId = RenderingRegistry.getNextAvailableRenderId();
+        // cropRenderId = RenderingRegistry.getNextAvailableRenderId();
         RenderCrop renderCrops = new RenderCrop();
-        RenderingRegistry.registerBlockHandler(cropRenderId, renderCrops);
+        // RenderingRegistry.registerBlockHandler(cropRenderId, renderCrops);
 
         //seed analyzer
         TileEntitySpecialRenderer  renderAnalyzer = new RenderSeedAnalyzer();
@@ -55,21 +49,21 @@ public class ClientProxy extends CommonProxy {
         MinecraftForgeClient.registerItemRenderer(Item.getItemFromBlock(Blocks.seedAnalyzer), new RenderItemSeedAnalyzer(renderAnalyzer, new TileEntitySeedAnalyzer()));
 
         //water tank
-        tankRenderId = RenderingRegistry.getNextAvailableRenderId();
+        //tankRenderId = RenderingRegistry.getNextAvailableRenderId();
         RenderTank renderTank = new RenderTank();
-        RenderingRegistry.registerBlockHandler(tankRenderId, renderTank);
+        //RenderingRegistry.registerBlockHandler(tankRenderId, renderTank);
         MinecraftForgeClient.registerItemRenderer(Item.getItemFromBlock(Blocks.blockWaterTank), new RenderItemTank(new TileEntityTank()));
 
         //water channel
-        channelRenderId = RenderingRegistry.getNextAvailableRenderId();
+        //channelRenderId = RenderingRegistry.getNextAvailableRenderId();
         RenderChannel renderChannel = new RenderChannel();
-        RenderingRegistry.registerBlockHandler(channelRenderId, renderChannel);
+        //RenderingRegistry.registerBlockHandler(channelRenderId, renderChannel);
         MinecraftForgeClient.registerItemRenderer(Item.getItemFromBlock(Blocks.blockWaterChannel), new RenderItemChannel(new TileEntityChannel()));
 
         //channel valve
-        valveRenderId = RenderingRegistry.getNextAvailableRenderId();
+        // valveRenderId = RenderingRegistry.getNextAvailableRenderId();
         RenderValve renderValve = new RenderValve();
-        RenderingRegistry.registerBlockHandler(valveRenderId, renderValve);
+        // RenderingRegistry.registerBlockHandler(valveRenderId, renderValve);
         MinecraftForgeClient.registerItemRenderer(Item.getItemFromBlock(Blocks.blockChannelValve), new RenderItemValve(new TileEntityValve()));
 
         //sprinkler
@@ -92,21 +86,18 @@ public class ClientProxy extends CommonProxy {
     @Override
     public void initNEI() {
         if (ModIntegration.LoadedMods.nei) {
-            NEIConfig configNEI = new NEIConfig();
-            configNEI.loadConfig();
+            // TODO: enable once we have NEI support again
+            // NEIConfig configNEI = new NEIConfig();
+            // configNEI.loadConfig();
         }
     }
 
     //hide items in NEI
     @Override
     public void hideItemInNEI(ItemStack stack) {
-        Iterator mods = Loader.instance().getActiveModList().iterator();
-        ModContainer modContainer;
-        while(mods.hasNext()) {
-            modContainer = (ModContainer) mods.next();
-            if(modContainer.getModId().equalsIgnoreCase("NotEnoughItems")) {
-                API.hideItem(stack);
-            }
+        if (ModIntegration.LoadedMods.nei) {
+            // TODO: enable again when we have NEI support
+            // API.hideItem(stack);
         }
     }
 
