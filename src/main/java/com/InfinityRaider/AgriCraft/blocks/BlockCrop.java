@@ -1,7 +1,6 @@
 package com.InfinityRaider.AgriCraft.blocks;
 
 import com.InfinityRaider.AgriCraft.AgriCraft;
-import com.InfinityRaider.AgriCraft.compatibility.ModIntegration;
 import com.InfinityRaider.AgriCraft.compatibility.applecore.AppleCoreHelper;
 import com.InfinityRaider.AgriCraft.handler.ConfigurationHandler;
 import com.InfinityRaider.AgriCraft.init.Items;
@@ -12,6 +11,7 @@ import com.InfinityRaider.AgriCraft.reference.Names;
 import com.InfinityRaider.AgriCraft.tileentity.TileEntityCrop;
 import com.InfinityRaider.AgriCraft.utility.SeedHelper;
 import net.minecraft.block.Block;
+import net.minecraft.block.BlockFarmland;
 import net.minecraft.block.IGrowable;
 import net.minecraft.block.ITileEntityProvider;
 import net.minecraft.block.state.IBlockState;
@@ -32,6 +32,7 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 
 public class BlockCrop extends BlockModPlant implements ITileEntityProvider, IGrowable {
@@ -63,7 +64,7 @@ public class BlockCrop extends BlockModPlant implements ITileEntityProvider, IGr
         if(crop.hasPlant()) {
             Event.Result allowGrowthResult = AppleCoreHelper.validateGrowthTick(this, world, pos, rnd);
             if (allowGrowthResult != Event.Result.DENY) {
-                int age = ((Integer) state.getValue(AGE)).intValue();
+                int age = getAge(world, pos);
                 if (age < 7 && crop.isFertile()) {
                     double multiplier = 1.0 + (crop.growth + 0.00) / 10;
                     float growthRate = (float) SeedHelper.getBaseGrowth((ItemSeeds) crop.seed, crop.seedMeta);
@@ -77,7 +78,7 @@ public class BlockCrop extends BlockModPlant implements ITileEntityProvider, IGr
         } else if(crop.weed) {
             Event.Result allowGrowthResult = AppleCoreHelper.validateGrowthTick(this, world, pos, rnd);
             if (allowGrowthResult != Event.Result.DENY) {
-                int age = ((Integer) state.getValue(AGE)).intValue();
+                int age = getAge(world, pos);
                 if (age < 7) {
                     double multiplier = 1.0 + (10 + 0.00) / 10;
                     float growthRate = (float) Constants.growthTier1;
@@ -162,7 +163,8 @@ public class BlockCrop extends BlockModPlant implements ITileEntityProvider, IGr
             else {
                 ItemStack stack = player.getCurrentEquippedItem();
                 Block blockBelow = world.getBlockState(pos.down()).getBlock();
-                if (!SeedHelper.isValidSeed((ItemSeeds) stack.getItem(), stack.getItemDamage()) || !SeedHelper.isCorrectSoil(blockBelow, world.getBlockMetadata(x, y-1, z), (ItemSeeds) stack.getItem(), stack.getItemDamage())) {
+                int moisture = (Integer) world.getBlockState(pos.down()).getValue(BlockFarmland.MOISTURE);
+                if (!SeedHelper.isValidSeed((ItemSeeds) stack.getItem(), stack.getItemDamage()) || !SeedHelper.isCorrectSoil(blockBelow, moisture, (ItemSeeds) stack.getItem(), stack.getItemDamage())) {
                     return;
                 }
                 //get NBT data from the seeds
@@ -281,38 +283,37 @@ public class BlockCrop extends BlockModPlant implements ITileEntityProvider, IGr
         }
     }
 
-    //neighboring blocks get updated
     @Override
-    public void onNeighborBlockChange(World world, int x, int y, int z, Block block) {
+    public void onNeighborBlockChange(World world, BlockPos pos, IBlockState state, Block neighborBlock) {
         //check if crops can stay
-        if(!this.canBlockStay(world,x,y,z)) {
+        if (!this.canBlockStay(world, pos, state)) {
             //the crop will be destroyed
-            this.dropBlockAsItem(world, x, y, z, world.getBlockMetadata(x, y, z), 0);
-            world.setBlockToAir(x,y,z);
-            world.removeTileEntity(x, y, z);
+            dropBlockAsItem(world, pos, state, 0);
+            world.setBlockToAir(pos);
+            world.removeTileEntity(pos);
         }
     }
 
-    //see if the block can stay
     @Override
-    public boolean canBlockStay(World world, int x, int y, int z) {
-        Block soil = world.getBlock(x, y - 1, z);
-        int soilMeta = world.getBlockMetadata(x, y - 1, z);
-        return ItemCrop.isSoilValid(soil, soilMeta);
+    public boolean canBlockStay(World world, BlockPos pos, IBlockState state) {
+        Block soil = world.getBlockState(pos.down()).getBlock();
+        int moisture = (Integer) world.getBlockState(pos.down()).getValue(BlockFarmland.MOISTURE);
+        return ItemCrop.isSoilValid(soil, moisture);
     }
 
     //see if the block can grow
     @Override
-    public boolean isFertile(World world, int x, int y, int z) {
-        return world.getTileEntity(x, y, z) != null && world.getTileEntity(x, y, z) instanceof TileEntityCrop && ((TileEntityCrop) world.getTileEntity(x, y, z)).isFertile();
+    public boolean isFertile(World world, BlockPos pos) {
+        TileEntity te = world.getTileEntity(pos);
+        return te != null && te instanceof TileEntityCrop && ((TileEntityCrop) te).isFertile();
     }
 
     //get a list with items dropped by the the crop
     @Override
-    public ArrayList<ItemStack> getDrops(World world, int x, int y, int z, int metadata, int fortune) {
-        ArrayList<ItemStack> items = new ArrayList<ItemStack>();
-        if (world.getTileEntity(x, y, z) != null && world.getTileEntity(x, y, z) instanceof TileEntityCrop) {
-            TileEntityCrop crop = (TileEntityCrop) world.getTileEntity(x, y, z);
+    public List<ItemStack> getDrops(IBlockAccess world, BlockPos pos, IBlockState state, int fortune) {
+        List<ItemStack> items = new ArrayList<ItemStack>();
+        if (world.getTileEntity(pos) != null && world.getTileEntity(pos) instanceof TileEntityCrop) {
+            TileEntityCrop crop = (TileEntityCrop) world.getTileEntity(pos);
             if (crop.crossCrop) {
                 items.add(new ItemStack(Items.crops, 2));
             } else {
@@ -322,65 +323,51 @@ public class BlockCrop extends BlockModPlant implements ITileEntityProvider, IGr
                 ItemStack seedStack = crop.getSeedStack().copy();
                 items.add(seedStack);
                 if(crop.isMature()) {
-                    items.addAll(SeedHelper.getPlantFruits((ItemSeeds) crop.seed, crop.getWorldObj(), crop.xCoord, crop.yCoord, crop.zCoord, crop.gain, crop.seedMeta));
+                    BlockPos cropPos = crop.getPos();
+                    items.addAll(SeedHelper.getPlantFruits((ItemSeeds) crop.seed, crop.getWorld(),
+                            cropPos.getX(), cropPos.getY(), cropPos.getZ(), crop.gain, crop.seedMeta));
                 }
             }
         }
         return items;
     }
 
-    //when the block is broken
-    @Override
-    public void breakBlock(World world, int x, int y, int z, Block block, int meta) {
-        super.breakBlock(world,x,y,z,block,meta);
-        world.removeTileEntity(x,y,z);
-    }
-
-    //Botania horn of the wild support
-    @Override
-    public boolean canUproot(World world, int x, int y, int z) {
-        if(!world.isRemote) {
-            TileEntity te = world.getTileEntity(x, y, z);
-            if(te!=null && te instanceof TileEntityCrop) {
-                TileEntityCrop crop = (TileEntityCrop) te;
-                if(crop.hasPlant()) {
-                    ArrayList<ItemStack> drops = new ArrayList<ItemStack>();
-                    if(crop.isMature()) {
-                        drops.addAll(SeedHelper.getPlantFruits((ItemSeeds) crop.seed, world, x, y, z, crop.gain, crop.seedMeta));
-                    }
-                    drops.add(crop.getSeedStack());
-                    for (ItemStack drop : drops) {
-                        this.dropBlockAsItem(world, x, y, z, drop);
-                    }
-                }
-                crop.clearPlant();
-            }
-        }
-        return false;
-    }
-
     //return the crops item if this block is called
     @Override
     @SideOnly(Side.CLIENT)
-    public Item getItem(World world, int x, int y, int z) {
+    public Item getItem(World worldIn, BlockPos pos) {
         return Items.crops;
     }
 
     //rendering stuff
-    @Override public int getRenderType() {return AgriCraft.proxy.getRenderId(Constants.cropId);}       //get the correct render type
+    @Override public int getRenderType() {
+        return AgriCraft.proxy.getRenderId(Constants.cropId);
+    }
 
     @Override
-    public boolean isOpaqueCube() {return false;}           //tells minecraft that this is not a block (no levers can be placed on it, it's transparent, ...)
+    public boolean isOpaqueCube() {
+        return false; //tells minecraft that this is not a block (no levers can be placed on it, it's transparent, ...)
+    }
+
     @Override
-    public boolean renderAsNormalBlock() {return false;}    //tells minecraft that this has custom rendering
-    @Override
-    public boolean shouldSideBeRendered(IBlockAccess world, int x, int y, int z, int i) {return true;}
+    public boolean shouldSideBeRendered(IBlockAccess worldIn, BlockPos pos, EnumFacing side) {
+        return true;
+    }
+
     @Override
     @SideOnly(Side.CLIENT)
-    public boolean addHitEffects(World worldObj, MovingObjectPosition target, EffectRenderer effectRenderer) {return false;}        //no particles when this block gets hit
+    public boolean addHitEffects(World worldObj, MovingObjectPosition target, EffectRenderer effectRenderer) {
+        return false; //no particles when this block gets hit
+    }
+
     @Override
     @SideOnly(Side.CLIENT)
-    public boolean addDestroyEffects(World world, int x, int y, int z, int meta, EffectRenderer effectRenderer) {return false;}     //no particles when destroyed
+    public boolean addDestroyEffects(World world, BlockPos pos, EffectRenderer effectRenderer) {
+        return false; //no particles when destroyed
+    }
+
+    // TODO: textures in 1.8?
+    /*
     @Override
     @SideOnly(Side.CLIENT)
     public void registerBlockIcons(IIconRegister reg) {
@@ -390,6 +377,7 @@ public class BlockCrop extends BlockModPlant implements ITileEntityProvider, IGr
             this.weedIcons[i] = reg.registerIcon(this.getUnlocalizedName().substring(this.getUnlocalizedName().indexOf('.') + 1) + "WeedTexture" + (i + 1));
         }
     }
+
     @Override
     @SideOnly(Side.CLIENT)
     public IIcon getIcon(int side, int meta) {
@@ -411,12 +399,17 @@ public class BlockCrop extends BlockModPlant implements ITileEntityProvider, IGr
         }
         return this.weedIcons[index];
     }
+    */
 
     @Override
-    public boolean onBlockEventReceived(World world, int x, int y, int z, int id, int data) {
-        super.onBlockEventReceived(world,x,y,z,id,data);
-        TileEntity tileEntity = world.getTileEntity(x,y,z);
-        return (tileEntity!=null)&&(tileEntity.receiveClientEvent(id,data));
+    public boolean onBlockEventReceived(World world, BlockPos pos, IBlockState state, int eventID, int eventParam) {
+        super.onBlockEventReceived(world, pos, state, eventID, eventParam);
+        TileEntity tileEntity = world.getTileEntity(pos);
+        return tileEntity != null && tileEntity.receiveClientEvent(eventID, eventParam);
     }
 
+    /** Returns the AGE property of the BlockState at the given position */
+    private int getAge(World world, BlockPos pos) {
+        return ((Integer) world.getBlockState(pos).getValue(AGE)).intValue();
+    }
 }
