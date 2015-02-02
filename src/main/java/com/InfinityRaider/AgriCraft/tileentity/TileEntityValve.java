@@ -9,7 +9,7 @@ import net.minecraft.nbt.NBTTagCompound;
 
 import java.util.List;
 
-public class TileEntityValve extends TileEntityChannel implements IDebuggable{
+public class TileEntityValve extends TileEntityChannel implements IDebuggable {
     private boolean powered = false;
 
     @Override
@@ -26,17 +26,17 @@ public class TileEntityValve extends TileEntityChannel implements IDebuggable{
     }
 
     @Override
-    public void updateEntity() {
+    public void updateContainingBlockInfo() {
         if(!this.worldObj.isRemote) {
             if(!this.powered) {
-                super.updateEntity();
+                super.updateContainingBlockInfo();
             }
         }
     }
 
     public void updatePowerStatus() {
         boolean wasPowered = powered;
-        powered = worldObj.isBlockIndirectlyGettingPowered(xCoord, yCoord, zCoord);
+        powered = worldObj.isBlockIndirectlyGettingPowered(pos) > 0;
         if (powered != wasPowered) {
             markDirtyAndMarkForUpdate();
         }
