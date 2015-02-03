@@ -56,7 +56,7 @@ minecraft {
     // stable_#            stables are built at the discretion of the MCP team.
     // Use non-default mappings at your own risk. they may not allways work.
     // simply re-run your setup task after changing the mappings to update your workspace.
-    mappings = "snapshot_nodoc_20141130"
+    mappings = "snapshot_nodoc_20150203"
 
     replaceIn "reference/Reference.java"
     replace "@MAJOR@", config.version.mod.major
@@ -65,6 +65,13 @@ minecraft {
 }
 
 dependencies {
+    // http://files.minecraftforge.net/CodeChickenLib/
+    compile "codechicken:CodeChickenLib:1.8-1.1.2.131:dev"
+
+    // http://chickenbones.net/maven
+    compile "codechicken:CodeChickenCore:1.8-1.0.5.34:dev"
+    compile "codechicken:NotEnoughItems:1.8-1.0.5.87:dev"
+
     // Test dependencies
     testCompile "junit:junit:4.12"
     testCompile "org.mockito:mockito-core:1.10.8"

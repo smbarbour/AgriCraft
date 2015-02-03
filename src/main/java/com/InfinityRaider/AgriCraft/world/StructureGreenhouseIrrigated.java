@@ -60,18 +60,18 @@ public class StructureGreenhouseIrrigated extends StructureGreenhouse {
         this.func_175804_a(world, boundingBox, 1, 1, 11, 1, 1, 14, Blocks.cobblestone.getDefaultState(), Blocks.cobblestone.getDefaultState(), false);
         this.func_175804_a(world, boundingBox, 15, 1, 6, 15, 1, 9, Blocks.cobblestone.getDefaultState(), Blocks.cobblestone.getDefaultState(), false);
         this.func_175804_a(world, boundingBox, 15, 1, 11, 15, 1, 14, Blocks.cobblestone.getDefaultState(), Blocks.cobblestone.getDefaultState(), false);
-        this.func_175811_a(world, Blocks.cobblestone.getDefaultState(), 2, 1, 6, boundingBox);
-        this.func_175811_a(world, Blocks.cobblestone.getDefaultState(), 8, 1, 6, boundingBox);
-        this.func_175811_a(world, Blocks.cobblestone.getDefaultState(), 14, 1, 6, boundingBox);
-        this.func_175811_a(world, Blocks.cobblestone.getDefaultState(), 2, 1, 14, boundingBox);
-        this.func_175811_a(world, Blocks.cobblestone.getDefaultState(), 8, 1, 14, boundingBox);
-        this.func_175811_a(world, Blocks.cobblestone.getDefaultState(), 14, 1, 14, boundingBox);
+        this.setBlockState(world, Blocks.cobblestone.getDefaultState(), 2, 1, 6, boundingBox);
+        this.setBlockState(world, Blocks.cobblestone.getDefaultState(), 8, 1, 6, boundingBox);
+        this.setBlockState(world, Blocks.cobblestone.getDefaultState(), 14, 1, 6, boundingBox);
+        this.setBlockState(world, Blocks.cobblestone.getDefaultState(), 2, 1, 14, boundingBox);
+        this.setBlockState(world, Blocks.cobblestone.getDefaultState(), 8, 1, 14, boundingBox);
+        this.setBlockState(world, Blocks.cobblestone.getDefaultState(), 14, 1, 14, boundingBox);
         this.func_175804_a(world, boundingBox, 10, 1, 3, 10, 1, 5, Blocks.cobblestone.getDefaultState(), Blocks.cobblestone.getDefaultState(), false);
         this.func_175804_a(world, boundingBox, 13, 1, 3, 13, 1, 5, Blocks.cobblestone.getDefaultState(), Blocks.cobblestone.getDefaultState(), false);
         this.func_175804_a(world, boundingBox, 11, 1, 3, 12, 1, 3, Blocks.cobblestone.getDefaultState(), Blocks.cobblestone.getDefaultState(), false);
         //place slabs
-        this.func_175811_a(world, Blocks.double_stone_slab.getDefaultState(), 1, 1, 10, boundingBox);
-        this.func_175811_a(world, Blocks.double_stone_slab.getDefaultState(), 15, 1, 10, boundingBox);
+        this.setBlockState(world, Blocks.double_stone_slab.getDefaultState(), 1, 1, 10, boundingBox);
+        this.setBlockState(world, Blocks.double_stone_slab.getDefaultState(), 15, 1, 10, boundingBox);
         this.func_175804_a(world, boundingBox, 2, 1, 7, 2, 1, 13, Blocks.double_stone_slab.getDefaultState(), Blocks.double_stone_slab.getDefaultState(), false);
         this.func_175804_a(world, boundingBox, 8, 1, 7, 8, 1, 13, Blocks.double_stone_slab.getDefaultState(), Blocks.double_stone_slab.getDefaultState(), false);
         this.func_175804_a(world, boundingBox, 14, 1, 7, 14, 1, 13, Blocks.double_stone_slab.getDefaultState(), Blocks.double_stone_slab.getDefaultState(), false);
@@ -83,7 +83,7 @@ public class StructureGreenhouseIrrigated extends StructureGreenhouse {
         this.func_175804_a(world, boundingBox, 9, 1, 6, 10, 1, 6, Blocks.water.getDefaultState(), Blocks.water.getDefaultState(), false);
         this.func_175804_a(world, boundingBox, 3, 1, 14, 7, 1, 14, Blocks.water.getDefaultState(), Blocks.water.getDefaultState(), false);
         this.func_175804_a(world, boundingBox, 9, 1, 14, 13, 1, 14, Blocks.water.getDefaultState(), Blocks.water.getDefaultState(), false);
-        this.func_175811_a(world, Blocks.water.getDefaultState(), 13, 1, 6, boundingBox);
+        this.setBlockState(world, Blocks.water.getDefaultState(), 13, 1, 6, boundingBox);
         //place farmland
         this.func_175804_a(world, boundingBox, 3, 1, 8, 7, 1, 12, Blocks.farmland.getStateFromMeta(7), Blocks.farmland.getStateFromMeta(7), false);
         this.func_175804_a(world, boundingBox, 9, 1, 8, 13, 1, 12, Blocks.farmland.getStateFromMeta(7), Blocks.farmland.getStateFromMeta(7), false);
@@ -118,8 +118,8 @@ public class StructureGreenhouseIrrigated extends StructureGreenhouse {
         this.func_175804_a(world, boundingBox, 15, 6, 7, 15, 6, 13, Blocks.log.getStateFromMeta(8), Blocks.log.getStateFromMeta(8), false);
         this.func_175804_a(world, boundingBox, 10, 5, 4, 10, 5, 5, Blocks.log.getStateFromMeta(8), Blocks.log.getStateFromMeta(8), false);
         this.func_175804_a(world, boundingBox, 13, 5, 4, 13, 5, 5, Blocks.log.getStateFromMeta(8), Blocks.log.getStateFromMeta(8), false);
-        this.func_175811_a(world, Blocks.log.getStateFromMeta(8), 1, 4, 10, boundingBox);
-        this.func_175811_a(world, Blocks.log.getStateFromMeta(8), 15, 4, 10, boundingBox);
+        this.setBlockState(world, Blocks.log.getStateFromMeta(8), 1, 4, 10, boundingBox);
+        this.setBlockState(world, Blocks.log.getStateFromMeta(8), 15, 4, 10, boundingBox);
         //cobble walls
         this.func_175804_a(world, boundingBox, 4, 2, 6, 5, 2, 6, Blocks.cobblestone.getDefaultState(), Blocks.cobblestone.getDefaultState(), false);
         this.func_175804_a(world, boundingBox, 10, 2, 4, 10, 2, 5, Blocks.cobblestone.getDefaultState(), Blocks.cobblestone.getDefaultState(), false);
@@ -131,10 +131,10 @@ public class StructureGreenhouseIrrigated extends StructureGreenhouse {
         this.func_175804_a(world, boundingBox, 15, 2, 12, 15, 2, 13, Blocks.cobblestone.getDefaultState(), Blocks.cobblestone.getDefaultState(), false);
         this.func_175804_a(world, boundingBox, 2, 2, 14, 7, 2, 14, Blocks.cobblestone.getDefaultState(), Blocks.cobblestone.getDefaultState(), false);
         this.func_175804_a(world, boundingBox, 9, 2, 14, 14, 2, 14, Blocks.cobblestone.getDefaultState(), Blocks.cobblestone.getDefaultState(), false);
-        this.func_175811_a(world, Blocks.cobblestone.getDefaultState(), 2, 2, 6, boundingBox);
-        this.func_175811_a(world, Blocks.cobblestone.getDefaultState(), 7, 2, 6, boundingBox);
-        this.func_175811_a(world, Blocks.cobblestone.getDefaultState(), 9, 2, 6, boundingBox);
-        this.func_175811_a(world, Blocks.cobblestone.getDefaultState(), 14, 2, 6, boundingBox);
+        this.setBlockState(world, Blocks.cobblestone.getDefaultState(), 2, 2, 6, boundingBox);
+        this.setBlockState(world, Blocks.cobblestone.getDefaultState(), 7, 2, 6, boundingBox);
+        this.setBlockState(world, Blocks.cobblestone.getDefaultState(), 9, 2, 6, boundingBox);
+        this.setBlockState(world, Blocks.cobblestone.getDefaultState(), 14, 2, 6, boundingBox);
         //place glass
         this.func_175804_a(world, boundingBox, 1, 3, 7, 1, 5, 8, Blocks.glass.getDefaultState(), Blocks.glass.getDefaultState(), false);
         this.func_175804_a(world, boundingBox, 1, 3, 12, 1, 5, 13, Blocks.glass.getDefaultState(), Blocks.glass.getDefaultState(), false);
@@ -150,34 +150,34 @@ public class StructureGreenhouseIrrigated extends StructureGreenhouse {
         this.func_175804_a(world, boundingBox, 9, 3, 14, 14, 5, 14, Blocks.glass.getDefaultState(), Blocks.glass.getDefaultState(), false);
         this.func_175804_a(world, boundingBox, 2, 6, 7, 7, 6, 13, Blocks.glass.getDefaultState(), Blocks.glass.getDefaultState(), false);
         this.func_175804_a(world, boundingBox, 9, 6, 7, 14, 6, 13, Blocks.glass.getDefaultState(), Blocks.glass.getDefaultState(), false);
-        this.func_175811_a(world, Blocks.glass.getDefaultState(), 4, 5, 6, boundingBox);
-        this.func_175811_a(world, Blocks.glass.getDefaultState(), 1, 5, 10, boundingBox);
-        this.func_175811_a(world, Blocks.glass.getDefaultState(), 15, 5, 10, boundingBox);
+        this.setBlockState(world, Blocks.glass.getDefaultState(), 4, 5, 6, boundingBox);
+        this.setBlockState(world, Blocks.glass.getDefaultState(), 1, 5, 10, boundingBox);
+        this.setBlockState(world, Blocks.glass.getDefaultState(), 15, 5, 10, boundingBox);
         //wooden pillars
         this.func_175804_a(world, boundingBox, 3, 2, 1, 3, 4, 1, Blocks.planks.getDefaultState(), Blocks.planks.getDefaultState(), false);
         this.func_175804_a(world, boundingBox, 3, 2, 4, 3, 4, 4, Blocks.planks.getDefaultState(), Blocks.planks.getDefaultState(), false);
         this.func_175804_a(world, boundingBox, 6, 2, 1, 6, 4, 1, Blocks.planks.getDefaultState(), Blocks.planks.getDefaultState(), false);
         this.func_175804_a(world, boundingBox, 6, 2, 4, 6, 4, 4, Blocks.planks.getDefaultState(), Blocks.planks.getDefaultState(), false);
         //oak stairs
-        this.func_175811_a(world, Blocks.oak_stairs.getStateFromMeta(6), 3, 4, 3, boundingBox);
-        this.func_175811_a(world, Blocks.oak_stairs.getStateFromMeta(6), 6, 4, 3, boundingBox);
-        this.func_175811_a(world, Blocks.oak_stairs.getStateFromMeta(6), 11, 4, 3, boundingBox);
-        this.func_175811_a(world, Blocks.oak_stairs.getStateFromMeta(6), 12, 4, 3, boundingBox);
-        this.func_175811_a(world, Blocks.oak_stairs.getStateFromMeta(4), 5, 4, 1, boundingBox);
-        this.func_175811_a(world, Blocks.oak_stairs.getStateFromMeta(4), 5, 4, 4, boundingBox);
-        this.func_175811_a(world, Blocks.oak_stairs.getStateFromMeta(4), 10, 4, 4, boundingBox);
-        this.func_175811_a(world, Blocks.oak_stairs.getStateFromMeta(4), 10, 4, 5, boundingBox);
-        this.func_175811_a(world, Blocks.oak_stairs.getStateFromMeta(5), 4, 4, 1, boundingBox);
-        this.func_175811_a(world, Blocks.oak_stairs.getStateFromMeta(5), 4, 4, 4, boundingBox);
-        this.func_175811_a(world, Blocks.oak_stairs.getStateFromMeta(5), 13, 4, 4, boundingBox);
-        this.func_175811_a(world, Blocks.oak_stairs.getStateFromMeta(5), 13, 4, 5, boundingBox);
-        this.func_175811_a(world, Blocks.oak_stairs.getStateFromMeta(7), 3, 4, 2, boundingBox);
-        this.func_175811_a(world, Blocks.oak_stairs.getStateFromMeta(7), 6, 4, 2, boundingBox);
+        this.setBlockState(world, Blocks.oak_stairs.getStateFromMeta(6), 3, 4, 3, boundingBox);
+        this.setBlockState(world, Blocks.oak_stairs.getStateFromMeta(6), 6, 4, 3, boundingBox);
+        this.setBlockState(world, Blocks.oak_stairs.getStateFromMeta(6), 11, 4, 3, boundingBox);
+        this.setBlockState(world, Blocks.oak_stairs.getStateFromMeta(6), 12, 4, 3, boundingBox);
+        this.setBlockState(world, Blocks.oak_stairs.getStateFromMeta(4), 5, 4, 1, boundingBox);
+        this.setBlockState(world, Blocks.oak_stairs.getStateFromMeta(4), 5, 4, 4, boundingBox);
+        this.setBlockState(world, Blocks.oak_stairs.getStateFromMeta(4), 10, 4, 4, boundingBox);
+        this.setBlockState(world, Blocks.oak_stairs.getStateFromMeta(4), 10, 4, 5, boundingBox);
+        this.setBlockState(world, Blocks.oak_stairs.getStateFromMeta(5), 4, 4, 1, boundingBox);
+        this.setBlockState(world, Blocks.oak_stairs.getStateFromMeta(5), 4, 4, 4, boundingBox);
+        this.setBlockState(world, Blocks.oak_stairs.getStateFromMeta(5), 13, 4, 4, boundingBox);
+        this.setBlockState(world, Blocks.oak_stairs.getStateFromMeta(5), 13, 4, 5, boundingBox);
+        this.setBlockState(world, Blocks.oak_stairs.getStateFromMeta(7), 3, 4, 2, boundingBox);
+        this.setBlockState(world, Blocks.oak_stairs.getStateFromMeta(7), 6, 4, 2, boundingBox);
         //place doors
-        this.func_175811_a(world, Blocks.oak_door.getStateFromMeta(0), 1, 2, 10, boundingBox);
-        this.func_175811_a(world, Blocks.oak_door.getStateFromMeta(8), 1, 3, 10, boundingBox);
-        this.func_175811_a(world, Blocks.oak_door.getStateFromMeta(2), 15, 2, 10, boundingBox);
-        this.func_175811_a(world, Blocks.oak_door.getStateFromMeta(8), 15, 3, 10, boundingBox);
+        this.setBlockState(world, Blocks.oak_door.getStateFromMeta(0), 1, 2, 10, boundingBox);
+        this.setBlockState(world, Blocks.oak_door.getStateFromMeta(8), 1, 3, 10, boundingBox);
+        this.setBlockState(world, Blocks.oak_door.getStateFromMeta(2), 15, 2, 10, boundingBox);
+        this.setBlockState(world, Blocks.oak_door.getStateFromMeta(8), 15, 3, 10, boundingBox);
         //place air blocks
         this.func_175804_a(world, boundingBox, 0, 2, 0, 0, 9, 15, Blocks.air.getDefaultState(), Blocks.air.getDefaultState(), false);
         this.func_175804_a(world, boundingBox, 16, 2, 0, 16, 9, 15, Blocks.air.getDefaultState(), Blocks.air.getDefaultState(), false);
@@ -213,39 +213,39 @@ public class StructureGreenhouseIrrigated extends StructureGreenhouse {
         this.func_175804_a(world, boundingBox, 1, 2, 2, 1, 2, 5, Blocks.oak_fence.getDefaultState(), Blocks.oak_fence.getDefaultState(), false);
         this.func_175804_a(world, boundingBox, 15, 2, 2, 15, 2, 5, Blocks.oak_fence.getDefaultState(), Blocks.oak_fence.getDefaultState(), false);
         this.func_175804_a(world, boundingBox, 8, 4, 9, 8, 4, 11, Blocks.oak_fence.getDefaultState(), Blocks.oak_fence.getDefaultState(), false);
-        this.func_175811_a(world, Blocks.oak_fence.getStateFromMeta(0), 8, 5, 9, boundingBox);
-        this.func_175811_a(world, Blocks.oak_fence.getStateFromMeta(0), 8, 5, 11, boundingBox);
+        this.setBlockState(world, Blocks.oak_fence.getStateFromMeta(0), 8, 5, 9, boundingBox);
+        this.setBlockState(world, Blocks.oak_fence.getStateFromMeta(0), 8, 5, 11, boundingBox);
         //place torches
-        this.func_175811_a(world, Blocks.torch.getStateFromMeta(0), 0, 4, 6, boundingBox);
-        this.func_175811_a(world, Blocks.torch.getStateFromMeta(0), 0, 4, 9, boundingBox);
-        this.func_175811_a(world, Blocks.torch.getStateFromMeta(0), 0, 4, 11, boundingBox);
-        this.func_175811_a(world, Blocks.torch.getStateFromMeta(0), 0, 4, 14, boundingBox);
-        this.func_175811_a(world, Blocks.torch.getStateFromMeta(0), 9, 4, 3, boundingBox);
-        this.func_175811_a(world, Blocks.torch.getStateFromMeta(0), 14, 4, 9, boundingBox);
-        this.func_175811_a(world, Blocks.torch.getStateFromMeta(0), 14, 4, 11, boundingBox);
-        this.func_175811_a(world, Blocks.torch.getStateFromMeta(0), 1, 3, 1, boundingBox);
-        this.func_175811_a(world, Blocks.torch.getStateFromMeta(0), 15, 3, 1, boundingBox);
-        this.func_175811_a(world, Blocks.torch.getStateFromMeta(0), 1, 4, 5, boundingBox);
-        this.func_175811_a(world, Blocks.torch.getStateFromMeta(0), 8, 4, 5, boundingBox);
-        this.func_175811_a(world, Blocks.torch.getStateFromMeta(0), 10, 4, 2, boundingBox);
-        this.func_175811_a(world, Blocks.torch.getStateFromMeta(0), 13, 4, 2, boundingBox);
-        this.func_175811_a(world, Blocks.torch.getStateFromMeta(0), 15, 4, 5, boundingBox);
-        this.func_175811_a(world, Blocks.torch.getStateFromMeta(0), 8, 4, 13, boundingBox);
-        this.func_175811_a(world, Blocks.torch.getStateFromMeta(0), 14, 4, 3, boundingBox);
-        this.func_175811_a(world, Blocks.torch.getStateFromMeta(0), 16, 4, 6, boundingBox);
-        this.func_175811_a(world, Blocks.torch.getStateFromMeta(0), 16, 4, 9, boundingBox);
-        this.func_175811_a(world, Blocks.torch.getStateFromMeta(0), 16, 4, 14, boundingBox);
-        this.func_175811_a(world, Blocks.torch.getStateFromMeta(0), 16, 4, 14, boundingBox);
-        this.func_175811_a(world, Blocks.torch.getStateFromMeta(0), 2, 4, 9, boundingBox);
-        this.func_175811_a(world, Blocks.torch.getStateFromMeta(0), 2, 4, 11, boundingBox);
-        this.func_175811_a(world, Blocks.torch.getStateFromMeta(0), 1, 4, 15, boundingBox);
-        this.func_175811_a(world, Blocks.torch.getStateFromMeta(0), 8, 4, 15, boundingBox);
-        this.func_175811_a(world, Blocks.torch.getStateFromMeta(0), 15, 4, 15, boundingBox);
-        this.func_175811_a(world, Blocks.torch.getStateFromMeta(0), 3, 4, 7, boundingBox);
-        this.func_175811_a(world, Blocks.torch.getStateFromMeta(0), 6, 4, 7, boundingBox);
-        this.func_175811_a(world, Blocks.torch.getStateFromMeta(0), 8, 4, 7, boundingBox);
-        this.func_175811_a(world, Blocks.torch.getStateFromMeta(0), 10, 4, 7, boundingBox);
-        this.func_175811_a(world, Blocks.torch.getStateFromMeta(0), 13, 4, 7, boundingBox);
+        this.setBlockState(world, Blocks.torch.getStateFromMeta(0), 0, 4, 6, boundingBox);
+        this.setBlockState(world, Blocks.torch.getStateFromMeta(0), 0, 4, 9, boundingBox);
+        this.setBlockState(world, Blocks.torch.getStateFromMeta(0), 0, 4, 11, boundingBox);
+        this.setBlockState(world, Blocks.torch.getStateFromMeta(0), 0, 4, 14, boundingBox);
+        this.setBlockState(world, Blocks.torch.getStateFromMeta(0), 9, 4, 3, boundingBox);
+        this.setBlockState(world, Blocks.torch.getStateFromMeta(0), 14, 4, 9, boundingBox);
+        this.setBlockState(world, Blocks.torch.getStateFromMeta(0), 14, 4, 11, boundingBox);
+        this.setBlockState(world, Blocks.torch.getStateFromMeta(0), 1, 3, 1, boundingBox);
+        this.setBlockState(world, Blocks.torch.getStateFromMeta(0), 15, 3, 1, boundingBox);
+        this.setBlockState(world, Blocks.torch.getStateFromMeta(0), 1, 4, 5, boundingBox);
+        this.setBlockState(world, Blocks.torch.getStateFromMeta(0), 8, 4, 5, boundingBox);
+        this.setBlockState(world, Blocks.torch.getStateFromMeta(0), 10, 4, 2, boundingBox);
+        this.setBlockState(world, Blocks.torch.getStateFromMeta(0), 13, 4, 2, boundingBox);
+        this.setBlockState(world, Blocks.torch.getStateFromMeta(0), 15, 4, 5, boundingBox);
+        this.setBlockState(world, Blocks.torch.getStateFromMeta(0), 8, 4, 13, boundingBox);
+        this.setBlockState(world, Blocks.torch.getStateFromMeta(0), 14, 4, 3, boundingBox);
+        this.setBlockState(world, Blocks.torch.getStateFromMeta(0), 16, 4, 6, boundingBox);
+        this.setBlockState(world, Blocks.torch.getStateFromMeta(0), 16, 4, 9, boundingBox);
+        this.setBlockState(world, Blocks.torch.getStateFromMeta(0), 16, 4, 14, boundingBox);
+        this.setBlockState(world, Blocks.torch.getStateFromMeta(0), 16, 4, 14, boundingBox);
+        this.setBlockState(world, Blocks.torch.getStateFromMeta(0), 2, 4, 9, boundingBox);
+        this.setBlockState(world, Blocks.torch.getStateFromMeta(0), 2, 4, 11, boundingBox);
+        this.setBlockState(world, Blocks.torch.getStateFromMeta(0), 1, 4, 15, boundingBox);
+        this.setBlockState(world, Blocks.torch.getStateFromMeta(0), 8, 4, 15, boundingBox);
+        this.setBlockState(world, Blocks.torch.getStateFromMeta(0), 15, 4, 15, boundingBox);
+        this.setBlockState(world, Blocks.torch.getStateFromMeta(0), 3, 4, 7, boundingBox);
+        this.setBlockState(world, Blocks.torch.getStateFromMeta(0), 6, 4, 7, boundingBox);
+        this.setBlockState(world, Blocks.torch.getStateFromMeta(0), 8, 4, 7, boundingBox);
+        this.setBlockState(world, Blocks.torch.getStateFromMeta(0), 10, 4, 7, boundingBox);
+        this.setBlockState(world, Blocks.torch.getStateFromMeta(0), 13, 4, 7, boundingBox);
         //place crops
         for(int x=3;x<=7;x++) {
             for(int z=8;z<=12;z++) {
@@ -286,7 +286,7 @@ public class StructureGreenhouseIrrigated extends StructureGreenhouse {
         int xCoord = this.getXWithOffset(x, z);
         int yCoord = this.getYWithOffset(y);
         int zCoord = this.getZWithOffset(x, z);
-        if (boundingBox.func_175898_b(new Vec3i(xCoord, yCoord, zCoord))) {
+        if (boundingBox.isVecInside(new Vec3i(xCoord, yCoord, zCoord))) {
             BlockPos pos = new BlockPos(xCoord, yCoord, zCoord);
             world.setBlockState(pos, com.InfinityRaider.AgriCraft.init.Blocks.blockWaterTank.getDefaultState(), 2);
             TileEntityTank tank = (TileEntityTank) world.getTileEntity(pos);
@@ -304,7 +304,7 @@ public class StructureGreenhouseIrrigated extends StructureGreenhouse {
         int xCoord = this.getXWithOffset(x, z);
         int yCoord = this.getYWithOffset(y);
         int zCoord = this.getZWithOffset(x, z);
-        if (boundingBox.func_175898_b(new Vec3i(xCoord, yCoord, zCoord))) {
+        if (boundingBox.isVecInside(new Vec3i(xCoord, yCoord, zCoord))) {
             BlockPos pos = new BlockPos(xCoord, yCoord, zCoord);
             world.setBlockState(pos, com.InfinityRaider.AgriCraft.init.Blocks.blockWaterChannel.getDefaultState(), 2);
             TileEntityChannel channel = (TileEntityChannel) world.getTileEntity(pos);
@@ -322,7 +322,7 @@ public class StructureGreenhouseIrrigated extends StructureGreenhouse {
         int xCoord = this.getXWithOffset(x, z);
         int yCoord = this.getYWithOffset(y);
         int zCoord = this.getZWithOffset(x, z);
-        if (boundingBox.func_175898_b(new Vec3i(xCoord, yCoord, zCoord))) {
+        if (boundingBox.isVecInside(new Vec3i(xCoord, yCoord, zCoord))) {
             BlockPos pos = new BlockPos(xCoord, yCoord, zCoord);
             world.setBlockState(pos, com.InfinityRaider.AgriCraft.init.Blocks.blockSprinkler.getDefaultState(), 2);
             return true;
