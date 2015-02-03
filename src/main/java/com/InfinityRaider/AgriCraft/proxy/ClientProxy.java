@@ -1,13 +1,18 @@
 package com.InfinityRaider.AgriCraft.proxy;
 
+import codechicken.nei.api.API;
 import com.InfinityRaider.AgriCraft.compatibility.ModIntegration;
+import com.InfinityRaider.AgriCraft.compatibility.NEI.NEIConfig;
 import com.InfinityRaider.AgriCraft.handler.ItemToolTipHandler;
 import com.InfinityRaider.AgriCraft.init.Blocks;
 import com.InfinityRaider.AgriCraft.init.Items;
 import com.InfinityRaider.AgriCraft.reference.Constants;
 import com.InfinityRaider.AgriCraft.reference.SeedInformation;
 import com.InfinityRaider.AgriCraft.renderers.*;
-import com.InfinityRaider.AgriCraft.tileentity.*;
+import com.InfinityRaider.AgriCraft.tileentity.TileEntityChannel;
+import com.InfinityRaider.AgriCraft.tileentity.TileEntitySeedAnalyzer;
+import com.InfinityRaider.AgriCraft.tileentity.TileEntitySprinkler;
+import com.InfinityRaider.AgriCraft.tileentity.TileEntityTank;
 import com.InfinityRaider.AgriCraft.utility.LogHelper;
 import net.minecraft.client.renderer.tileentity.TileEntitySpecialRenderer;
 import net.minecraft.item.Item;
@@ -38,13 +43,8 @@ public class ClientProxy extends CommonProxy {
     //register custom renderers
     @Override
     public void registerRenderers() {
-        //crops
-        // cropRenderId = RenderingRegistry.getNextAvailableRenderId();
-        // RenderCrop renderCrops = new RenderCrop();
-        // RenderingRegistry.registerBlockHandler(cropRenderId, renderCrops);
-
         //seed analyzer
-        TileEntitySpecialRenderer  renderAnalyzer = new RenderSeedAnalyzer();
+        TileEntitySpecialRenderer renderAnalyzer = new RenderSeedAnalyzer();
         ClientRegistry.bindTileEntitySpecialRenderer(TileEntitySeedAnalyzer.class, renderAnalyzer);
         MinecraftForgeClient.registerItemRenderer(Item.getItemFromBlock(Blocks.seedAnalyzer), new RenderItemSeedAnalyzer(renderAnalyzer, new TileEntitySeedAnalyzer()));
 
@@ -86,9 +86,8 @@ public class ClientProxy extends CommonProxy {
     @Override
     public void initNEI() {
         if (ModIntegration.LoadedMods.nei) {
-            // TODO: enable once we have NEI support again
-            // NEIConfig configNEI = new NEIConfig();
-            // configNEI.loadConfig();
+            NEIConfig configNEI = new NEIConfig();
+            configNEI.loadConfig();
         }
     }
 
@@ -96,8 +95,7 @@ public class ClientProxy extends CommonProxy {
     @Override
     public void hideItemInNEI(ItemStack stack) {
         if (ModIntegration.LoadedMods.nei) {
-            // TODO: enable again when we have NEI support
-            // API.hideItem(stack);
+            API.hideItem(stack);
         }
     }
 
