@@ -24,9 +24,11 @@ import com.InfinityRaider.AgriCraft.handler.GuiHandler;
 import com.InfinityRaider.AgriCraft.init.*;
 import com.InfinityRaider.AgriCraft.proxy.IProxy;
 import com.InfinityRaider.AgriCraft.reference.Reference;
+import com.InfinityRaider.AgriCraft.renderers.models.AgriCraftModelLoader;
 import com.InfinityRaider.AgriCraft.renderers.models.ModelGenerator;
 import com.InfinityRaider.AgriCraft.utility.LogHelper;
 import com.InfinityRaider.AgriCraft.utility.SeedHelper;
+import net.minecraftforge.client.model.ModelLoaderRegistry;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.SidedProxy;
@@ -73,6 +75,7 @@ public class AgriCraft {
         proxy.registerRenderers();
 
         ModelGenerator.register();
+        AgriCraftModelLoader.register();
 
         ModIntegration.init();
 
