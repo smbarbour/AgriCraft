@@ -72,6 +72,9 @@ dependencies {
     compile "codechicken:CodeChickenCore:1.8-1.0.5.34:dev"
     compile "codechicken:NotEnoughItems:1.8-1.0.5.87:dev"
 
+    // http://mobiusstrip.eu/maven
+    compile "mcp.mobius.waila:Waila:1.6.0_B1_1.8.1:dev"
+
     // Test dependencies
     testCompile "junit:junit:4.12"
     testCompile "org.mockito:mockito-core:1.10.8"
