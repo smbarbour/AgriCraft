@@ -18,11 +18,16 @@ public class AgriCraftModelLoader implements ICustomModelLoader {
 
     @Override
     public boolean accepts(ResourceLocation modelLocation) {
+        if (modelLocation.toString().equals("agricraft:models/crops"))
+            return true;
+
         return false;
     }
 
     @Override
     public IModel loadModel(ResourceLocation modelLocation) {
+        if (modelLocation.toString().equals("agricraft:models/crops"))
+            return new ModelCrop();
         return null;
     }
 
