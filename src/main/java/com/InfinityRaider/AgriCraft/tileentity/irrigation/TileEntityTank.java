@@ -238,8 +238,7 @@ public class TileEntityTank extends TileEntityCustomWood implements IFluidHandle
     }
 
     //breaks up the multiblock and divides the fluid among the tanks
-    public void breakMultiBlock(boolean sync) {
-        int lvl = this.getFluidLevel();
+    public void breakMultiBlock(boolean sync, int lvl) {
         int[] levels = new int[ySize];
         int area = xSize*zSize;
         for(int i=0;i<levels.length;i++) {
@@ -249,6 +248,9 @@ public class TileEntityTank extends TileEntityCustomWood implements IFluidHandle
         for(int x=0;x<xSize;x++) {
             for(int y=0;y<ySize;y++) {
                 for(int z=0;z<zSize;z++) {
+                    if(!(this.worldObj.getTileEntity(this.xCoord-xPosition+x, this.yCoord-yPosition+y, this.zCoord-zPosition+z) instanceof TileEntityTank)){
+                        continue;
+                    } 
                     TileEntityTank tank = (TileEntityTank) this.worldObj.getTileEntity(this.xCoord-xPosition+x, this.yCoord-yPosition+y, this.zCoord-zPosition+z);
                     if(tank==null) {
                         continue;
@@ -405,7 +407,7 @@ public class TileEntityTank extends TileEntityCustomWood implements IFluidHandle
     //TANK METHODS
     //------------
     public FluidStack getContents() {
-        return new FluidStack(FluidRegistry.WATER, this.fluidLevel);
+        return new FluidStack(FluidRegistry.WATER, this.getFluidLevel());
     }
 
     public int getFluidLevel() {
@@ -453,9 +455,14 @@ public class TileEntityTank extends TileEntityCustomWood implements IFluidHandle
     public void setFluidLevel(int lvl) {
         if(lvl!=this.getFluidLevel()) {
             lvl = lvl > this.getTotalCapacity() ? this.getTotalCapacity() : lvl;
+            if(!(worldObj.getTileEntity(xCoord - xPosition, yCoord - yPosition, zCoord - zPosition) instanceof TileEntityTank)){
+                return; 
+            }
             TileEntityTank tank = (TileEntityTank) worldObj.getTileEntity(xCoord - xPosition, yCoord - yPosition, zCoord - zPosition);
-            tank.fluidLevel = lvl;
-            tank.syncToClient(true);
+            if(tank != null) {
+                tank.fluidLevel = lvl;
+                tank.syncToClient(true);
+            }
         }
     }
 

@@ -7,6 +7,9 @@ import com.InfinityRaider.AgriCraft.handler.ConfigurationHandler;
 import com.InfinityRaider.AgriCraft.items.ItemModSeed;
 import com.InfinityRaider.AgriCraft.utility.IOHelper;
 import com.InfinityRaider.AgriCraft.utility.LogHelper;
+import cpw.mods.fml.common.FMLCommonHandler;
+import cpw.mods.fml.common.registry.LanguageRegistry;
+import cpw.mods.fml.relauncher.Side;
 import net.minecraft.block.Block;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemBlock;
@@ -35,8 +38,9 @@ public class CustomCrops {
                 //cropData[4]: tier
                 //cropData[5]: render type
                 //cropData[6]: information
-                boolean success = cropData.length==7;
-                String errorMsg = "Incorrect amount of arguments, arguments should be: (name, fruit:fruitMeta, soil, baseBlock:baseBlockMeta, tier, renderType, information)";
+                //cropData[7]: shearable drop (optional)
+                boolean success = cropData.length==7 || cropData.length==8;
+                String errorMsg = "Incorrect amount of arguments, arguments should be: (name, fruit:fruitMeta, soil, baseBlock:baseBlockMeta, tier, renderType, information, shearable (optional) )";
                 LogHelper.debug(new StringBuffer("parsing ").append(cropsRawData[i]));
                 if(success) {
                     ItemStack fruitStack = IOHelper.getStack(cropData[1]);
@@ -52,9 +56,11 @@ public class CustomCrops {
                         int baseMeta = base != null ? base.getItemDamage() : 0;
                         int tier = Integer.parseInt(cropData[4]);
                         RenderMethod renderType = RenderMethod.getRenderMethod(Integer.parseInt(cropData[5]));
+                        ItemStack shearable = cropData.length>7?IOHelper.getStack(cropData[7]):null;
+                        shearable = (shearable!=null && shearable.getItem()!=null)?shearable:null;
                         String info = cropData[6];
                         try {
-                            customCrops[i] = new BlockModPlant(new Object[] {name, new ItemStack(fruit, 1, fruitMeta), soil, new BlockWithMeta(baseBlock, baseMeta), tier, renderType});
+                            customCrops[i] = new BlockModPlant(new Object[] {name, new ItemStack(fruit, 1, fruitMeta), soil, new BlockWithMeta(baseBlock, baseMeta), tier, renderType, shearable});
                         } catch (Exception e) {
                             if(ConfigurationHandler.debug) {
                                 e.printStackTrace();
@@ -62,7 +68,11 @@ public class CustomCrops {
                             return;
                         }
                         customSeeds[i] = customCrops[i].getSeed();
-                        customSeeds[i].setInformation(info);
+                        LanguageRegistry.addName(customCrops[i], Character.toUpperCase(name.charAt(0))+name.substring(1));
+                        LanguageRegistry.addName(customSeeds[i], Character.toUpperCase(name.charAt(0))+name.substring(1) + " Seeds");
+                        if(FMLCommonHandler.instance().getEffectiveSide() == Side.CLIENT) {
+                            customSeeds[i].setInformation(info);
+                        }
                     }
                 }
                 if(!success) {

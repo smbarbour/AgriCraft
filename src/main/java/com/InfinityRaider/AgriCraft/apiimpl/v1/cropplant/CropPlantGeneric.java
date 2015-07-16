@@ -3,7 +3,6 @@ package com.InfinityRaider.AgriCraft.apiimpl.v1.cropplant;
 import com.InfinityRaider.AgriCraft.farming.GrowthRequirementHandler;
 import com.InfinityRaider.AgriCraft.reference.Constants;
 import com.InfinityRaider.AgriCraft.utility.OreDictHelper;
-
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import net.minecraft.item.ItemSeeds;
@@ -48,7 +47,7 @@ public abstract class CropPlantGeneric extends CropPlant {
     public ItemStack getRandomFruit(Random rand) {
         ArrayList<ItemStack> list = getAllFruits();
         if(list!=null && list.size()>0) {
-            return list.get(rand.nextInt(list.size()));
+            return list.get(rand.nextInt(list.size())).copy();
         }
         return null;
     }

@@ -1,18 +1,14 @@
 package com.InfinityRaider.AgriCraft.apiimpl.v1.cropplant;
 
 import com.InfinityRaider.AgriCraft.renderers.PlantRenderer;
-import com.InfinityRaider.AgriCraft.utility.OreDictHelper;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockStem;
 import net.minecraft.client.renderer.RenderBlocks;
 import net.minecraft.item.ItemSeeds;
-import net.minecraft.item.ItemStack;
 import net.minecraft.util.IIcon;
 import net.minecraft.world.IBlockAccess;
-
-import java.util.ArrayList;
 
 public class CropPlantStem extends CropPlantGeneric {
     private final Block block;
@@ -62,6 +58,13 @@ public class CropPlantStem extends CropPlantGeneric {
 
     @Override
     public String getInformation() {
-        return getSeed().getUnlocalizedName();
+        String name = getSeed().getUnlocalizedName();
+        if(name.indexOf('_')>=0) {
+            name = name.substring(name.indexOf('_')+1);
+        }
+        if(name.indexOf('.')>=0) {
+            name = name.substring(name.indexOf('.')+1);
+        }
+        return "agricraft_journal."+name;
     }
 }

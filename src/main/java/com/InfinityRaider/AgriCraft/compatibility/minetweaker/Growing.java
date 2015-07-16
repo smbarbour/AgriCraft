@@ -5,7 +5,6 @@ import com.InfinityRaider.AgriCraft.api.v1.IGrowthRequirement;
 import com.InfinityRaider.AgriCraft.api.v1.RequirementType;
 import com.InfinityRaider.AgriCraft.farming.GrowthRequirementHandler;
 import com.google.common.base.Joiner;
-
 import minetweaker.IUndoableAction;
 import minetweaker.MineTweakerAPI;
 import minetweaker.api.item.IItemStack;
@@ -407,7 +406,7 @@ public class Growing {
 
             @Override
             public String describeUndo() {
-                String blockString = oldReqBlock != null ? oldReqBlock.getBlock().getLocalizedName() : "DEFAULT";
+                String blockString = (oldReqBlock!=null && oldReqBlock.getBlock()!=null) ? oldReqBlock.getBlock().getLocalizedName() : "DEFAULT";
                 return "Resetting base block requirement for seed " + seedStack.getDisplayName() + " to "
                         + blockString + " (" + oldRequiredType.toString() + ")";
             }

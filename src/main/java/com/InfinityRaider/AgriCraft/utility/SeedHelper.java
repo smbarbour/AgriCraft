@@ -1,13 +1,14 @@
 package com.InfinityRaider.AgriCraft.utility;
 
+import com.InfinityRaider.AgriCraft.apiimpl.v1.cropplant.CropPlant;
 import com.InfinityRaider.AgriCraft.farming.CropPlantHandler;
 import com.InfinityRaider.AgriCraft.handler.ConfigurationHandler;
 import com.InfinityRaider.AgriCraft.reference.Constants;
 import com.InfinityRaider.AgriCraft.reference.Names;
+import net.minecraft.init.Items;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraftforge.oredict.OreDictionary;
 
 import java.util.*;
 
@@ -15,11 +16,13 @@ public abstract class SeedHelper {
     private static List<ItemStack> seedBlackList = new ArrayList<ItemStack>();
     private static HashMap<Item, Integer[]> spreadChances;
     private static HashMap<Item, Integer[]> seedTiers;
+    private static List<ItemStack> vanillaPlantingOverrides = new ArrayList<ItemStack>();
 
     public static void init() {
         initSeedBlackList();
         initSpreadChancesOverrides();
         initTiers();
+        initVannilaPlantingOverrides();
     }
 
     private static void initSeedBlackList() {
@@ -72,6 +75,30 @@ public abstract class SeedHelper {
                 }
             }
         }
+    }
+
+    private static void initVannilaPlantingOverrides() {
+        String[] data = IOHelper.getLinesArrayFromData(ConfigurationHandler.readVanillaOverrides());
+        ArrayList<ItemStack> list = new ArrayList<ItemStack>();
+        for(String line:data) {
+            LogHelper.debug(new StringBuffer("parsing ").append(line));
+            ItemStack seedStack = IOHelper.getStack(line);
+            Item seed = seedStack!=null?seedStack.getItem():null;
+            boolean success = seed!=null;
+            String errorMsg = "Invalid seed";
+            if(success) {
+                list.add(seedStack);
+            }
+            else {
+                LogHelper.info(new StringBuffer("Error when adding seed to vanilla overrides: ").append(errorMsg).append(" (line: ").append(line).append(")"));
+            }
+        }
+        vanillaPlantingOverrides = list;
+        LogHelper.info("Registered seeds ignoring vanilla planting rule:");
+        for(ItemStack seed:seedBlackList) {
+            LogHelper.info(new StringBuffer(" - ").append(Item.itemRegistry.getNameForObject(seed.getItem())).append(":").append(seed.getItemDamage()));
+        }
+
     }
 
     //initializes the mutation chances overrides
@@ -145,7 +172,11 @@ public abstract class SeedHelper {
         if(value!=null && value.length>meta && value[meta]!=null) {
             return ((double) value[meta]) / 100;
         }
-        return 1.00/ CropPlantHandler.getPlantFromStack(new ItemStack(seed, 1, meta)).getTier();
+        CropPlant plant = CropPlantHandler.getPlantFromStack(new ItemStack(seed, 1, meta));
+        if(plant==null) {
+            return 0;
+        }
+        return 1.00/plant.getTier();
     }
 
     public static int getSeedTierOverride(ItemStack stack) {
@@ -166,6 +197,9 @@ public abstract class SeedHelper {
     }
 
     public static boolean isSeedBlackListed(ItemStack stack) {
+        if(stack==null || stack.getItem()==null) {
+            return true;
+        }
         Item seed = stack.getItem();
         int meta = stack.getItemDamage();
         for(ItemStack blacklistedSeed:seedBlackList) {
@@ -176,27 +210,65 @@ public abstract class SeedHelper {
         return false;
     }
 
+    private static boolean ignoresVanillaPlantingSetting(ItemStack seed) {
+        for(ItemStack stack:vanillaPlantingOverrides) {
+            if(stack.getItem() == seed.getItem() && stack.getItemDamage() == seed.getItemDamage()) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public static boolean allowVanillaPlanting(ItemStack seed) {
+        if(seed == null || seed.getItem() == null) {
+            return false;
+        }
+        if(ConfigurationHandler.disableVanillaFarming) {
+            if(ignoresVanillaPlantingSetting(seed)) {
+                return true;
+            }
+            if(CropPlantHandler.isValidSeed(seed)) {
+                return false;
+            }
+            if(seed.getItem() == Items.potato) {
+                return false;
+            }
+            if(seed.getItem() == Items.carrot) {
+                return false;
+            }
+            if(seed.getItem() == Items.reeds) {
+                return false;
+            }
+        }
+        return true;
+    }
+
     //define NBT tag
-    public static void setNBT(NBTTagCompound tag, short growth, short gain, short strength, boolean analyzed) {
+    public static NBTTagCompound setNBT(NBTTagCompound tag, short growth, short gain, short strength, boolean analyzed) {
         tag.setShort(Names.NBT.growth, growth==0?Constants.defaultGrowth:growth>10?10:growth);
         tag.setShort(Names.NBT.gain, gain==0?Constants.defaultGain:gain>10?10:gain);
         tag.setShort(Names.NBT.strength, strength==0?Constants.defaultGain:strength>10?10:strength);
         tag.setBoolean(Names.NBT.analyzed, analyzed);
+        return tag;
     }
 
     //get a random seed
-    public static ItemStack getRandomSeed(boolean setTag) {
-        ArrayList<ItemStack> seeds = OreDictionary.getOres(Names.OreDict.listAllseed);
+    public static ItemStack getRandomSeed(Random rand, boolean setTag) {
+        return getRandomSeed(rand, setTag, 5);
+    }
+
+    public static ItemStack getRandomSeed(Random rand, boolean setTag, int maxTier) {
+        ArrayList<CropPlant> plants = CropPlantHandler.getPlants();
+        boolean flag = false;
         ItemStack seed = null;
-        while(!CropPlantHandler.isValidSeed(seed)) {
-            seed = seeds.get((int) Math.floor(Math.random()*seeds.size()));
+        while(!flag) {
+            CropPlant plant = plants.get(rand.nextInt(plants.size()));
+            seed = plant.getSeed().copy();
+            flag = (seed.getItem()!=null) && plant.getTier()<=maxTier;
         }
         if(setTag) {
-            int gain = (int) Math.ceil(Math.random()*7);
-            int growth = (int) Math.ceil(Math.random()*7);
-            int strength = (int) Math.ceil(Math.random()*7);
             NBTTagCompound tag = new NBTTagCompound();
-            setNBT(tag, (short) growth, (short) gain, (short) strength, false);
+            setNBT(tag, (short) (rand.nextInt(ConfigurationHandler.cropStatCap)/2 + 1), (short) (rand.nextInt(ConfigurationHandler.cropStatCap)/2 + 1), (short) (rand.nextInt(ConfigurationHandler.cropStatCap)/2 + 1), false);
             seed.stackTagCompound = tag;
         }
         return seed;

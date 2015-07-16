@@ -1,36 +1,39 @@
 package com.InfinityRaider.AgriCraft.blocks;
 
 
-import com.InfinityRaider.AgriCraft.api.v1.*;
+import com.InfinityRaider.AgriCraft.api.v1.BlockWithMeta;
+import com.InfinityRaider.AgriCraft.api.v1.IAgriCraftPlant;
+import com.InfinityRaider.AgriCraft.api.v1.RenderMethod;
+import com.InfinityRaider.AgriCraft.api.v1.RequirementType;
 import com.InfinityRaider.AgriCraft.apiimpl.v1.GrowthRequirement;
 import com.InfinityRaider.AgriCraft.apiimpl.v1.cropplant.CropPlantAgriCraftShearable;
+import com.InfinityRaider.AgriCraft.compatibility.applecore.AppleCoreHelper;
 import com.InfinityRaider.AgriCraft.farming.CropPlantHandler;
 import com.InfinityRaider.AgriCraft.farming.CropProduce;
+import com.InfinityRaider.AgriCraft.handler.ConfigurationHandler;
 import com.InfinityRaider.AgriCraft.items.ItemModSeed;
+import com.InfinityRaider.AgriCraft.reference.Constants;
 import com.InfinityRaider.AgriCraft.tileentity.TileEntityCrop;
 import com.InfinityRaider.AgriCraft.utility.LogHelper;
-
 import com.InfinityRaider.AgriCraft.utility.RegisterHelper;
 import com.InfinityRaider.AgriCraft.utility.exception.MissingArgumentsException;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockCrops;
-import net.minecraft.block.IGrowable;
 import net.minecraft.client.renderer.texture.IIconRegister;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.IIcon;
 import net.minecraft.world.World;
 
 import java.util.ArrayList;
 import java.util.Random;
 
-public class BlockModPlant extends BlockCrops implements IGrowable, IAgriCraftPlant {
-
+public class BlockModPlant extends BlockCrops implements IAgriCraftPlant {
     private GrowthRequirement growthRequirement;
     public CropProduce products = new CropProduce();
-    public ArrayList<ItemStack> fruits;
     private ItemModSeed seed;
     public int tier;
     @SideOnly(Side.CLIENT)
@@ -48,7 +51,7 @@ public class BlockModPlant extends BlockCrops implements IGrowable, IAgriCraftPl
      * This constructor creates the seed for this plant which can be gotten via blockModPlant.getSeed().
      * This constructor also registers this block and the item for the seed to the minecraft item/block registry and to the AgriCraft CropPlantHandler.
      * */
-    public BlockModPlant(Object[] arguments) throws MissingArgumentsException {
+    public BlockModPlant(Object... arguments) throws MissingArgumentsException {
         super();
         //get parameters
         String name = null;
@@ -80,6 +83,7 @@ public class BlockModPlant extends BlockCrops implements IGrowable, IAgriCraftPl
             }
             if(arg instanceof BlockWithMeta) {
                 base = (BlockWithMeta) arg;
+                base = base.getBlock()==null?null:base;
                 continue;
             }
             if(arg instanceof RenderMethod) {
@@ -137,7 +141,10 @@ public class BlockModPlant extends BlockCrops implements IGrowable, IAgriCraftPl
     public ArrayList<ItemStack> getAllFruits() {return this.products.getAllProducts();}
 
     @Override
-    public ItemStack getRandomFruit(Random rand) {return this.getFruit(1, rand).get(0);}
+    public ItemStack getRandomFruit(Random rand) {
+        ArrayList<ItemStack> fruits = this.getFruit(1, rand);
+        return fruits.size()>0?fruits.get(0):null;
+    }
 
     @Override
     public ArrayList<ItemStack> getFruit(int nr, Random rand) {return this.products.getProduce(nr, rand);}
@@ -169,22 +176,45 @@ public class BlockModPlant extends BlockCrops implements IGrowable, IAgriCraftPl
     public void updateTick(World world, int x, int y, int z, Random rnd) {
         int meta = this.getPlantMetadata(world, x, y, z);
         if (meta < 7 && this.isFertile(world, x, y ,z)) {
-            TileEntityCrop crop = (TileEntityCrop) world.getTileEntity(x, y, z);
-            double rate = 1.0 + (1 + 0.00) / 10;
-            float growthRate = (float) crop.getGrowthRate();
-            meta = (rnd.nextDouble() > (growthRate * rate)/100) ? meta : meta + 1;
-            world.setBlockMetadataWithNotify(x, y, z, meta, 2);
+            TileEntity te = world.getTileEntity(x, y, z);
+            //base growth rate
+            float growthRate;
+            if(te==null || !(te instanceof TileEntityCrop)) {
+                switch(tier) {
+                    case 2: growthRate = Constants.growthTier2; break;
+                    case 3: growthRate = Constants.growthTier3; break;
+                    case 4: growthRate = Constants.growthTier4; break;
+                    case 5: growthRate = Constants.growthTier5; break;
+                    default: growthRate = Constants.growthTier1;
+                }
+            } else {
+                TileEntityCrop crop = (TileEntityCrop) te;
+                growthRate = (float) crop.getGrowthRate();
+            }
+            //bonus for growth stat (growth is 1 for basic crops)
+            double bonus = 1.0 + (1 + 0.00) / 10;
+            //global multiplier as defined in the config
+            float global = 2.0F - ConfigurationHandler.growthMultiplier;
+            int newMeta = (rnd.nextDouble() > (growthRate * bonus * global)/100) ? meta : meta + 1;
+            if(newMeta != meta) {
+                world.setBlockMetadataWithNotify(x, y, z, newMeta, 2);
+                AppleCoreHelper.announceGrowthTick(this, world, x, y, z);
+            }
         }
-
     }
 
     //check if the plant is mature
     public boolean isMature(World world, int x, int y, int z) {
+        TileEntity te = world.getTileEntity(x, y, z);
+        if(te==null || !(te instanceof TileEntityCrop)) {
+            return world.getBlockMetadata(x, y, z) == 7;
+        }
         return ((TileEntityCrop) world.getTileEntity(x, y, z)).isMature();
     }
 
     //render different stages
     @Override
+    @SideOnly(Side.CLIENT)
     public IIcon getIcon(int side, int meta) {
         switch(meta) {
             case 0: return this.icons[0];
@@ -240,8 +270,7 @@ public class BlockModPlant extends BlockCrops implements IGrowable, IAgriCraftPl
     //see if the block can stay
     @Override
     public boolean canBlockStay(World world, int x, int y, int z) {
-        Block soil = world.getBlock(x,y-1,z);
-        return (soil instanceof net.minecraft.block.BlockFarmland);
+        return (this.growthRequirement.isValidSoil(world, x, y-1, z));
     }
 
     //check if the plant can grow
@@ -259,7 +288,8 @@ public class BlockModPlant extends BlockCrops implements IGrowable, IAgriCraftPl
     //return the fruit
     @Override
     protected Item func_149865_P() {
-        return this.getRandomFruit(new Random()).getItem();
+        Item randomFruit = this.getRandomFruit(new Random()).getItem();
+        return randomFruit==null?null:randomFruit;
     }
 
     @Override

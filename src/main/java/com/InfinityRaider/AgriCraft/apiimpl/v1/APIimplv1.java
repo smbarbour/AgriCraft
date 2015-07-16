@@ -6,9 +6,12 @@ import com.InfinityRaider.AgriCraft.api.APIStatus;
 import com.InfinityRaider.AgriCraft.api.v1.*;
 import com.InfinityRaider.AgriCraft.apiimpl.v1.cropplant.CropPlantAPI;
 import com.InfinityRaider.AgriCraft.apiimpl.v1.cropplant.CropPlantAgriCraft;
-import com.InfinityRaider.AgriCraft.compatibility.LoadedMods;
+import com.InfinityRaider.AgriCraft.blocks.BlockCrop;
+import com.InfinityRaider.AgriCraft.blocks.BlockModPlant;
 import com.InfinityRaider.AgriCraft.farming.CropPlantHandler;
 import com.InfinityRaider.AgriCraft.farming.GrowthRequirementHandler;
+import com.InfinityRaider.AgriCraft.farming.mutation.Mutation;
+import com.InfinityRaider.AgriCraft.farming.mutation.MutationHandler;
 import com.InfinityRaider.AgriCraft.handler.ConfigurationHandler;
 import com.InfinityRaider.AgriCraft.init.Blocks;
 import com.InfinityRaider.AgriCraft.init.Items;
@@ -16,10 +19,9 @@ import com.InfinityRaider.AgriCraft.reference.Constants;
 import com.InfinityRaider.AgriCraft.reference.Names;
 import com.InfinityRaider.AgriCraft.tileentity.TileEntityCrop;
 import com.InfinityRaider.AgriCraft.utility.exception.InvalidSeedException;
+import com.InfinityRaider.AgriCraft.utility.exception.MissingArgumentsException;
 import com.google.common.collect.Lists;
-
 import net.minecraft.block.Block;
-import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.World;
@@ -73,12 +75,7 @@ public class APIimplv1 implements APIv1 {
 
 	@Override
 	public List<Block> getCropsBlocks() {
-		return Lists.newArrayList((Block)Blocks.blockCrop);
-	}
-
-	@Override
-	public boolean isSeed(ItemStack seed) {
-		return CropPlantHandler.isValidSeed(seed);
+		return Lists.newArrayList((Block) Blocks.blockCrop);
 	}
 
 	@Override
@@ -96,12 +93,10 @@ public class APIimplv1 implements APIv1 {
 		if (!isHandledByAgricraft(seed)) {
 			return null;
 		}
-		if (seed.stackTagCompound != null && seed.stackTagCompound.hasKey(Names.NBT.growth)
-				&& seed.stackTagCompound.getBoolean(Names.NBT.analyzed)) {
-			return new SeedStats(seed.stackTagCompound.getInteger(Names.NBT.growth), seed.stackTagCompound.getInteger(Names.NBT.gain),
-					seed.stackTagCompound.getInteger(Names.NBT.strength));
+		if (seed.stackTagCompound != null && seed.stackTagCompound.hasKey(Names.NBT.growth) && seed.stackTagCompound.getBoolean(Names.NBT.analyzed)) {
+			return PlantStats.readFromNBT(seed.stackTagCompound);
 		} else {
-			return new SeedStats(-1, -1, -1);
+			return new PlantStats(-1, -1, -1);
 		}
 	}
 
@@ -394,7 +389,7 @@ public class APIimplv1 implements APIv1 {
 		if (fertilizer.getItem() == net.minecraft.init.Items.dye && fertilizer.getItemDamage() == 15) {
 			return true;
 		}
-		if (LoadedMods.magicalCrops && ConfigurationHandler.integration_allowMagicFertiliser && fertilizer.getItem() == Item.itemRegistry.getObject("magicalcrops:magicalcrops_MagicalCropFertilizer")) {
+		if (fertilizer.getItem() instanceof IFertiliser) {
 			return true;
 		}
 		return false;
@@ -409,10 +404,9 @@ public class APIimplv1 implements APIv1 {
 		if (te instanceof TileEntityCrop) {
 			TileEntityCrop crop = (TileEntityCrop) te;
 			if (fertilizer.getItem() == net.minecraft.init.Items.dye && fertilizer.getItemDamage() == 15) {
-				return (crop.isCrossCrop() && ConfigurationHandler.bonemealMutation) ||
-						(crop.hasPlant() && !crop.isMature() && crop.isFertile() && CropPlantHandler.getPlantFromStack(crop.getSeedStack()).getTier() < 4);
-			} else if (LoadedMods.magicalCrops && ConfigurationHandler.integration_allowMagicFertiliser && fertilizer.getItem() == Item.itemRegistry.getObject("magicalcrops:magicalcrops_MagicalCropFertilizer")) {
-				return crop.hasPlant() && !crop.isMature() && crop.isFertile();
+				return crop.canBonemeal();
+			} else if (fertilizer.getItem() instanceof IFertiliser) {
+				return crop.allowFertiliser((IFertiliser) fertilizer.getItem());
 			}
 		}
 		return false;
@@ -424,16 +418,12 @@ public class APIimplv1 implements APIv1 {
 			return false;
 		}
 		if (fertilizer.getItem() == net.minecraft.init.Items.dye && fertilizer.getItemDamage() == 15) {
-			Blocks.blockCrop.func_149853_b(world, random, x, y, z);
+			((BlockCrop) Blocks.blockCrop).func_149853_b(world, random, x, y, z);
 			fertilizer.stackSize--;
 			world.playAuxSFX(2005, x, y, z, 0);
 			return true;
-		} else if (LoadedMods.magicalCrops && ConfigurationHandler.integration_allowMagicFertiliser && fertilizer.getItem() == Item.itemRegistry.getObject("magicalcrops:magicalcrops_MagicalCropFertilizer")) {
-			if (ConfigurationHandler.integration_instantMagicFertiliser)  {
-				world.setBlockMetadataWithNotify(x, y, z, 7, 2);
-			} else {
-				Blocks.blockCrop.func_149853_b(world, random, x, y, z);
-			}
+		} else if (fertilizer.getItem() instanceof IFertiliser) {
+			((TileEntityCrop) world.getTileEntity(x, y, z)).applyFertiliser((IFertiliser) fertilizer.getItem(), world.rand);
 			fertilizer.stackSize--;
 			world.playAuxSFX(2005, x, y, z, 0);
 			return true;
@@ -441,4 +431,46 @@ public class APIimplv1 implements APIv1 {
 		return false;
 	}
 
+	@Override
+	public IMutation[] getRegisteredMutations() {
+		return MutationHandler.getMutations();
+	}
+
+	@Override
+	public IMutation[] getRegisteredMutationsForParent(ItemStack parent) {
+		return MutationHandler.getMutationsFromParent(parent);
+	}
+
+	@Override
+	public IMutation[] getRegisteredMutationsForChild(ItemStack child) {
+		return MutationHandler.getMutationsFromChild(child);
+	}
+
+	@Override
+	public boolean registerMutation(ItemStack result, ItemStack parent1, ItemStack parent2) {
+		MutationHandler.add(new Mutation(result, parent1, parent2));
+		return false;
+	}
+
+	@Override
+	public boolean registerMutation(ItemStack result, ItemStack parent1, ItemStack parent2, double d) {
+		MutationHandler.add(new Mutation(result, parent1, parent2, d));
+		return true;
+	}
+
+	@Override
+	public boolean removeMutation(ItemStack result) {
+		MutationHandler.removeMutationsByResult(result);
+		return true;
+	}
+
+	@Override
+	public IAgriCraftPlant createNewCrop(Object... args) {
+		try {
+			return new BlockModPlant(args);
+		} catch (MissingArgumentsException e) {
+			e.printStackTrace();
+			return null;
+		}
+	}
 }

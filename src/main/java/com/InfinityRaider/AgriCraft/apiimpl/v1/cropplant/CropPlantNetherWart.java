@@ -2,7 +2,6 @@ package com.InfinityRaider.AgriCraft.apiimpl.v1.cropplant;
 
 import com.InfinityRaider.AgriCraft.farming.GrowthRequirementHandler;
 import com.InfinityRaider.AgriCraft.reference.Constants;
-
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import net.minecraft.init.Blocks;
@@ -72,9 +71,9 @@ public class CropPlantNetherWart extends CropPlant {
     @Override
     @SideOnly(Side.CLIENT)
     public IIcon getPlantIcon(int growthStage) {
-        int meta = 2;
-        if(growthStage<7) {
-            meta = 1;
+        int meta = 1;
+        if(growthStage>=7) {
+            meta = 3;
         }
         else if(growthStage<4) {
             meta = 0;

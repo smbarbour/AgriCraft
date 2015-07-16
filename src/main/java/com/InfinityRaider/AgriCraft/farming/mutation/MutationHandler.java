@@ -5,6 +5,8 @@ import com.InfinityRaider.AgriCraft.handler.ConfigurationHandler;
 import com.InfinityRaider.AgriCraft.tileentity.TileEntityCrop;
 import com.InfinityRaider.AgriCraft.utility.IOHelper;
 import com.InfinityRaider.AgriCraft.utility.LogHelper;
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 
@@ -16,6 +18,7 @@ import java.util.List;
 public abstract class MutationHandler {
 
     private static List<Mutation> mutations;
+    private static boolean isSyncing = false;
 
     public static void init() {
         //Read mutations & initialize the mutation arrays
@@ -32,11 +35,28 @@ public abstract class MutationHandler {
         //print registered mutations to the log
         LogHelper.info("Registered Mutations:");
         for (Mutation mutation:mutations) {
-            String result = mutation.result.getItem() != null ? (Item.itemRegistry.getNameForObject(mutation.result.getItem()) + ':' + mutation.result.getItemDamage()) : "null";
-            String parent1 = mutation.parent1.getItem() != null ? (Item.itemRegistry.getNameForObject(mutation.parent1.getItem())) + ':' + mutation.parent1.getItemDamage() : "null";
-            String parent2 = mutation.parent2.getItem() != null ? (Item.itemRegistry.getNameForObject(mutation.parent2.getItem())) + ':' + mutation.parent2.getItemDamage() : "null";
+            ItemStack resultStack = mutation.getResult();
+            ItemStack parent1Stack = mutation.getParents()[0];
+            ItemStack parent2Stack = mutation.getParents()[1];
+            String result = resultStack.getItem() != null ? (Item.itemRegistry.getNameForObject(resultStack.getItem()) + ':' + resultStack.getItemDamage()) : "null";
+            String parent1 = parent1Stack.getItem() != null ? (Item.itemRegistry.getNameForObject(parent1Stack.getItem())) + ':' + parent1Stack.getItemDamage() : "null";
+            String parent2 = parent2Stack.getItem() != null ? (Item.itemRegistry.getNameForObject(parent2Stack.getItem())) + ':' + parent2Stack.getItemDamage() : "null";
             String info = " - " + result + " = " + parent1 + " + " + parent2;
             LogHelper.info(info);
+        }
+    }
+
+    @SideOnly(Side.CLIENT)
+    public static void syncFromServer(Mutation mutation, boolean finished) {
+        if(!isSyncing) {
+            LogHelper.info("Receiving mutations from server");
+            mutations = new ArrayList<Mutation>();
+            isSyncing = true;
+        }
+        mutations.add(mutation);
+        if(finished) {
+            isSyncing = false;
+            LogHelper.info("Successfully received mutations from server");
         }
     }
 
@@ -87,20 +107,20 @@ public abstract class MutationHandler {
         ArrayList<Mutation> list = new ArrayList<Mutation>();
         switch (parents.length) {
             case 2:
-                list.addAll(MutationHandler.getMutations(parents[0], parents[1]));
+                list.addAll(MutationHandler.getMutationsFromParent(parents[0], parents[1]));
                 break;
             case 3:
-                list.addAll(MutationHandler.getMutations(parents[0], parents[1]));
-                list.addAll(MutationHandler.getMutations(parents[0], parents[2]));
-                list.addAll(MutationHandler.getMutations(parents[1], parents[2]));
+                list.addAll(MutationHandler.getMutationsFromParent(parents[0], parents[1]));
+                list.addAll(MutationHandler.getMutationsFromParent(parents[0], parents[2]));
+                list.addAll(MutationHandler.getMutationsFromParent(parents[1], parents[2]));
                 break;
             case 4:
-                list.addAll(MutationHandler.getMutations(parents[0], parents[1]));
-                list.addAll(MutationHandler.getMutations(parents[0], parents[2]));
-                list.addAll(MutationHandler.getMutations(parents[0], parents[3]));
-                list.addAll(MutationHandler.getMutations(parents[1], parents[2]));
-                list.addAll(MutationHandler.getMutations(parents[1], parents[3]));
-                list.addAll(MutationHandler.getMutations(parents[2], parents[3]));
+                list.addAll(MutationHandler.getMutationsFromParent(parents[0], parents[1]));
+                list.addAll(MutationHandler.getMutationsFromParent(parents[0], parents[2]));
+                list.addAll(MutationHandler.getMutationsFromParent(parents[0], parents[3]));
+                list.addAll(MutationHandler.getMutationsFromParent(parents[1], parents[2]));
+                list.addAll(MutationHandler.getMutationsFromParent(parents[1], parents[3]));
+                list.addAll(MutationHandler.getMutationsFromParent(parents[2], parents[3]));
                 break;
         }
         return cleanMutationArray(list.toArray(new Mutation[list.size()]));
@@ -118,17 +138,19 @@ public abstract class MutationHandler {
     }
 
     //finds the product of two parents
-    private static ArrayList<Mutation> getMutations(TileEntityCrop parent1, TileEntityCrop parent2) {
+    private static ArrayList<Mutation> getMutationsFromParent(TileEntityCrop parent1, TileEntityCrop parent2) {
         Item seed1 = parent1.getSeedStack().getItem();
         Item seed2 = parent2.getSeedStack().getItem();
         int meta1 = parent1.getSeedStack().getItemDamage();
         int meta2 = parent2.getSeedStack().getItemDamage();
         ArrayList<Mutation> list = new ArrayList<Mutation>();
         for (Mutation mutation:mutations) {
-            if ((seed1==mutation.parent1.getItem() && seed2==mutation.parent2.getItem()) && (meta1==mutation.parent1.getItemDamage() && meta2==mutation.parent2.getItemDamage())) {
+            ItemStack parent1Stack = mutation.getParents()[0];
+            ItemStack parent2Stack = mutation.getParents()[1];
+            if ((seed1==parent1Stack.getItem() && seed2==parent2Stack.getItem()) && (meta1==parent1Stack.getItemDamage() && meta2==parent2Stack.getItemDamage())) {
                 list.add(mutation);
             }
-            if ((seed1==mutation.parent2.getItem() && seed2==mutation.parent1.getItem()) && (meta1==mutation.parent2.getItemDamage() && meta2==mutation.parent1.getItemDamage())) {
+            if ((seed1==parent2Stack.getItem() && seed2==parent1Stack.getItem()) && (meta1==parent2Stack.getItemDamage() && meta2==parent1Stack.getItemDamage())) {
                 list.add(mutation);
             }
         }
@@ -195,13 +217,15 @@ public abstract class MutationHandler {
     private static boolean canInheritStats(Item child, int childMeta, Item seed, int seedMeta) {
         boolean b = child==seed && childMeta==seedMeta;
         if(!b) {
-            for(Mutation mutation:getParentMutations(child, childMeta)) {
+            for(Mutation mutation: getMutationsFromChild(child, childMeta)) {
                 if(mutation!=null) {
-                    if(mutation.parent1.getItem()==seed && mutation.parent1.getItemDamage()==seedMeta) {
+                    ItemStack parent1Stack = mutation.getParents()[0];
+                    ItemStack parent2Stack = mutation.getParents()[1];
+                    if(parent1Stack.getItem()==seed && parent1Stack.getItemDamage()==seedMeta) {
                         b = true;
                         break;
                     }
-                    else if(mutation.parent2.getItem()==seed && mutation.parent2.getItemDamage()==seedMeta) {
+                    else if(parent2Stack.getItem()==seed && parent2Stack.getItemDamage()==seedMeta) {
                         b = true;
                         break;
                     }
@@ -215,7 +239,7 @@ public abstract class MutationHandler {
     private static Mutation[] cleanMutationArray(Mutation[] input) {
         ArrayList<Mutation> list = new ArrayList<Mutation>();
         for(Mutation mutation:input) {
-            if (mutation.result != null) {
+            if (mutation.getResult() != null) {
                 list.add(mutation);
             }
         }
@@ -231,13 +255,18 @@ public abstract class MutationHandler {
     }
 
     //gets all the mutations this crop can mutate to
-    public static Mutation[] getMutations(ItemStack stack) {
+    public static Mutation[] getMutationsFromParent(ItemStack stack) {
         ArrayList<Mutation> list = new ArrayList<Mutation>();
         for (Mutation mutation : mutations) {
-            if (mutation.parent2.getItem() == stack.getItem() && mutation.parent2.getItemDamage() == stack.getItemDamage()) {
+            ItemStack parent1Stack = mutation.getParents()[0];
+            ItemStack parent2Stack = mutation.getParents()[1];
+            if (parent1Stack.getItem() == stack.getItem() && parent1Stack.getItemDamage() == stack.getItemDamage()) {
                 list.add(new Mutation(mutation));
             }
-            if (!(mutation.parent2.getItem() == mutation.parent1.getItem() && mutation.parent2.getItemDamage() == mutation.parent1.getItemDamage()) && (mutation.parent1.getItem() == stack.getItem() && mutation.parent1.getItemDamage() == stack.getItemDamage())) {
+            if (parent2Stack.getItem() == stack.getItem() && parent2Stack.getItemDamage() == stack.getItemDamage()) {
+                if(parent2Stack.getItem() == parent1Stack.getItem() && parent2Stack.getItemDamage() == parent1Stack.getItemDamage()) {
+                    continue;
+                }
                 list.add(new Mutation(mutation));
             }
         }
@@ -245,16 +274,16 @@ public abstract class MutationHandler {
         return list.toArray(new Mutation[list.size()]);
     }
 
-    public static Mutation[] getParentMutations(Item seed, int meta) {
-        return getParentMutations(new ItemStack(seed, 1, meta));
+    public static Mutation[] getMutationsFromChild(Item seed, int meta) {
+        return getMutationsFromChild(new ItemStack(seed, 1, meta));
     }
 
     //gets the parents this crop mutates from
-    public static Mutation[] getParentMutations(ItemStack stack) {
+    public static Mutation[] getMutationsFromChild(ItemStack stack) {
         ArrayList<Mutation> list = new ArrayList<Mutation>();
         if(CropPlantHandler.isValidSeed(stack)) {
             for (Mutation mutation:mutations) {
-                if (mutation.result.getItem() == stack.getItem() && mutation.result.getItemDamage() == stack.getItemDamage()) {
+                if (mutation.getResult().getItem() == stack.getItem() && mutation.getResult().getItemDamage() == stack.getItemDamage()) {
                     list.add(new Mutation(mutation));
                 }
             }
@@ -270,7 +299,7 @@ public abstract class MutationHandler {
         List<Mutation> removedMutations = new ArrayList<Mutation>();
         for (Iterator<Mutation> iter = mutations.iterator(); iter.hasNext();) {
             Mutation mutation = iter.next();
-            if (mutation.result.isItemEqual(result)) {
+            if (mutation.getResult().isItemEqual(result)) {
                 iter.remove();
                 removedMutations.add(mutation);
             }

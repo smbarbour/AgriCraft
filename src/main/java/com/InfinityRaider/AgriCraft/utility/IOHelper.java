@@ -1,7 +1,8 @@
 package com.InfinityRaider.AgriCraft.utility;
 
-import com.InfinityRaider.AgriCraft.compatibility.LoadedMods;
+import com.InfinityRaider.AgriCraft.compatibility.ModHelper;
 import com.InfinityRaider.AgriCraft.handler.ConfigurationHandler;
+import com.InfinityRaider.AgriCraft.reference.Names;
 import cpw.mods.fml.common.registry.GameRegistry;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -85,41 +86,41 @@ public abstract class IOHelper {
                 data = data + '\n' + osmiumMutation;
             }
         }
-        if(ConfigurationHandler.integration_Botania) {
+        if(ModHelper.allowIntegration(Names.Mods.botania)) {
             data = data + '\n' + botaniaMutations;
         }
-        if(ConfigurationHandler.integration_Nat && ConfigurationHandler.integration_HC && LoadedMods.harvestcraft && LoadedMods.natura)  {
+        if(ModHelper.allowIntegration(Names.Mods.harvestcraft) && ModHelper.allowIntegration(Names.Mods.natura)) {
             data = data + '\n' + harvestcraftMutations + '\n' + barleyNaturaMutations;      //harvestcraft with natura barley
         } else {
-            if(ConfigurationHandler.integration_HC && LoadedMods.harvestcraft) {
+            if(ModHelper.allowIntegration(Names.Mods.harvestcraft)) {
                 data = data + '\n' + harvestcraftMutations + '\n' + barleyHarvestCraftMutations;
             }
-            if(ConfigurationHandler.integration_Nat && LoadedMods.natura) {
+            if(ModHelper.allowIntegration(Names.Mods.natura)) {
                 data = data + '\n' + naturaMutations;
             }
         }
-        if(ConfigurationHandler.integration_WeeeFlowers && LoadedMods.weeeFlowers) {
+        if(ModHelper.allowIntegration(Names.Mods.weeeFlowers)) {
             data = data +'\n' + weeeFlowersMutations;
         }
-        if(ConfigurationHandler.integration_PlantMegaPack && LoadedMods.plantMegaPack) {
+        if(ModHelper.allowIntegration(Names.Mods.plantMegaPack)) {
             data = data + '\n' + plantMegaPackMutations;
         }
-        if(ConfigurationHandler.integration_Chococraft && LoadedMods.chococraft) {
-            if(ConfigurationHandler.integration_HC && LoadedMods.harvestcraft) {
+        if(ModHelper.allowIntegration(Names.Mods.chococraft)) {
+            if(ModHelper.allowIntegration(Names.Mods.harvestcraft)) {
                 data = data + '\n' + chococraft_harvestcraftMutations;
             } else {
                 data = data + '\n' + chococraftMutations;
             }
         }
-        if(ConfigurationHandler.integration_Psychedelicraft && LoadedMods.psychedelicraft) {
+        if(ModHelper.allowIntegration(Names.Mods.psychedelicraft)) {
             data = data + '\n' + psychedelicraftMutations;
         }
-        if(ConfigurationHandler.integration_ArsMagica && ConfigurationHandler.integration_Thaumcraft) {
+        if(ModHelper.allowIntegration(Names.Mods.thaumcraft) && ModHelper.allowIntegration(Names.Mods.arsMagica)) {
             data = data + '\n' + thaumcraft_ArsMagicaMutations;
         } else {
-            if(ConfigurationHandler.integration_Thaumcraft) {
+            if(ModHelper.allowIntegration(Names.Mods.thaumcraft)) {
                 data = data + '\n' + thaumcraftMutations;
-            } else if(ConfigurationHandler.integration_ArsMagica) {
+            } else if(ModHelper.allowIntegration(Names.Mods.arsMagica)) {
                 data = data + '\n' + arsMagicaMutations;
             }
         }
@@ -151,11 +152,12 @@ public abstract class IOHelper {
         return seedBlackListInstructions;
     }
 
+    //vanilla planting overrides
+    public static String getPlantingExceptionsInstructions() {
+        return plantingExceptionsInstructions;
+    }
+
     public static String getSoilwhitelistData() {
-        String output = soilWhitelistInstructions;
-        if(LoadedMods.forestry) {
-            output = output +"\n" + "Forestry:soil:0";
-        }
         return soilWhitelistInstructions;
     }
 
@@ -190,6 +192,9 @@ public abstract class IOHelper {
         int start = 0;
         for(int i=0;i<input.length();i++) {
             if(input.charAt(i)==',') {
+                if(input.charAt(i+1)==' ') {
+                    continue;
+                }
                 String element = (input.substring(start, i)).trim();
                 if(element.length()>0) {
                     output.add(element);
@@ -206,6 +211,9 @@ public abstract class IOHelper {
 
     //gets an itemstack from a string: name:meta
     public static ItemStack getStack(String input) {
+        if(input.equalsIgnoreCase("null")) {
+            return null;
+        }
         String[] data = input.split(":");
         int meta = 0;
 
@@ -229,14 +237,15 @@ public abstract class IOHelper {
             "#Only define one seed per line, meta is optional. Example: minecraft:melon_seeds,10";
 
     private static final String customCropInstructions =
-            "#Define custom crops here: <name>,<fruit:fruitmeta>,<soil>,<baseblock:baseblockmeta>,<tier>,<rendermethod>,<information>\n" +
+            "#Define custom crops here: <name>,<fruit:fruitmeta>,<soil>,<baseblock:baseblockmeta>,<tier>,<rendermethod>,<information>,<shearable>\n" +
             "# - name:         is the name of the crop you want, for example: claysanthemum\n" +
             "# - fruit:        the fruit you want the crop to produce, for example: minecraft:clay:0 (metadata is optional, you can get this from NEI). Type \"null\" if you want the crop to have no fruit.\n" +
             "# - soil:         the soil you want the crop to be planted on, if you specify null, it will grow on farmland and any soil you whitelisted. Other possible soils are soulsand, sand or mycelium.\n" +
             "# - baseblock:    this is the block that has to be underneath for the plant to grow, for example: (this can also be gotten from NEI, if you don't want to specify, type null)\n" +
             "# - tier:         from 1 to 5, the higher, the slower the crop will grow\n" +
             "# - rendermethod: put 1 to render like a flower (in an X-pattern), put 6 to render like wheat (hashtag-pattern)\n" +
-            "# - information:  put a short description (in the same line) of the crop. This will appear in the journal<n" +
+            "# - information:  put a short description (in the same line) of the crop. This will appear in the journal\n" +
+            "# - shearable:    (optional) the item this plant drops when sheared\n" +
             "#you will need to make a texture pack and add textures for the crops in agricraft/blocks with the name cropName1, cropName2, cropName3, cropName4\n" +
             "#where name is the name you specified here, there have to be 4 textures, texture 4 is the mature one\n" +
             "#for the seed texture, put a texture named seedName in the agricraft/items of your resourcepack\n" +
@@ -248,6 +257,12 @@ public abstract class IOHelper {
             "#Define blacklisted seeds here: <mod>:<seedname>:<seedmeta>\n" +
             "#You can get these values from NEI\n" +
             "#Blacklisted seeds will not be able to planted on crops\n" +
+            "#For example: AgriCraft:seedDandelion";
+
+    private static final String plantingExceptionsInstructions =
+            "#Define seeds that will ignore the vanilla planting rule here: <mod>:<seedname>:<seedmeta>\n" +
+            "#You can get these values from NEI\n" +
+            "#All seeds defined here will still be able to be planted outside of crops when vanilla farming is disabled\n" +
             "#For example: AgriCraft:seedDandelion";
 
     private static final String soilWhitelistInstructions =

@@ -39,6 +39,8 @@ public final class Names {
         public static final String analyzer = "Analyzer";
         public static final String seed = "seed";
         public static final String seedAnalyzer = seed+analyzer;
+        public static final String waterPad = "waterPad";
+        public static final String waterPadFull = waterPad+"Full";
         public static final String journal = "journal";
         public static final String trowel = "trowel";
         public static final String magnifyingGlass = "magnifyingGlass";
@@ -47,11 +49,13 @@ public final class Names {
         public static final String ore = "ore";
         public static final String tank = "waterTank";
         public static final String channel = "waterChannel";
+        public static final String channelFull = "waterChannelFull";
         public static final String valve = "channelValve";
         public static final String sprinkler = "sprinkler";
         public static final String seedStorage = "seedStorage";
         public static final String seedStorageController = "seedStorageController";
         public static final String handRake = "handRake";
+        public static final String villager = "villagerFarmer";
     }
 
     //tile entities
@@ -75,6 +79,7 @@ public final class Names {
         public static final String natura = "Natura";
         public static final String weeeFlowers = "weeeflowers";
         public static final String forestry = "Forestry";
+        public static final String growthcraft= "Growthcraft";
         public static final String nei = "NotEnoughItems";
         public static final String thaumicTinkerer = "ThaumicTinkerer";
         public static final String hungerOverhaul= "HungerOverhaul";

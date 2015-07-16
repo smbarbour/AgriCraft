@@ -1,6 +1,7 @@
 package com.InfinityRaider.AgriCraft.compatibility.minetweaker;
 
 
+import com.InfinityRaider.AgriCraft.farming.CropPlantHandler;
 import com.InfinityRaider.AgriCraft.farming.mutation.Mutation;
 import com.InfinityRaider.AgriCraft.farming.mutation.MutationHandler;
 import minetweaker.IUndoableAction;
@@ -25,8 +26,7 @@ public class SeedMutation {
         ItemStack parent1ToAdd = MineTweakerMC.getItemStack(parent1);
         ItemStack parent2ToAdd = MineTweakerMC.getItemStack(parent2);
 
-        if (resultToAdd.getItem() instanceof ItemSeeds && parent1ToAdd.getItem() instanceof ItemSeeds
-                && parent2ToAdd.getItem() instanceof ItemSeeds) {
+        if (CropPlantHandler.isValidSeed(resultToAdd) && CropPlantHandler.isValidSeed(parent1ToAdd) && CropPlantHandler.isValidSeed(parent2ToAdd)) {
             MineTweakerAPI.apply(new AddAction(resultToAdd, parent1ToAdd, parent2ToAdd));
         } else {
             MineTweakerAPI.logError("Adding mutation with result '" + resultToAdd.getDisplayName()
@@ -83,7 +83,9 @@ public class SeedMutation {
         }
 
         private String getEquationString() {
-            return mutation.result.getDisplayName() + " = " + mutation.parent1.getDisplayName() + " + " + mutation.parent2.getDisplayName();
+            ItemStack result = mutation.getResult();
+            ItemStack[] parents = mutation.getParents();
+            return result.getDisplayName() + " = " + parents[0].getDisplayName() + " + " + parents[1].getDisplayName();
         }
     }
 

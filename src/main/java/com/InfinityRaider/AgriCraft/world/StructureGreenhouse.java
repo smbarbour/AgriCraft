@@ -1,12 +1,16 @@
 package com.InfinityRaider.AgriCraft.world;
 
+import com.InfinityRaider.AgriCraft.entity.EntityVillagerFarmer;
 import com.InfinityRaider.AgriCraft.handler.ConfigurationHandler;
+import com.InfinityRaider.AgriCraft.init.WorldGen;
 import com.InfinityRaider.AgriCraft.tileentity.TileEntityCrop;
 import com.InfinityRaider.AgriCraft.tileentity.TileEntitySeedAnalyzer;
 import com.InfinityRaider.AgriCraft.utility.LogHelper;
 import com.InfinityRaider.AgriCraft.utility.SeedHelper;
+import net.minecraft.entity.passive.EntityVillager;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.WeightedRandomChestContent;
 import net.minecraft.world.World;
 import net.minecraft.world.gen.structure.StructureBoundingBox;
@@ -180,7 +184,7 @@ public class StructureGreenhouse extends StructureVillagePieces.House1 {
         int size = (int) Math.ceil(Math.random()*10);
         WeightedRandomChestContent[] loot = new WeightedRandomChestContent[size];
         for(int i=0;i<size;i++) {
-            ItemStack seed = SeedHelper.getRandomSeed(true);
+            ItemStack seed = SeedHelper.getRandomSeed(new Random(), true);
             loot[i] = new WeightedRandomChestContent(seed.getItem(), seed.getItemDamage(), 1, 3, 85);
         }
         return loot;
@@ -196,12 +200,12 @@ public class StructureGreenhouse extends StructureVillagePieces.House1 {
             world.setBlock(xCoord, yCoord, zCoord, com.InfinityRaider.AgriCraft.init.Blocks.blockCrop, 0, 2);
             TileEntityCrop crop = (TileEntityCrop) world.getTileEntity(xCoord, yCoord, zCoord);
             if (crop!=null) {
-                if(crosscrop && !ConfigurationHandler.enableWeeds) {
+                if(crosscrop) {
                     crop.setCrossCrop(true);
                 }
                 else {
-                    ItemStack seed = SeedHelper.getRandomSeed(false);
-                    crop.setPlant((int) Math.ceil(Math.random()*7), (int) Math.ceil(Math.random()*7), (int) Math.ceil(Math.random()*7), false, seed.getItem(), seed.getItemDamage());
+                    ItemStack seed = SeedHelper.getRandomSeed(new Random(), false, 3);
+                    crop.setPlant((int) Math.ceil(Math.random() * 7), (int) Math.ceil(Math.random() * 7), (int) Math.ceil(Math.random() * 7), false, seed.getItem(), seed.getItemDamage());
                 }
             }
             return true;
@@ -217,7 +221,7 @@ public class StructureGreenhouse extends StructureVillagePieces.House1 {
         int yCoord = this.getYWithOffset(y);
         int zCoord = this.getZWithOffset(x, z);
         if (boundingBox.isVecInside(xCoord, yCoord, zCoord)) {
-            world.setBlock(xCoord, yCoord, zCoord, com.InfinityRaider.AgriCraft.init.Blocks.seedAnalyzer, 0, 2);
+            world.setBlock(xCoord, yCoord, zCoord, com.InfinityRaider.AgriCraft.init.Blocks.blockSeedAnalyzer, 0, 2);
             TileEntitySeedAnalyzer analyzer = (TileEntitySeedAnalyzer) world.getTileEntity(xCoord, yCoord, zCoord);
             if (analyzer!=null) {
                 if(direction!=null) {
@@ -233,6 +237,45 @@ public class StructureGreenhouse extends StructureVillagePieces.House1 {
 
     @Override
     protected int getVillagerType (int par1) {
-        return ConfigurationHandler.villagerEnabled ? ConfigurationHandler.villagerID : 0;
+        return ConfigurationHandler.villagerEnabled ? WorldGen.getVillagerId() : 0;
+    }
+
+    @Override
+    protected void spawnVillagers(World world, StructureBoundingBox boundingBox, int x, int y, int z, int limit) {
+        if(ConfigurationHandler.villagerEnabled) {
+            int nrVillagersSpawned = getNumberOfSpawnedVillagers();
+            if (nrVillagersSpawned < limit) {
+                for (int i1 = nrVillagersSpawned; i1 < limit; ++i1) {
+                    int j1 = this.getXWithOffset(x + i1, z);
+                    int k1 = this.getYWithOffset(y);
+                    int l1 = this.getZWithOffset(x + i1, z);
+
+                    if (!boundingBox.isVecInside(j1, k1, l1)) {
+                        break;
+                    }
+                    ++nrVillagersSpawned;
+                    EntityVillager entityvillager = new EntityVillagerFarmer(world, this.getVillagerType(i1));
+                    entityvillager.setLocationAndAngles((double) j1 + 0.5D, (double) k1+1, (double) l1 + 0.5D, 0.0F, 0.0F);
+                    world.spawnEntityInWorld(entityvillager);
+                }
+            }
+            setNumberOfSpawnedVillagers(nrVillagersSpawned);
+        }
+    }
+
+    //hacky method to find out how many villagers have been spawned
+    private int getNumberOfSpawnedVillagers() {
+        NBTTagCompound villageTag = new NBTTagCompound();
+        this.func_143012_a(villageTag);
+        return villageTag.getInteger("VCount");
+    }
+
+    //hacky method to update the number of villagers that have been spawned
+    private void setNumberOfSpawnedVillagers(int nr) {
+        NBTTagCompound villageTag = new NBTTagCompound();
+        this.func_143012_a(villageTag);
+        villageTag.setInteger("VCount", nr);
+        this.func_143011_b(villageTag);
+
     }
 }

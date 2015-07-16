@@ -1,7 +1,7 @@
 Changelog
 ---------
 1.4.0
--CHANGE: Updated to Forge 10.13.3.1373
+-CHANGE: Updated to Forge 10.13.4.1448
 -CHANGE: Rewrote the crop system to prevent crashing
 -CHANGE: Rewrote tanks for major performance increase
 -CHANGE: Condense all custom wood entries into one in NEI
@@ -9,6 +9,10 @@ Changelog
 -CHANGE: Crops will now be displayed as "Crop Sticks"
 -CHANGE: Resource crops are now enabled by default
 -CHANGE: Reordered the configuration options for easier finding of options
+-CHANGE: Clients will now use mutation configs from the server
+-CHANGE: Villager ID is now assigned to the first free id
+-CHANGE: The AgriCraft villager now has a good looking skin (thanks SkeletonPunk)
+-ADDED:  API (many thanks to HenryLoenwind)
 -ADDED:  Missing mutations for Harvestcraft crops (Strawberry, Spinach, White Mushroom)
 -ADDED:  Resource crop for nether quartz
 -ADDED:  Config option to only make mature crops drop seeds to encourage trowel usage (false by default)
@@ -16,13 +20,27 @@ Changelog
 -ADDED:  Config options to change the spawn rates of greenhouses
 -ADDED:  Blood Magic can now auto-harvest crops with the reap of the harvest moon
 -ADDED:  Crops for Thaumcraft: shimmerleaf, cinderpearl, vishroom and taintroot
+-ADDED:  Crops for Ars Magica 2: cerublossom, desert nova, tarma root, aum, wakebloom
 -ADDED:  Button in Seed Analyzer GUI to read the journal
 -ADDED:  Some crops (flowers, cactus, ...) can be sheared to get the flower instead of the fruit
 -ADDED:  Compatibility for PneumaticCraft crops
 -ADDED:  Compatibility for AppleMilkTea (mint)
 -ADDED:  Compatibility for RotaryCraft (canola)
 -ADDED:  Compatibility for Immersive Engineering (hemp)
+-ADDED:  Compatibility for Biomes O Plenty (turnip)
+-ADDED:  Compatibility for Extra Biomes XL (strawberries)
+-ADDED:  Compatibility for GrowthCraft Rice
 -ADDED:  Configuration option for a global growth rate multiplier
+-ADDED:  Crops will now allow the use of other items on them when not mature (for example the Hoe of Growth from Thaumcraft)
+-ADDED:  AgriCraft seeds can now be squeezed into seed oil with forestry
+-ADDED:  A water channel that is a full block, for decoration purposes
+-ADDED:  NEI handler for crop products
+-ADDED:  A water pad block for aquatic crops (water artichoke, wakebloom, squid plant)
+-ADDED:  Config options to disable compatibility per mod
+-ADDED:  A config to specify seeds that will ingore the disable vanilla farming rule
+-ADDED:  The AgriCraft villager will now search and remove weeds from nearby crops
+-ADDED:  A recipe to convert wheat to seeds
+-ADDED:  Alternate textures for the botania crops (thanks WolfieWaffle for the textures)
 -FIXED:  Seeds added as drops from tall grass always having weight 10
 -FIXED:  Not being able to set max brightness in Minetweaker methods
 -FIXED:  Wrong error message in Minetweaker methods
@@ -30,6 +48,18 @@ Changelog
 -FIXED:  Poisonous potatoes not dropping from potatoes
 -FIXED:  Stat calculation not obeying the stat cap
 -FIXED:  Standalone crops obey growth requirements
+-FIXED:  A crash on harvesting after someone removed all the fruits of a crop without adding any new ones
+-FIXED:  NEI reverse lookup not working for soils and base blocks
+-FIXED:  No more missing texture spam in the console
+-FIXED:  Village generation not working
+-FIXED:  Recipes being added for non initialized items
+-FIXED:  Bug where plants would only drop fruits on the first harvest
+-FIXED:  NPE when breaking tanks
+-FIXED:  Serverside crash
+-FIXED:  A bunch of issues with Custom Crops and MineTweaker compatibility
+-FIXED:  Magical Crops beta crops giving null as fruit
+-FIXED:  NPE with trowel
+-FIXED:  Some localisation issues with journal seed information
 
 1.3.1
 -ADDED:  Nitor Wart: a new crop that produces glowstone dust

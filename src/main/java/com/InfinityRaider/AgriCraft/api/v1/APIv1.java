@@ -1,7 +1,6 @@
 package com.InfinityRaider.AgriCraft.api.v1;
 
 import com.InfinityRaider.AgriCraft.api.APIBase;
-
 import net.minecraft.block.Block;
 import net.minecraft.item.ItemStack;
 import net.minecraft.world.World;
@@ -58,17 +57,6 @@ public interface APIv1 extends APIBase {
 	 *         but will never be null.
 	 */
 	List<Block> getCropsBlocks();
-
-	/**
-	 * Checks if the given item as some kind of seed that AgriCraft knows about.
-	 * Please note that this does NOT mean that it can be planted in crops, as
-	 * it may be disabled by aconfig setting.
-	 * 
-	 * @param seed
-	 *            Any ItemStack.
-	 * @return True if the given item is a seed item.
-	 */
-	boolean isSeed(ItemStack seed);
 
 	/**
 	 * Checks if AgriCraft is configured to prevent the given seed to be used in
@@ -457,5 +445,67 @@ public interface APIv1 extends APIBase {
 	 */
 	boolean applyFertilizer(World world, int x, int y, int z,
 			ItemStack fertilizer);
+
+	/**
+	 * Gets a list of all mutations currently registered
+	 * Mutations are populated onServerAboutToStartEvent, so any calls before that will return null
+	 */
+	IMutation[] getRegisteredMutations();
+
+	/**
+	 * Gets a list of all mutations that have this stack as a parent
+	 * Mutations are populated onServerAboutToStartEvent, so any calls before that will return null
+	 */
+	IMutation[] getRegisteredMutationsForParent(ItemStack parent);
+
+	/**
+	 * Gets a list of all mutations that have this stack as a child
+	 * Mutations are populated onServerAboutToStartEvent, so any calls before that will return null
+	 */
+	IMutation[] getRegisteredMutationsForChild(ItemStack child);
+
+
+	/**
+	 * Registers a new mutation
+	 * @param result
+	 * @param parent1
+	 * @param parent2
+	 * @return True if successful
+	 */
+	boolean registerMutation(ItemStack result, ItemStack parent1, ItemStack parent2);
+
+	/**
+	 * Registers a new mutation
+	 * @param result
+	 * @param parent1
+	 * @param parent2
+	 * @return True if successful
+	 */
+	boolean registerMutation(ItemStack result, ItemStack parent1, ItemStack parent2, double chance);
+
+	/**
+	 * Removes all mutations that give this stack as a result
+	 * @param result
+	 * @return True if successful
+	 */
+	boolean removeMutation(ItemStack result);
+
+	/**
+	 * This method creates the block and the seed for a new plant that is fully compatible with agricraft.
+	 * This method also registers this block and the item for the seed to the minecraft item/block registry and to the AgriCraft CropPlantHandler.
+	 * @param args: Arguments can be given in any order, parameters can be:
+	 *               String name (needed)
+	 *               ItemStack fruit(needed)
+	 *               Block soil (optional)
+	 *               BlockWithMeta baseBlock (optional)
+	 *               int tier (necessary)
+	 *               RenderMethod renderType (necessary)
+	 *               ItemStack shearDrop (optional, first ItemStack argument will be the regular fruit, second ItemStack argument is the shear drop)
+	 * @return
+	 * The Block corresponding with the plant, return type will always be instance of Block as well IAgriCraftPlant.
+	 * The seed is instance of Item and implements IAgriCraftSeed. It can be obtained by calling getSeed() on the returned object.
+	 * This method will return null when not all necessary arguments are given.
+	 */
+	IAgriCraftPlant createNewCrop(Object... args);
 
 }

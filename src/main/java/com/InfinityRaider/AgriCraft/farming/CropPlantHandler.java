@@ -9,7 +9,6 @@ import com.InfinityRaider.AgriCraft.utility.OreDictHelper;
 import com.InfinityRaider.AgriCraft.utility.SeedHelper;
 import com.InfinityRaider.AgriCraft.utility.exception.BlacklistedCropPlantException;
 import com.InfinityRaider.AgriCraft.utility.exception.DuplicateCropPlantException;
-
 import net.minecraft.block.BlockCrops;
 import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
@@ -82,6 +81,14 @@ public class CropPlantHandler {
         } catch(NullPointerException nullPointerException) {
             return null;
         }
+    }
+
+    public static ArrayList<CropPlant> getPlants() {
+        ArrayList<CropPlant> plants = new ArrayList<CropPlant>();
+        for(HashMap<Integer, CropPlant> subMap:cropPlants.values()) {
+            plants.addAll(subMap.values());
+        }
+        return plants;
     }
 
     public static void init() {

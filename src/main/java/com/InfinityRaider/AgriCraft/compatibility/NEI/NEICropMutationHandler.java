@@ -3,7 +3,6 @@ package com.InfinityRaider.AgriCraft.compatibility.NEI;
 import codechicken.lib.gui.GuiDraw;
 import codechicken.nei.PositionedStack;
 import codechicken.nei.recipe.TemplateRecipeHandler;
-
 import com.InfinityRaider.AgriCraft.api.v1.BlockWithMeta;
 import com.InfinityRaider.AgriCraft.api.v1.IGrowthRequirement;
 import com.InfinityRaider.AgriCraft.api.v1.RequirementType;
@@ -13,11 +12,10 @@ import com.InfinityRaider.AgriCraft.farming.mutation.Mutation;
 import com.InfinityRaider.AgriCraft.farming.mutation.MutationHandler;
 import com.InfinityRaider.AgriCraft.reference.Constants;
 import com.InfinityRaider.AgriCraft.reference.Reference;
-
+import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.StatCollector;
-
 import org.lwjgl.opengl.GL11;
 
 import java.awt.*;
@@ -43,22 +41,25 @@ public class NEICropMutationHandler extends TemplateRecipeHandler {
 
         //constructor
         public CachedCropMutationRecipe(Mutation mutation) {
-            this.parent1 = new PositionedStack(mutation.parent1.copy(), Constants.nei_X1, Constants.nei_Y1);
-            this.parent2 = new PositionedStack(mutation.parent2.copy(), Constants.nei_X2, Constants.nei_Y1);
-            this.result = new PositionedStack(mutation.result.copy(), Constants.nei_X3, Constants.nei_Y1);
+            ItemStack resultStack = mutation.getResult();
+            ItemStack parent1Stack = mutation.getParents()[0];
+            ItemStack parent2Stack = mutation.getParents()[1];
+            this.parent1 = new PositionedStack(parent1Stack, Constants.nei_X_parent1, Constants.nei_Y_seeds);
+            this.parent2 = new PositionedStack(parent2Stack, Constants.nei_X_parent2, Constants.nei_Y_seeds);
+            this.result = new PositionedStack(resultStack, Constants.nei_X_result, Constants.nei_Y_seeds);
 
             IGrowthRequirement growthReq = GrowthRequirementHandler.getGrowthRequirement(result.item.getItem(), result.item.getItemDamage());
             if (growthReq.getSoil() != null) {
-                soils.add(new PositionedStack(growthReq.getSoil().toStack(), Constants.nei_X3, Constants.nei_Y2));
+                soils.add(new PositionedStack(growthReq.getSoil().toStack(), Constants.nei_X_result, Constants.nei_Y_soil));
             } else {
                 for (BlockWithMeta blockWithMeta : GrowthRequirementHandler.defaultSoils) {
-                    soils.add(new PositionedStack(blockWithMeta.toStack(), Constants.nei_X3, Constants.nei_Y2));
+                    soils.add(new PositionedStack(blockWithMeta.toStack(), Constants.nei_X_result, Constants.nei_Y_soil));
                 }
             }
 
             this.requiredType = growthReq.getRequiredType();
             if (requiredType != RequirementType.NONE) {
-                requiredBlock = new PositionedStack(growthReq.requiredBlockAsItemStack(), Constants.nei_X3, Constants.nei_Y3);
+                requiredBlock = new PositionedStack(growthReq.requiredBlockAsItemStack(), Constants.nei_X_result, Constants.nei_Y_base);
             }
         }
 
@@ -94,7 +95,10 @@ public class NEICropMutationHandler extends TemplateRecipeHandler {
         if(id.equalsIgnoreCase(NEICropMutationHandler.id)) {
             Mutation[] mutations = MutationHandler.getMutations();
             for (Mutation mutation:mutations) {
-                if (mutation.result.getItem() != null && mutation.parent1.getItem() != null && mutation.parent2.getItem() != null) {
+                ItemStack resultStack = mutation.getResult();
+                ItemStack parent1Stack = mutation.getParents()[0];
+                ItemStack parent2Stack = mutation.getParents()[1];
+                if (resultStack.getItem() != null &&parent1Stack.getItem() != null && parent2Stack.getItem() != null) {
                     arecipes.add(new CachedCropMutationRecipe(mutation));
                 }
             }
@@ -112,9 +116,11 @@ public class NEICropMutationHandler extends TemplateRecipeHandler {
     @Override
     public void loadCraftingRecipes(ItemStack result) {
         if(CropPlantHandler.isValidSeed(result)) {
-            Mutation[] mutations = MutationHandler.getParentMutations(result);
+            Mutation[] mutations = MutationHandler.getMutationsFromChild(result);
             for(Mutation mutation:mutations) {
-                if (mutation.parent1.getItem()!=null && mutation.parent2.getItem()!=null) {
+                ItemStack parent1Stack = mutation.getParents()[0];
+                ItemStack parent2Stack = mutation.getParents()[1];
+                if (parent1Stack.getItem()!=null && parent2Stack.getItem()!=null) {
                     arecipes.add(new CachedCropMutationRecipe(mutation));
                 }
             }
@@ -124,10 +130,30 @@ public class NEICropMutationHandler extends TemplateRecipeHandler {
     //loads the mutation recipes for a given parent
     @Override
     public void loadUsageRecipes(ItemStack ingredient) {
+        if(ingredient == null || ingredient.getItem() == null) {
+            return;
+        }
         if(CropPlantHandler.isValidSeed(ingredient)) {
-            Mutation[] mutations = MutationHandler.getMutations(ingredient);
+            Mutation[] mutations = MutationHandler.getMutationsFromParent(ingredient);
             for (Mutation mutation:mutations) {
-                if (mutation.result.getItem() != null && mutation.parent1.getItem() != null && mutation.parent2.getItem() != null) {
+                ItemStack resultStack = mutation.getResult();
+                ItemStack parent1Stack = mutation.getParents()[0];
+                ItemStack parent2Stack = mutation.getParents()[1];
+                if (resultStack.getItem() != null && parent1Stack.getItem() != null && parent2Stack!= null && parent2Stack.getItem() != null) {
+                    arecipes.add(new CachedCropMutationRecipe(mutation));
+                }
+            }
+        }
+        else if(ingredient.getItem() instanceof ItemBlock) {
+            BlockWithMeta block = new BlockWithMeta(((ItemBlock) ingredient.getItem()).field_150939_a, ingredient.getItemDamage());
+            Mutation[] mutations = MutationHandler.getMutations();
+            for(Mutation mutation:mutations) {
+                IGrowthRequirement req = GrowthRequirementHandler.getGrowthRequirement(mutation.getResult().getItem(), mutation.getResult().getItemDamage());
+                if(req.isValidSoil(block)) {
+                    arecipes.add(new CachedCropMutationRecipe(mutation));
+                    continue;
+                }
+                if(block.equals(req.getRequiredBlock())) {
                     arecipes.add(new CachedCropMutationRecipe(mutation));
                 }
             }
@@ -174,7 +200,7 @@ public class NEICropMutationHandler extends TemplateRecipeHandler {
         GuiDraw.drawTexturedModalRect(0, 0, 5, 11, 166, 85);
 
         String soil = StatCollector.translateToLocal("agricraft_nei.soil");
-        GuiDraw.drawStringR(soil + ":", Constants.nei_X3 - 7, Constants.nei_Y2 + 4, COLOR_BLACK, false);
+        GuiDraw.drawStringR(soil + ":", Constants.nei_X_result - 7, Constants.nei_Y_soil + 4, COLOR_BLACK, false);
 
         if (mutationRecipe.requiredType != RequirementType.NONE) {
             String needs = StatCollector.translateToLocal("agricraft_nei.needs");
@@ -182,8 +208,8 @@ public class NEICropMutationHandler extends TemplateRecipeHandler {
                     ? StatCollector.translateToLocal("agricraft_nei.below")
                     : StatCollector.translateToLocal("agricraft_nei.nearby");
 
-            GuiDraw.drawStringR(needs + ":", Constants.nei_X3 - 7, Constants.nei_Y3 + 4, COLOR_BLACK, false);
-            GuiDraw.drawString(modifier, Constants.nei_X2 - 8, Constants.nei_Y3 + 4, COLOR_BLACK, false);
+            GuiDraw.drawStringR(needs + ":", Constants.nei_X_result - 7, Constants.nei_Y_base + 4, COLOR_BLACK, false);
+            GuiDraw.drawString(modifier, Constants.nei_X_parent2 - 8, Constants.nei_Y_base + 4, COLOR_BLACK, false);
         }
     }
 }
