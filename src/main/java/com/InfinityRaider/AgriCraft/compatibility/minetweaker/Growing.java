@@ -3,12 +3,14 @@ package com.InfinityRaider.AgriCraft.compatibility.minetweaker;
 import com.InfinityRaider.AgriCraft.api.v1.BlockWithMeta;
 import com.InfinityRaider.AgriCraft.api.v1.IGrowthRequirement;
 import com.InfinityRaider.AgriCraft.api.v1.RequirementType;
-import com.InfinityRaider.AgriCraft.farming.GrowthRequirementHandler;
+import com.InfinityRaider.AgriCraft.farming.CropPlantHandler;
+import com.InfinityRaider.AgriCraft.farming.growthrequirement.GrowthRequirementHandler;
 import com.google.common.base.Joiner;
 import minetweaker.IUndoableAction;
 import minetweaker.MineTweakerAPI;
 import minetweaker.api.item.IItemStack;
 import minetweaker.api.minecraft.MineTweakerMC;
+import minetweaker.api.oredict.IOreDictEntry;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemSeeds;
 import net.minecraft.item.ItemStack;
@@ -158,7 +160,7 @@ public class Growing {
             ItemStack seedStack = MineTweakerMC.getItemStack(seed);
             ItemStack soilStack = MineTweakerMC.getItemStack(soil);
             String error = "Invalid first argument: has to be a seed";
-            boolean success = seedStack.getItem()!=null && seedStack.getItem() instanceof ItemSeeds;
+            boolean success = CropPlantHandler.isValidSeed(seedStack);
             if(success) {
                 error = "Invalid second argument: has to be a block";
                 success = soilStack.getItem()!=null && soilStack.getItem() instanceof ItemBlock;
@@ -200,9 +202,10 @@ public class Growing {
 
             @Override
             public void apply() {
-                IGrowthRequirement growthReq = GrowthRequirementHandler.getGrowthRequirement(seed, meta);
+                IGrowthRequirement growthReq = CropPlantHandler.getGrowthRequirement(seed, meta);
                 oldSoil = growthReq.getSoil();
                 growthReq.setSoil(soil);
+                GrowthRequirementHandler.addSoil(soil);
             }
 
             @Override
@@ -212,7 +215,7 @@ public class Growing {
 
             @Override
             public void undo() {
-                IGrowthRequirement growthReq = GrowthRequirementHandler.getGrowthRequirement(seed, meta);
+                IGrowthRequirement growthReq = CropPlantHandler.getGrowthRequirement(seed, meta);
                 growthReq.setSoil(oldSoil);
             }
 
@@ -243,7 +246,7 @@ public class Growing {
         @ZenMethod public static void set(IItemStack seed, int min, int max) {
             ItemStack seedStack = MineTweakerMC.getItemStack(seed);
             String error = "Invalid first argument: has to be a seed";
-            boolean success = seedStack.getItem()!=null && seedStack.getItem() instanceof ItemSeeds;
+            boolean success = CropPlantHandler.isValidSeed(seedStack);
             if(success) {
                 error = "Invalid second argument: has to be larger than or equal to 0";
                 success = min>=0;
@@ -282,7 +285,7 @@ public class Growing {
 
             @Override
             public void apply() {
-                IGrowthRequirement growthReq = GrowthRequirementHandler.getGrowthRequirement(seed, meta);
+                IGrowthRequirement growthReq = CropPlantHandler.getGrowthRequirement(seed, meta);
                 old = growthReq.getBrightnessRange();
                 growthReq.setBrightnessRange(min, max);
             }
@@ -294,7 +297,7 @@ public class Growing {
 
             @Override
             public void undo() {
-                IGrowthRequirement growthReq = GrowthRequirementHandler.getGrowthRequirement(seed, meta);
+                IGrowthRequirement growthReq = CropPlantHandler.getGrowthRequirement(seed, meta);
                 growthReq.setBrightnessRange(old[0], old[1]);
             }
 
@@ -321,34 +324,44 @@ public class Growing {
 
         @ZenMethod
         public static void set(IItemStack seed, IItemStack base, int type, boolean oreDict) {
+            set(MineTweakerMC.getItemStack(seed), MineTweakerMC.getItemStack(base), type, oreDict);
+        }
+
+        @ZenMethod
+        public static void set(IItemStack seed, IItemStack base, int type) {
+            set(seed, base, type, false);
+        }
+
+        @ZenMethod
+        public static void set(IItemStack seed, IOreDictEntry base, int type) {
+            set(MineTweakerMC.getItemStack(seed), MineTweakerMC.getItemStack(base), type, true);
+        }
+
+        private static void set(ItemStack seed, ItemStack base, int type, boolean oreDict) {
             if (type < 1 || type > 2) {
                 MineTweakerAPI.logError("Type needs to be either 1 (below) or 2 (nearby)");
                 return;
             }
-
-            ItemStack seedIS = MineTweakerMC.getItemStack(seed);
-            if (seedIS == null || !(seedIS.getItem() instanceof ItemSeeds)) {
-                MineTweakerAPI.logError("Seeds has to be non-null and of type ItemSeeds.");
+            if (seed == null || !(CropPlantHandler.isValidSeed(seed))) {
+                MineTweakerAPI.logError("Seeds has to be non-null and should be recognized by AgriCraft as a seed.");
                 return;
             }
-
-            ItemStack baseIS = MineTweakerMC.getItemStack(base);
-            if (baseIS == null || !(baseIS.getItem() instanceof ItemBlock)) {
+            if (base == null || !(base.getItem() instanceof ItemBlock)) {
                 MineTweakerAPI.logError("Base has to be non-null and ot type ItemBlock.");
                 return;
             }
-
-            BlockWithMeta baseWM = new BlockWithMeta(((ItemBlock) baseIS.getItem()).field_150939_a, baseIS.getItemDamage());
+            BlockWithMeta baseWM = new BlockWithMeta(((ItemBlock) base.getItem()).field_150939_a, base.getItemDamage());
             RequirementType reqType = type == 1 ? RequirementType.BELOW
                     : RequirementType.NEARBY;
-            MineTweakerAPI.apply(new SetAction(seedIS, baseWM, reqType, oreDict));
+            MineTweakerAPI.apply(new SetAction(seed, baseWM, reqType, oreDict));
+
         }
 
         @ZenMethod
         public static void clear(IItemStack seed) {
             ItemStack seedIS = MineTweakerMC.getItemStack(seed);
-            if (seedIS == null || !(seedIS.getItem() instanceof ItemSeeds)) {
-                MineTweakerAPI.logError("Seeds has to be non-null and of type ItemSeeds.");
+            if (seedIS == null || !(CropPlantHandler.isValidSeed(seedIS))) {
+                MineTweakerAPI.logError("Seeds has to be non-null and should be recognized by AgriCraft as a seed.");
                 return;
             }
 
@@ -379,7 +392,7 @@ public class Growing {
 
             @Override
             public void apply() {
-                IGrowthRequirement growthReq = GrowthRequirementHandler.getGrowthRequirement(seed, seedMeta);
+                IGrowthRequirement growthReq = CropPlantHandler.getGrowthRequirement(seed, seedMeta);
                 oldReqBlock = growthReq.getRequiredBlock();
                 oldRequiredType = growthReq.getRequiredType();
                 oldReqBlockIsOreDict = growthReq.isOreDict();
@@ -393,7 +406,7 @@ public class Growing {
 
             @Override
             public void undo() {
-                IGrowthRequirement growthReq = GrowthRequirementHandler.getGrowthRequirement(seed, seedMeta);
+                IGrowthRequirement growthReq = CropPlantHandler.getGrowthRequirement(seed, seedMeta);
                 growthReq.setRequiredBlock(oldReqBlock, oldRequiredType, oldReqBlockIsOreDict);
             }
 

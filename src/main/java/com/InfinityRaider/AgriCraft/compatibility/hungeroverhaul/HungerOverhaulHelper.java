@@ -6,13 +6,8 @@ import cpw.mods.fml.common.event.FMLInterModComms;
 
 public final class HungerOverhaulHelper extends ModHelper {
     @Override
-    protected void init() {
+    protected void onInit() {
         FMLInterModComms.sendMessage("HungerOverhaul", "BlacklistRightClick", "com.InfinityRaider.AgriCraft.blocks.BlockCrop");
-    }
-
-    @Override
-    protected void initPlants() {
-
     }
 
     @Override

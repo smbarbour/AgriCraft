@@ -1,9 +1,12 @@
 package com.InfinityRaider.AgriCraft.world;
 
+import com.InfinityRaider.AgriCraft.farming.cropplant.CropPlant;
+import com.InfinityRaider.AgriCraft.farming.CropPlantHandler;
 import com.InfinityRaider.AgriCraft.handler.ConfigurationHandler;
 import com.InfinityRaider.AgriCraft.init.WorldGen;
 import com.InfinityRaider.AgriCraft.tileentity.irrigation.TileEntityChannel;
 import com.InfinityRaider.AgriCraft.tileentity.irrigation.TileEntityTank;
+import com.InfinityRaider.AgriCraft.utility.LogHelper;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemStack;
 import net.minecraft.world.World;
@@ -12,6 +15,7 @@ import net.minecraft.world.gen.structure.StructureComponent;
 import net.minecraft.world.gen.structure.StructureVillagePieces;
 import net.minecraftforge.common.util.ForgeDirection;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 public class StructureGreenhouseIrrigated extends StructureGreenhouse {
@@ -22,6 +26,7 @@ public class StructureGreenhouseIrrigated extends StructureGreenhouse {
     //helper fields
     private int averageGroundLevel = -1;
 
+    @SuppressWarnings("unused")
     public StructureGreenhouseIrrigated() {}
 
     public StructureGreenhouseIrrigated(StructureVillagePieces.Start villagePiece, int nr, Random rand, StructureBoundingBox structureBoundingBox, int coordBaseMode) {
@@ -248,21 +253,22 @@ public class StructureGreenhouseIrrigated extends StructureGreenhouse {
         this.placeBlockAtCurrentPosition(world, Blocks.torch, 0, 10, 4, 7, boundingBox);
         this.placeBlockAtCurrentPosition(world, Blocks.torch, 0, 13, 4, 7, boundingBox);
         //place crops
+        ArrayList<CropPlant> plants = CropPlantHandler.getPlantsUpToTier(ConfigurationHandler.greenHouseMaxTier);
         for(int x=3;x<=7;x++) {
             for(int z=8;z<=12;z++) {
-                this.generateStructureCrop(world, boundingBox, x, 2, z, (z%2==1 && x%2==0) || (x==5 &&z==10));
+                this.generateStructureCrop(world, boundingBox, x, 2, z, (z%2==1 && x%2==0) || (x==5 &&z==10), plants);
             }
         }
         for(int x=9;x<=13;x++) {
             for(int z=8;z<=12;z++) {
-                this.generateStructureCrop(world, boundingBox, x, 2, z, (z%2==1 && x%2==0) || (x==11 &&z==10));
+                this.generateStructureCrop(world, boundingBox, x, 2, z, (z%2==1 && x%2==0) || (x==11 &&z==10), plants);
             }
         }
         //place water tank
         for(int x=3;x<=6;x++) {
             for(int y=5;y<=8;y++) {
                 for(int z=1;z<=4;z++) {
-                    this.generateStructureWoodenTank(world, boundingBox, x, y, z);
+                    this.generateStructureWoodenTank(world, boundingBox, x, y, z, (x==6 && y==8 && z==4));
                 }
             }
         }
@@ -285,15 +291,21 @@ public class StructureGreenhouseIrrigated extends StructureGreenhouse {
     }
 
     //place a tank
-    protected boolean generateStructureWoodenTank(World world, StructureBoundingBox boundingBox, int x, int y, int z) {
+    protected boolean generateStructureWoodenTank(World world, StructureBoundingBox boundingBox, int x, int y, int z, boolean multiBlockify) {
         int xCoord = this.getXWithOffset(x, z);
         int yCoord = this.getYWithOffset(y);
         int zCoord = this.getZWithOffset(x, z);
         if (boundingBox.isVecInside(xCoord, yCoord, zCoord)) {
             world.setBlock(xCoord, yCoord, zCoord, com.InfinityRaider.AgriCraft.init.Blocks.blockWaterTank, 0, 2);
             TileEntityTank tank = (TileEntityTank) world.getTileEntity(xCoord, yCoord, zCoord);
-            if (tank!=null) {
-                tank.setMaterial(new ItemStack(Blocks.planks, 1, 0));
+            if (tank == null) {
+                tank = new TileEntityTank();
+                world.setTileEntity(xCoord, yCoord, zCoord, tank);
+            }
+            tank.setMaterial(new ItemStack(Blocks.planks, 1, 0));
+            if(multiBlockify) {
+                tank.getMultiBlockManager().onBlockPlaced(world, xCoord, yCoord, zCoord, tank);
+                LogHelper.debug("Creating Multiblock at (" + xCoord + ", " + yCoord + ", " + zCoord + ")");
             }
             return true;
         }

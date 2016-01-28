@@ -1,6 +1,7 @@
 package com.InfinityRaider.AgriCraft.network;
 
-import com.InfinityRaider.AgriCraft.container.ContainerSeedStorageDummy;
+import com.InfinityRaider.AgriCraft.AgriCraft;
+import com.InfinityRaider.AgriCraft.container.ContainerSeedStorageBase;
 import cpw.mods.fml.common.network.simpleimpl.IMessage;
 import cpw.mods.fml.common.network.simpleimpl.IMessageHandler;
 import cpw.mods.fml.common.network.simpleimpl.MessageContext;
@@ -17,13 +18,14 @@ public class MessageContainerSeedStorage extends MessageAgriCraft {
     private EntityPlayer player;
     private int slotId;
 
+    @SuppressWarnings("unused")
     public MessageContainerSeedStorage() {}
 
-    public MessageContainerSeedStorage(ItemStack stack, EntityPlayer player, int slotId) {
+    public MessageContainerSeedStorage(ItemStack stack, int slotId) {
         this.item = stack.getItem();
         this.meta = stack.getItemDamage();
         this.amount = stack.stackSize;
-        this.player = player;
+        this.player = AgriCraft.proxy.getClientPlayer();
         this.slotId = slotId;
     }
 
@@ -49,8 +51,8 @@ public class MessageContainerSeedStorage extends MessageAgriCraft {
         @Override
         public IMessage onMessage(MessageContainerSeedStorage message, MessageContext context) {
             Container container = message.player.openContainer;
-            if(container!=null && container instanceof ContainerSeedStorageDummy) {
-                ContainerSeedStorageDummy storage = (ContainerSeedStorageDummy) container;
+            if(container!=null && container instanceof ContainerSeedStorageBase) {
+                ContainerSeedStorageBase storage = (ContainerSeedStorageBase) container;
                 storage.moveStackFromTileEntityToPlayer(message.slotId, new ItemStack(message.item, message.amount, message.meta));
             }
             return null;

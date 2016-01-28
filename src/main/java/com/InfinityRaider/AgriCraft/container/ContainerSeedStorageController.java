@@ -9,13 +9,14 @@ import net.minecraft.tileentity.TileEntity;
 
 import java.util.List;
 
-public class ContainerSeedStorageController extends ContainerSeedStorageDummy {
+public class ContainerSeedStorageController extends ContainerSeedStorageBase {
     public TileEntitySeedStorageController te;
     private static final int invOffsetX = 82;
     private static final int invOffsetY = 94;
 
     public ContainerSeedStorageController(InventoryPlayer inventory, TileEntitySeedStorageController te) {
         super(inventory, invOffsetX, invOffsetY);
+        this.te = te;
     }
 
     @Override

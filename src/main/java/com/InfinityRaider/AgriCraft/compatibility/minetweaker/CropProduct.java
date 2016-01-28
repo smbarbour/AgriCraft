@@ -2,6 +2,7 @@ package com.InfinityRaider.AgriCraft.compatibility.minetweaker;
 
 import com.InfinityRaider.AgriCraft.blocks.BlockModPlant;
 import com.InfinityRaider.AgriCraft.farming.CropProduce;
+import com.InfinityRaider.AgriCraft.handler.ConfigurationHandler;
 import com.InfinityRaider.AgriCraft.items.ItemModSeed;
 import com.InfinityRaider.AgriCraft.utility.LogHelper;
 import com.InfinityRaider.AgriCraft.utility.OreDictHelper;
@@ -26,7 +27,7 @@ public class CropProduct {
         String error = "Invalid Seed";
         boolean success = seedToChange!=null && seedToChange.getItem()!=null && seedToChange.getItem() instanceof ItemModSeed;
         if(success) {
-            BlockModPlant crop = (BlockModPlant) ((ItemModSeed) seedToChange.getItem()).getPlant();
+            BlockModPlant crop = ((ItemModSeed) seedToChange.getItem()).getPlant();
             MineTweakerAPI.apply(new AddAction(crop, fruitToAdd, weight));
         }
         if(!success) {
@@ -41,7 +42,7 @@ public class CropProduct {
         String error = "Invalid Seed";
         boolean success = seedToChange!=null && seedToChange.getItem()!=null && seedToChange.getItem() instanceof ItemModSeed;
         if(success) {
-            BlockModPlant crop = (BlockModPlant) ((ItemModSeed) seedToChange.getItem()).getPlant();
+            BlockModPlant crop = ((ItemModSeed) seedToChange.getItem()).getPlant();
             MineTweakerAPI.apply((new RemoveAction(crop, fruitToRemove)));
         }
         if(!success) {
@@ -65,7 +66,7 @@ public class CropProduct {
             crop.products.addProduce(fruit, weight);
             String oreDictTag = this.fruitTag();
             LogHelper.debug("Registering "+fruit.getDisplayName()+" to the ore dictionary as "+oreDictTag);
-            if(!OreDictHelper.hasOreId(fruit, oreDictTag)) {
+            if(ConfigurationHandler.registerCropProductsToOreDict && !OreDictHelper.hasOreId(fruit, oreDictTag)) {
                 OreDictionary.registerOre(oreDictTag, fruit);
             }
         }
@@ -78,8 +79,10 @@ public class CropProduct {
         @Override
         public void undo() {
             crop.products.removeProduce(fruit);
-            MCOreDictEntry ore = new MCOreDictEntry(this.fruitTag());
-            ore.remove(new MCItemStack(this.fruit));
+            if(ConfigurationHandler.registerCropProductsToOreDict) {
+                MCOreDictEntry ore = new MCOreDictEntry(this.fruitTag());
+                ore.remove(new MCItemStack(this.fruit));
+            }
         }
 
         @Override
@@ -96,8 +99,9 @@ public class CropProduct {
         public Object getOverrideKey() {
             return null;
         }
+
         private String fruitTag() {
-            return crop.getUnlocalizedName().substring(crop.getUnlocalizedName().indexOf(':'));
+            return crop.getUnlocalizedName().substring(crop.getUnlocalizedName().indexOf(':')+1);
         }
     }
 
@@ -115,8 +119,10 @@ public class CropProduct {
         @Override
         public void apply() {
             crop.products.removeProduce(fruit);
-            MCOreDictEntry ore = new MCOreDictEntry(this.fruitTag());
-            ore.remove(new MCItemStack(this.fruit));
+            if(ConfigurationHandler.registerCropProductsToOreDict) {
+                MCOreDictEntry ore = new MCOreDictEntry(this.fruitTag());
+                ore.remove(new MCItemStack(this.fruit));
+            }
         }
 
         @Override
@@ -129,7 +135,7 @@ public class CropProduct {
             crop.products.addProduce(fruit, weight);
             String oreDictTag = this.fruitTag();
             LogHelper.debug("Registering " + fruit.getDisplayName() + " to the ore dictionary as " + oreDictTag);
-            if(!OreDictHelper.hasOreId(fruit, oreDictTag)) {
+            if(ConfigurationHandler.registerCropProductsToOreDict && !OreDictHelper.hasOreId(fruit, oreDictTag)) {
                 OreDictionary.registerOre(oreDictTag, fruit);
             }
         }
@@ -148,8 +154,9 @@ public class CropProduct {
         public Object getOverrideKey() {
             return null;
         }
+
         private String fruitTag() {
-            return crop.getUnlocalizedName().substring(crop.getUnlocalizedName().indexOf(':'));
+            return crop.getUnlocalizedName().substring(crop.getUnlocalizedName().indexOf(':')+1);
         }
     }
 }

@@ -1,15 +1,32 @@
 package com.InfinityRaider.AgriCraft.compatibility.bluepower;
 
-import com.InfinityRaider.AgriCraft.apiimpl.v1.cropplant.CropPlantTallGeneric;
+import com.InfinityRaider.AgriCraft.api.v1.IGrowthRequirement;
+import com.InfinityRaider.AgriCraft.farming.cropplant.CropPlantTallGeneric;
+import com.InfinityRaider.AgriCraft.farming.growthrequirement.GrowthRequirementHandler;
 import com.InfinityRaider.AgriCraft.reference.Constants;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
+import net.minecraft.init.Items;
 import net.minecraft.item.ItemSeeds;
+import net.minecraft.item.ItemStack;
+
+import java.util.Random;
 
 public class CropPlantBluePower extends CropPlantTallGeneric {
     public CropPlantBluePower(ItemSeeds seed) {
         super(seed);
     }
+
+    @Override
+    public ItemStack getRandomFruit(Random rand) {
+        return new ItemStack(Items.string);
+    }
+
+    @Override
+    protected IGrowthRequirement initGrowthRequirement() {
+        return GrowthRequirementHandler.getNewBuilder().build();
+    }
+
     @Override
     public int transformMeta(int growthStage) {
         switch(growthStage) {
@@ -37,7 +54,7 @@ public class CropPlantBluePower extends CropPlantTallGeneric {
     @Override
     @SideOnly(Side.CLIENT)
     public float getHeight(int meta) {
-        return (meta>maxMetaBottomBlock()?2:1)* Constants.unit*16;
+        return (meta>maxMetaBottomBlock()?2:1)* Constants.UNIT*16;
     }
 
     @Override

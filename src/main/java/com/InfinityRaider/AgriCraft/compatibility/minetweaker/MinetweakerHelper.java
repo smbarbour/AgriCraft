@@ -6,7 +6,7 @@ import minetweaker.MineTweakerAPI;
 
 public class MinetweakerHelper extends ModHelper {
     @Override
-    protected void init() {
+    protected void onInit() {
         MineTweakerAPI.registerClass(CustomWood.class);
         MineTweakerAPI.registerClass(SeedMutation.class);
         MineTweakerAPI.registerClass(SeedBlacklist.class);
@@ -17,11 +17,7 @@ public class MinetweakerHelper extends ModHelper {
         MineTweakerAPI.registerClass(Growing.Soil.class);
         MineTweakerAPI.registerClass(Growing.Brightness.class);
         MineTweakerAPI.registerClass(Growing.BaseBlock.class);
-    }
-
-    @Override
-    protected void initPlants() {
-
+        MineTweakerAPI.registerClass(WeedRaking.class);
     }
 
     @Override

@@ -1,28 +1,36 @@
 package com.InfinityRaider.AgriCraft.blocks;
 
-import com.InfinityRaider.AgriCraft.AgriCraft;
+import com.InfinityRaider.AgriCraft.items.blocks.ItemBlockCustomWood;
 import com.InfinityRaider.AgriCraft.reference.Constants;
+import com.InfinityRaider.AgriCraft.reference.Names;
+import com.InfinityRaider.AgriCraft.renderers.blocks.RenderBlockBase;
+import com.InfinityRaider.AgriCraft.renderers.blocks.RenderValve;
 import com.InfinityRaider.AgriCraft.tileentity.irrigation.TileEntityValve;
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockLever;
-import net.minecraft.init.Blocks;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.IIcon;
+import net.minecraft.util.StatCollector;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.ForgeDirection;
 
+import java.util.List;
 
-public class BlockChannelValve extends BlockCustomWood {
 
+public class BlockChannelValve extends BlockWaterChannel {
     public BlockChannelValve() {
         super();
-        this.setBlockBounds(4*Constants.unit, 0, 4*Constants.unit, 12*Constants.unit, 1, 12*Constants.unit);
+        this.setBlockBounds(4*Constants.UNIT, 0, 4*Constants.UNIT, 12*Constants.UNIT, 1, 12*Constants.UNIT);
     }
 
     @Override
     public void onNeighborBlockChange(World world, int x, int y, int z, Block block) {
         if (!world.isRemote) {
+            super.onNeighborBlockChange(world, x, y, z, block);
             updatePowerStatus(world, x, y, z);
             if(block instanceof BlockLever) {
                 world.markBlockForUpdate(x, y, z);
@@ -57,11 +65,6 @@ public class BlockChannelValve extends BlockCustomWood {
     }
 
     @Override
-    public int getRenderType() {
-        return AgriCraft.proxy.getRenderId(Constants.valveId);
-    }
-
-    @Override
     public boolean renderAsNormalBlock() {
         return false;
     }
@@ -77,7 +80,43 @@ public class BlockChannelValve extends BlockCustomWood {
     }
 
     @Override
-    public IIcon getIcon(int side, int meta) {
-        return Blocks.planks.getIcon(0, 0);
+    @SideOnly(Side.CLIENT)
+    public RenderBlockBase getRenderer() {
+        return new RenderValve();
     }
+
+    @Override
+    protected String getInternalName() {
+        return Names.Objects.valve;
+    }
+
+    @Override
+    protected String getTileEntityName() {
+        return Names.Objects.valve;
+    }
+
+    @Override
+    public boolean isMultiBlock() {
+        return false;
+    }
+
+    @Override
+    protected Class<? extends ItemBlockCustomWood> getItemBlockClass() {
+    	return ItemBlockValve.class;
+    }
+    
+    public static class ItemBlockValve extends ItemBlockCustomWood {
+        public ItemBlockValve(Block block) {
+            super(block);
+        }
+
+        @Override
+        @SideOnly(Side.CLIENT)
+        @SuppressWarnings("unchecked")
+        public void addInformation(ItemStack stack, EntityPlayer player, List list, boolean flag) {
+            super.addInformation(stack, player, list, flag);
+            list.add(StatCollector.translateToLocal("agricraft_tooltip.valve"));
+        }
+    }
+
 }

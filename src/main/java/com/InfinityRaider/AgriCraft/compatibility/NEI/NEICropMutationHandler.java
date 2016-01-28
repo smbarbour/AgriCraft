@@ -7,7 +7,7 @@ import com.InfinityRaider.AgriCraft.api.v1.BlockWithMeta;
 import com.InfinityRaider.AgriCraft.api.v1.IGrowthRequirement;
 import com.InfinityRaider.AgriCraft.api.v1.RequirementType;
 import com.InfinityRaider.AgriCraft.farming.CropPlantHandler;
-import com.InfinityRaider.AgriCraft.farming.GrowthRequirementHandler;
+import com.InfinityRaider.AgriCraft.farming.growthrequirement.GrowthRequirementHandler;
 import com.InfinityRaider.AgriCraft.farming.mutation.Mutation;
 import com.InfinityRaider.AgriCraft.farming.mutation.MutationHandler;
 import com.InfinityRaider.AgriCraft.reference.Constants;
@@ -22,7 +22,7 @@ import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 
-public class NEICropMutationHandler extends TemplateRecipeHandler {
+public class NEICropMutationHandler extends AgriCraftNEIHandler {
     //this is a class which handles the recipe for crop mutation (has to contain a CachedRecipe for the mutation)
     private static String name = StatCollector.translateToLocal("agricraft_nei.mutation.title");
     private static String id = "cropMutation";
@@ -48,7 +48,7 @@ public class NEICropMutationHandler extends TemplateRecipeHandler {
             this.parent2 = new PositionedStack(parent2Stack, Constants.nei_X_parent2, Constants.nei_Y_seeds);
             this.result = new PositionedStack(resultStack, Constants.nei_X_result, Constants.nei_Y_seeds);
 
-            IGrowthRequirement growthReq = GrowthRequirementHandler.getGrowthRequirement(result.item.getItem(), result.item.getItemDamage());
+            IGrowthRequirement growthReq = CropPlantHandler.getGrowthRequirement(result.item.getItem(), result.item.getItemDamage());
             if (growthReq.getSoil() != null) {
                 soils.add(new PositionedStack(growthReq.getSoil().toStack(), Constants.nei_X_result, Constants.nei_Y_soil));
             } else {
@@ -91,7 +91,7 @@ public class NEICropMutationHandler extends TemplateRecipeHandler {
 
     //loads the mutation recipes for a given mutation
     @Override
-    public void loadCraftingRecipes(String id, Object... results) {
+    protected void loadCraftingRecipesDo(String id, Object... results) {
         if(id.equalsIgnoreCase(NEICropMutationHandler.id)) {
             Mutation[] mutations = MutationHandler.getMutations();
             for (Mutation mutation:mutations) {
@@ -114,7 +114,7 @@ public class NEICropMutationHandler extends TemplateRecipeHandler {
 
     //loads the mutation recipes for a given mutation
     @Override
-    public void loadCraftingRecipes(ItemStack result) {
+    protected void loadCraftingRecipesDo(ItemStack result) {
         if(CropPlantHandler.isValidSeed(result)) {
             Mutation[] mutations = MutationHandler.getMutationsFromChild(result);
             for(Mutation mutation:mutations) {
@@ -129,7 +129,7 @@ public class NEICropMutationHandler extends TemplateRecipeHandler {
 
     //loads the mutation recipes for a given parent
     @Override
-    public void loadUsageRecipes(ItemStack ingredient) {
+    protected void loadUsageRecipesDo(ItemStack ingredient) {
         if(ingredient == null || ingredient.getItem() == null) {
             return;
         }
@@ -148,7 +148,7 @@ public class NEICropMutationHandler extends TemplateRecipeHandler {
             BlockWithMeta block = new BlockWithMeta(((ItemBlock) ingredient.getItem()).field_150939_a, ingredient.getItemDamage());
             Mutation[] mutations = MutationHandler.getMutations();
             for(Mutation mutation:mutations) {
-                IGrowthRequirement req = GrowthRequirementHandler.getGrowthRequirement(mutation.getResult().getItem(), mutation.getResult().getItemDamage());
+                IGrowthRequirement req = CropPlantHandler.getGrowthRequirement(mutation.getResult().getItem(), mutation.getResult().getItemDamage());
                 if(req.isValidSoil(block)) {
                     arecipes.add(new CachedCropMutationRecipe(mutation));
                     continue;

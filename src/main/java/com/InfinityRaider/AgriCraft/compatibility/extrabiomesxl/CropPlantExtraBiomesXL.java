@@ -1,7 +1,8 @@
 package com.InfinityRaider.AgriCraft.compatibility.extrabiomesxl;
 
-import com.InfinityRaider.AgriCraft.apiimpl.v1.cropplant.CropPlant;
-import com.InfinityRaider.AgriCraft.farming.GrowthRequirementHandler;
+import com.InfinityRaider.AgriCraft.api.v1.IGrowthRequirement;
+import com.InfinityRaider.AgriCraft.farming.cropplant.CropPlant;
+import com.InfinityRaider.AgriCraft.farming.growthrequirement.GrowthRequirementHandler;
 import com.InfinityRaider.AgriCraft.reference.Constants;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
@@ -33,6 +34,11 @@ public class CropPlantExtraBiomesXL extends CropPlant {
     @Override
     public ItemStack getSeed() {
         return new ItemStack(seed);
+    }
+
+    @Override
+    public Block getBlock() {
+        return plant;
     }
 
 
@@ -68,19 +74,19 @@ public class CropPlantExtraBiomesXL extends CropPlant {
     }
 
     @Override
+    protected IGrowthRequirement initGrowthRequirement() {
+        return GrowthRequirementHandler.getNewBuilder().build();
+    }
+
+    @Override
     public boolean onAllowedGrowthTick(World world, int x, int y, int z, int oldGrowthStage) {
         return true;
     }
 
     @Override
-    public boolean isFertile(World world, int x, int y, int z) {
-        return GrowthRequirementHandler.getGrowthRequirement(seed, 0).canGrow(world, x, y, z);
-    }
-
-    @Override
     @SideOnly(Side.CLIENT)
     public float getHeight(int meta) {
-        return Constants.unit*13;
+        return Constants.UNIT*13;
     }
 
     @Override

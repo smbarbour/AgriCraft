@@ -1,10 +1,13 @@
 package com.InfinityRaider.AgriCraft.blocks;
 
-import com.InfinityRaider.AgriCraft.AgriCraft;
-import com.InfinityRaider.AgriCraft.reference.Constants;
+import com.InfinityRaider.AgriCraft.reference.Names;
+import com.InfinityRaider.AgriCraft.renderers.blocks.RenderBlockBase;
+import com.InfinityRaider.AgriCraft.renderers.blocks.RenderChannelFull;
+import com.InfinityRaider.AgriCraft.tileentity.irrigation.TileEntityChannelFull;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import net.minecraft.entity.Entity;
+import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.world.World;
 
@@ -17,6 +20,12 @@ public class BlockWaterChannelFull extends BlockWaterChannel {
     }
 
     @Override
+    public TileEntity createNewTileEntity(World world, int meta) {
+        return new TileEntityChannelFull();
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
     public void addCollisionBoxesToList(World world, int x, int y, int z, AxisAlignedBB boundingBox, List list, Entity entity) {
         AxisAlignedBB axisalignedbb = this.getCollisionBoundingBoxFromPool(world, x, y, z);
         if (axisalignedbb != null && boundingBox.intersectsWith(axisalignedbb)) {
@@ -31,5 +40,18 @@ public class BlockWaterChannelFull extends BlockWaterChannel {
     }
 
     @Override
-    public int getRenderType() {return AgriCraft.proxy.getRenderId(Constants.channelFullId);}
+    @SideOnly(Side.CLIENT)
+    public RenderBlockBase getRenderer() {
+        return new RenderChannelFull();
+    }
+
+    @Override
+    protected String getInternalName() {
+        return Names.Objects.channelFull;
+    }
+
+    @Override
+    protected String getTileEntityName() {
+        return Names.Objects.channelFull;
+    }
 }

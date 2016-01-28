@@ -8,7 +8,8 @@ import java.lang.reflect.Method;
 
 public class BloodMagicHelper extends ModHelper {
     @Override
-    protected void init() {
+    @SuppressWarnings("unchecked")
+    protected void onInit() {
         try {
             Class harvestRegistry = Class.forName("WayofTime.alchemicalWizardry.api.harvest.HarvestRegistry");
             Class harvestHandler = Class.forName("WayofTime.alchemicalWizardry.api.harvest.IHarvestHandler");
@@ -20,9 +21,6 @@ public class BloodMagicHelper extends ModHelper {
             }
         }
     }
-
-    @Override
-    protected void initPlants() {}
 
     @Override
     protected String modId() {

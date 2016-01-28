@@ -1,6 +1,5 @@
 package com.InfinityRaider.AgriCraft.container;
 
-import com.InfinityRaider.AgriCraft.farming.CropPlantHandler;
 import com.InfinityRaider.AgriCraft.items.ItemJournal;
 import com.InfinityRaider.AgriCraft.tileentity.TileEntitySeedAnalyzer;
 import cpw.mods.fml.relauncher.Side;
@@ -17,19 +16,27 @@ public class ContainerSeedAnalyzer extends ContainerAgricraft {
     public static final int seedSlotId = 36;
     public static final int journalSlotId = 37;
 
-    public ContainerSeedAnalyzer(InventoryPlayer inventory, TileEntitySeedAnalyzer seedAnalyzer) {
-        super(inventory, 8, 94);
+    public ContainerSeedAnalyzer(InventoryPlayer inventory, TileEntitySeedAnalyzer seedAnalyzer, int x, int y) {
+        super(inventory, x, y);
         this.seedAnalyzer = seedAnalyzer;
+        this.addSlots();
+    }
+
+    protected void addSlots() {
         //add seed slot to the container
         this.addSlotToContainer(new SlotSeedAnalyzerSeed(seedAnalyzer, seedSlotId, 80, 40));
         //add journal slot to the container
         this.addSlotToContainer(new SlotSeedAnalyzerJournal(seedAnalyzer, journalSlotId, 152, 68));
     }
 
+    public ContainerSeedAnalyzer(InventoryPlayer inventory, TileEntitySeedAnalyzer seedAnalyzer) {
+        this(inventory, seedAnalyzer, 8, 94);
+    }
+
     @Override
     public void addCraftingToCrafters(ICrafting crafting) {
         super.addCraftingToCrafters(crafting);
-        crafting.sendProgressBarUpdate(this, 0, this.seedAnalyzer.progress);
+        crafting.sendProgressBarUpdate(this, 0, this.seedAnalyzer.getProgress());
     }
 
     @Override
@@ -37,35 +44,35 @@ public class ContainerSeedAnalyzer extends ContainerAgricraft {
         super.detectAndSendChanges();
         for (Object crafter : this.crafters) {
             ICrafting crafting = (ICrafting) crafter;
-            if (this.progress != this.seedAnalyzer.progress) {
-                crafting.sendProgressBarUpdate(this, 0, this.seedAnalyzer.progress);
+            if (this.progress != this.seedAnalyzer.getProgress()) {
+                crafting.sendProgressBarUpdate(this, 0, this.seedAnalyzer.getProgress());
             }
         }
-        this.progress = this.seedAnalyzer.progress;
+        this.progress = this.seedAnalyzer.getProgress();
     }
 
     @Override
     public void putStackInSlot(int slot, ItemStack stack) {
         switch(slot) {
             case seedSlotId:
-                if(TileEntitySeedAnalyzer.isValid(stack) && this.getSlot(slot).isItemValid(stack)) {
+                if (TileEntitySeedAnalyzer.isValid(stack) && this.getSlot(slot).isItemValid(stack)) {
                     this.getSlot(slot).putStack(stack);
                 }
-                break;
+                return;
             case journalSlotId:
-                if(this.getSlot(slot).isItemValid(stack)) {
+                if (this.getSlot(slot).isItemValid(stack)) {
                     this.getSlot(slot).putStack(stack);
                 }
-                break;
+                return;
         }
-
+        super.putStackInSlot(slot, stack);
     }
 
     @Override
     @SideOnly(Side.CLIENT)
     public void updateProgressBar(int type, int newValue) {
         if(type==0) {
-            this.seedAnalyzer.progress = newValue;
+            this.seedAnalyzer.setProgress(newValue);
         }
     }
 
@@ -86,7 +93,7 @@ public class ContainerSeedAnalyzer extends ContainerAgricraft {
             else {
                 //try to move item from the player's inventory into the analyzer
                 if(itemstack1.getItem()!=null) {
-                    if(CropPlantHandler.isValidSeed(itemstack1)) {
+                    if(TileEntitySeedAnalyzer.isValid(itemstack1)) {
                         if (!this.mergeItemStack(itemstack1, seedSlotId, seedSlotId+1, false)) {
                             return null;
                         }

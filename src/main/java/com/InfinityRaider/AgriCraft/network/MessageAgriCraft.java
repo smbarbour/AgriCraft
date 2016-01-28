@@ -1,7 +1,9 @@
 package com.InfinityRaider.AgriCraft.network;
 
+import com.InfinityRaider.AgriCraft.AgriCraft;
 import cpw.mods.fml.common.network.simpleimpl.IMessage;
 import io.netty.buffer.ByteBuf;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -19,7 +21,7 @@ public abstract class MessageAgriCraft implements IMessage {
         Iterator iterator = list.iterator();
         while (iterator.hasNext() && player==null) {
             EntityPlayer nextPlayer = (EntityPlayer)iterator.next();
-            if(nextPlayer.getDisplayName().equals(name)) {
+            if(nextPlayer.getGameProfile().getName().equals(name)) {
                 player = nextPlayer;
             }
         }
@@ -27,7 +29,7 @@ public abstract class MessageAgriCraft implements IMessage {
     }
 
     protected void writePlayerToByteBuf(EntityPlayer player, ByteBuf buf) {
-        String playerName = player.getDisplayName();
+        String playerName = player==null?"null":player.getGameProfile().getName();
         buf.writeInt(playerName.length());
         buf.writeBytes(playerName.getBytes());
     }
@@ -55,5 +57,14 @@ public abstract class MessageAgriCraft implements IMessage {
         this.writeItemToByteBuf(stack.getItem(), buf);
         buf.writeInt(stack.getItemDamage());
         buf.writeInt(stack.stackSize);
+    }
+
+    protected Entity readEntityFromByteBuf(ByteBuf buf) {
+        return AgriCraft.proxy.getEntityById(buf.readInt(), buf.readInt());
+    }
+
+    protected void writeEntityToByteBuf(ByteBuf buf, Entity e) {
+        buf.writeInt(e.worldObj.provider.dimensionId);
+        buf.writeInt(e.getEntityId());
     }
 }

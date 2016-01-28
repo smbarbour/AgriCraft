@@ -6,9 +6,9 @@ import codechicken.nei.recipe.TemplateRecipeHandler;
 import com.InfinityRaider.AgriCraft.api.v1.BlockWithMeta;
 import com.InfinityRaider.AgriCraft.api.v1.IGrowthRequirement;
 import com.InfinityRaider.AgriCraft.api.v1.RequirementType;
-import com.InfinityRaider.AgriCraft.apiimpl.v1.cropplant.CropPlant;
+import com.InfinityRaider.AgriCraft.farming.cropplant.CropPlant;
 import com.InfinityRaider.AgriCraft.farming.CropPlantHandler;
-import com.InfinityRaider.AgriCraft.farming.GrowthRequirementHandler;
+import com.InfinityRaider.AgriCraft.farming.growthrequirement.GrowthRequirementHandler;
 import com.InfinityRaider.AgriCraft.reference.Constants;
 import com.InfinityRaider.AgriCraft.reference.Reference;
 import net.minecraft.item.ItemBlock;
@@ -21,7 +21,7 @@ import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 
-public class NEICropProductHandler extends TemplateRecipeHandler {
+public class NEICropProductHandler extends AgriCraftNEIHandler {
     //this is a class which handles the recipe for crop products (has to contain a CachedRecipe for the products)
     private static String name = StatCollector.translateToLocal("agricraft_nei.cropProduct.title");
     private static String id = "cropProduct";
@@ -46,7 +46,7 @@ public class NEICropProductHandler extends TemplateRecipeHandler {
                     products.add(new PositionedStack(drops.get(i), Constants.nei_X_parent2 + 16 * (i % 3), Constants.nei_Y_seeds + 16 * ((i / 3) - 1)));
                 }
             }
-            IGrowthRequirement growthReq = GrowthRequirementHandler.getGrowthRequirement(stack.getItem(), stack.getItemDamage());
+            IGrowthRequirement growthReq = CropPlantHandler.getGrowthRequirement(stack.getItem(), stack.getItemDamage());
             if (growthReq.getSoil() != null) {
                 soils.add(new PositionedStack(growthReq.getSoil().toStack(), Constants.nei_X_parent1, Constants.nei_Y_soil));
             } else {
@@ -87,7 +87,7 @@ public class NEICropProductHandler extends TemplateRecipeHandler {
 
     //loads the crop product recipes for a given product
     @Override
-    public void loadCraftingRecipes(String id, Object... results) {
+    protected void loadCraftingRecipesDo(String id, Object... results) {
         if(id.equalsIgnoreCase(NEICropProductHandler.id)) {
             ArrayList<CropPlant> plants = CropPlantHandler.getPlants();
             for (CropPlant plant:plants) {
@@ -107,7 +107,7 @@ public class NEICropProductHandler extends TemplateRecipeHandler {
 
     //loads the crop product recipes for a given product
     @Override
-    public void loadCraftingRecipes(ItemStack result) {
+    protected void loadCraftingRecipesDo(ItemStack result) {
         for(CropPlant plant:CropPlantHandler.getPlants()) {
             ArrayList<ItemStack> drops = plant.getAllFruits();
             if(drops==null) {
@@ -127,7 +127,7 @@ public class NEICropProductHandler extends TemplateRecipeHandler {
 
     //loads the crop product recipes for a given seed
     @Override
-    public void loadUsageRecipes(ItemStack ingredient) {
+    protected void loadUsageRecipesDo(ItemStack ingredient) {
         if(CropPlantHandler.isValidSeed(ingredient)) {
             arecipes.add(new CachedCropProductRecipe(ingredient));
         }
@@ -138,7 +138,7 @@ public class NEICropProductHandler extends TemplateRecipeHandler {
                 if(plant.getSeed()==null || plant.getSeed().getItem()==null) {
                     continue;
                 }
-                IGrowthRequirement req = GrowthRequirementHandler.getGrowthRequirement(plant.getSeed().getItem(), plant.getSeed().getItemDamage());
+                IGrowthRequirement req = CropPlantHandler.getGrowthRequirement(plant.getSeed().getItem(), plant.getSeed().getItemDamage());
                 if(req.isValidSoil(block)) {
                     arecipes.add(new CachedCropProductRecipe(plant.getSeed()));
                     continue;

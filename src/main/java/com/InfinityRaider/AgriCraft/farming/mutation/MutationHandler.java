@@ -23,26 +23,18 @@ public abstract class MutationHandler {
     public static void init() {
         //Read mutations & initialize the mutation arrays
         String[] data = IOHelper.getLinesArrayFromData(ConfigurationHandler.readMutationData());
-        List<Mutation> list = new ArrayList<Mutation>();
+        
+        mutations = new ArrayList<Mutation>();
+        
+      //print registered mutations to the log
+        LogHelper.info("Registered Mutations:");
+        
         for(String line:data) {
             Mutation mutation = readMutation(line);
-            if(mutation!=null && !list.contains(mutation)) {
-                list.add(mutation);
+            if(mutation!=null && !mutations.contains(mutation)) {
+                mutations.add(mutation);
+                LogHelper.info(" - " + mutation.getFormula());
             }
-        }
-        mutations = list;
-
-        //print registered mutations to the log
-        LogHelper.info("Registered Mutations:");
-        for (Mutation mutation:mutations) {
-            ItemStack resultStack = mutation.getResult();
-            ItemStack parent1Stack = mutation.getParents()[0];
-            ItemStack parent2Stack = mutation.getParents()[1];
-            String result = resultStack.getItem() != null ? (Item.itemRegistry.getNameForObject(resultStack.getItem()) + ':' + resultStack.getItemDamage()) : "null";
-            String parent1 = parent1Stack.getItem() != null ? (Item.itemRegistry.getNameForObject(parent1Stack.getItem())) + ':' + parent1Stack.getItemDamage() : "null";
-            String parent2 = parent2Stack.getItem() != null ? (Item.itemRegistry.getNameForObject(parent2Stack.getItem())) + ':' + parent2Stack.getItemDamage() : "null";
-            String info = " - " + result + " = " + parent1 + " + " + parent2;
-            LogHelper.info(info);
         }
     }
 
@@ -60,50 +52,56 @@ public abstract class MutationHandler {
         }
     }
 
-    private static Mutation readMutation(String input) {
-        Mutation mutation = null;
-        String[] data = IOHelper.getData(input);
-        boolean success = data.length==1 || data.length==3;
-        String errorMsg = "invalid number of arguments";
-        if(success) {
-            String mutationData = data[0];
-            int indexEquals = mutationData.indexOf('=');
-            int indexPlus = mutationData.indexOf('+');
-            success = (indexEquals>0 && indexPlus>indexEquals);
-            errorMsg = "Mutation is not defined correctly";
-            if(success) {
-                //read the stacks
-                ItemStack resultStack = IOHelper.getStack(mutationData.substring(0,indexEquals));
-                ItemStack parentStack1 = IOHelper.getStack(mutationData.substring(indexEquals + 1, indexPlus));
-                ItemStack parentStack2 = IOHelper.getStack(mutationData.substring(indexPlus+1));
-                success = CropPlantHandler.isValidSeed(resultStack);
-                errorMsg = "resulting stack is not correct";
-                if(success) {
-                    success =  CropPlantHandler.isValidSeed(parentStack1);
-                    errorMsg = "first parent stack is not correct";
-                    if(success) {
-                        success =  CropPlantHandler.isValidSeed(parentStack2);
-                        errorMsg = "second parent stack is not correct";
-                        if(success) {
-                            try {
-                                mutation = new Mutation(resultStack, parentStack1, parentStack2);
-                            } catch (Exception e) {
-                                LogHelper.debug("Caught exception when trying to add mutation: "+resultStack.getUnlocalizedName()+"="+parentStack1.getUnlocalizedName()+"+"+parentStack2.getUnlocalizedName()+" this seed is not registered");
-                            }
-                        }
-                    }
-                }
-            }
+	private static Mutation readMutation(String input) { //Removed some string concatenation, and de-nested the if statements.
+		
+		Mutation mutation = null;
+		String[] data = IOHelper.getData(input);
+
+        if (data.length == 0) {
+            LogHelper.info("Error when reading mutation: invalid number of arguments. (line: " + input + ")");
+            return null;
         }
-        if(!success) {
-            LogHelper.info(new StringBuffer("Error when reading mutation: ").append(errorMsg).append(" (line: ").append(input).append(")"));
-        }
-        return mutation;
-    }
+
+		String mutationData = data[0];
+		int indexEquals = mutationData.indexOf('=');
+		int indexPlus = mutationData.indexOf('+');
+
+		if (!(indexEquals > 0 && indexPlus > indexEquals)) {
+			LogHelper.info("Error when reading mutation: mutation is not defined correctly. (line: " + input + ")");
+			return null;
+		}
+
+		// read the stacks
+		ItemStack resultStack = IOHelper.getStack(mutationData.substring(0,indexEquals));
+		ItemStack parentStack1 = IOHelper.getStack(mutationData.substring(indexEquals + 1, indexPlus));
+		ItemStack parentStack2 = IOHelper.getStack(mutationData.substring(indexPlus + 1));
+
+		if (!CropPlantHandler.isValidSeed(resultStack)) {
+			LogHelper.info("Error when reading mutation: resulting stack is not correct. (line: " + input + ")");
+			return null;
+		} else if (!CropPlantHandler.isValidSeed(parentStack1)) {
+			LogHelper .info("Error when reading mutation: first parent stack is not correct. (line: " + input + ")");
+			return null;
+		} else if (!CropPlantHandler.isValidSeed(parentStack2)) {
+			LogHelper.info("Error when reading mutation: second parent stack is not correct. (line: " + input + ")");
+			return null;
+		}
+		try {
+			mutation = new Mutation(resultStack, parentStack1, parentStack2);
+		} catch (Exception e) {
+			LogHelper.debug("Caught exception when trying to add mutation: "
+					+ resultStack.getUnlocalizedName() + "="
+					+ parentStack1.getUnlocalizedName() + "+"
+					+ parentStack2.getUnlocalizedName()
+					+ ", this seed is not registered");
+		}
+
+		return mutation;
+	}
 
     //gets all the possible crossovers
     public static Mutation[] getCrossOvers(List<TileEntityCrop> crops) {
-        TileEntityCrop[] parents = MutationHandler.getParents(crops);
+        TileEntityCrop[] parents = MutationHandler.filterParents(crops);
         ArrayList<Mutation> list = new ArrayList<Mutation>();
         switch (parents.length) {
             case 2:
@@ -127,7 +125,7 @@ public abstract class MutationHandler {
     }
 
     //gets an array of all the possible parents from the array containing all the neighbouring crops
-    private static TileEntityCrop[] getParents(List<TileEntityCrop> input) {
+    private static TileEntityCrop[] filterParents(List<TileEntityCrop> input) {
         ArrayList<TileEntityCrop> list = new ArrayList<TileEntityCrop>();
         for(TileEntityCrop crop:input) {
             if (crop != null && crop.isMature()) {
@@ -155,84 +153,6 @@ public abstract class MutationHandler {
             }
         }
         return list;
-    }
-
-    //logic for stat inheritance
-    public static void setResultStats(CrossOverResult result, List<TileEntityCrop> input, boolean mutation) {
-        TileEntityCrop[] parents = getParents(input);
-        int size = parents.length;
-        int[] growth = new int[size];
-        int[] gain = new int[size];
-        int[] strength = new int[size];
-        for(int i=0;i<size;i++) {
-            int multiplier = ConfigurationHandler.spreadingDifficulty;
-            if(multiplier>1) {
-                //multiplier is the difficulty
-                //1: this code isn't reached and all surrounding crops affect stat gain positively (multiplier = 1 for incompatible crops)
-                //2: only parent/identical seeds can affect stat gain (multiplier = -1 for incompatible crops)
-                //3: any neighbouring plant that isn't a parent/same seed affects stat gain negatively (multiplier = 0 for incompatible crops)
-                multiplier = canInheritStats(result.getSeed(), result.getMeta(), parents[i].getSeedStack().getItem(), parents[i].getSeedStack().getItemDamage())?1:(multiplier==3?0:-1);
-            }
-            growth[i] = multiplier * parents[i].getGrowth();
-            gain[i] = multiplier*parents[i].getGain();
-            strength[i] = multiplier*parents[i].getStrength();
-        }
-        int meanGrowth = getMean(growth);
-        int meanGain = getMean(gain);
-        int meanStrength = getMean(strength);
-        int divisor = mutation?ConfigurationHandler.cropStatDivisor:1;
-        result.setStats(calculateStats(meanGrowth, size, divisor), calculateStats(meanGain, size, divisor), calculateStats(meanStrength, size, divisor));
-    }
-
-    /**returns the mean value of an int array, this ignores negative values in the array*/
-    private static int getMean(int[] input) {
-        int sum = 0;
-        int total = input.length;
-        int mean = 0;
-        if(total>0) {
-            for (int nr : input) {
-                if(nr>=0) {
-                    sum = sum + nr;
-                }
-                else {
-                    total--;
-                }
-            }
-            if(total>0) {
-                mean = Math.round(((float) sum) / ((float) total));
-            }
-        }
-        return mean;
-    }
-
-    /** calculates the new stats based on an input stat, the nr of neighbours and a divisor*/
-    private static int calculateStats(int input, int neighbours, int divisor) {
-        if(neighbours == 1 && ConfigurationHandler.singleSpreadsIncrement) {
-            neighbours = 2;
-        }
-        int newStat = Math.max(1, (input + (int) Math.round(Math.abs(neighbours-1)*Math.random()))/divisor);
-        return Math.min(newStat, ConfigurationHandler.cropStatCap);
-    }
-
-    private static boolean canInheritStats(Item child, int childMeta, Item seed, int seedMeta) {
-        boolean b = child==seed && childMeta==seedMeta;
-        if(!b) {
-            for(Mutation mutation: getMutationsFromChild(child, childMeta)) {
-                if(mutation!=null) {
-                    ItemStack parent1Stack = mutation.getParents()[0];
-                    ItemStack parent2Stack = mutation.getParents()[1];
-                    if(parent1Stack.getItem()==seed && parent1Stack.getItemDamage()==seedMeta) {
-                        b = true;
-                        break;
-                    }
-                    else if(parent2Stack.getItem()==seed && parent2Stack.getItemDamage()==seedMeta) {
-                        b = true;
-                        break;
-                    }
-                }
-            }
-        }
-        return b;
     }
 
     //removes null instance from a mutations array

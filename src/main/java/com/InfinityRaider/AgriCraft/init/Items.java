@@ -2,38 +2,34 @@ package com.InfinityRaider.AgriCraft.init;
 
 import com.InfinityRaider.AgriCraft.handler.ConfigurationHandler;
 import com.InfinityRaider.AgriCraft.items.*;
-import com.InfinityRaider.AgriCraft.reference.Names;
 import com.InfinityRaider.AgriCraft.utility.LogHelper;
-import com.InfinityRaider.AgriCraft.utility.RegisterHelper;
+import net.minecraft.item.Item;
 
 public class Items {
-    public static ItemCrop crops;
-    public static ItemSprinkler sprinkler;
-    public static ItemJournal journal;
-    public static ItemTrowel trowel;
-    public static ItemMagnifyingGlass magnifyingGlass;
-    public static ItemDebugger debugItem;
-    public static ItemHandRake handRake;
+    public static Item crops;
+    public static Item journal;
+    public static Item trowel;
+    public static Item magnifyingGlass;
+    public static Item debugItem;
+    public static Item handRake;
+    public static Item clipper;
+    public static Item clipping;
 
     public static void init() {
         crops = new ItemCrop();
-        RegisterHelper.registerItem(crops, Names.Objects.crops+"Item");
         journal = new ItemJournal();
-        RegisterHelper.registerItem(journal, Names.Objects.journal);
-        trowel = new ItemTrowel();
-        RegisterHelper.registerItem(trowel, Names.Objects.trowel);
         magnifyingGlass = new ItemMagnifyingGlass();
-        RegisterHelper.registerItem(magnifyingGlass, Names.Objects.magnifyingGlass);
-        if(!ConfigurationHandler.disableIrrigation) {
-            sprinkler = new ItemSprinkler();
-            RegisterHelper.registerItem(sprinkler, Names.Objects.sprinkler + "Item");
-        }
         debugItem = new ItemDebugger();
-        RegisterHelper.registerItem(debugItem, "debugger");
+        if(ConfigurationHandler.enableTrowel) {
+            trowel = new ItemTrowel();
+        }
         if (ConfigurationHandler.enableHandRake) {
             handRake = new ItemHandRake();
-            RegisterHelper.registerItem(handRake, Names.Objects.handRake);
         }
+        if(ConfigurationHandler.enableClipper) {
+            clipper = new ItemClipper();
+        }
+        clipping = new ItemClipping();
         LogHelper.debug("Items Registered");
     }
 }

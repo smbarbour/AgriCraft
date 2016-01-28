@@ -11,6 +11,10 @@ public class TileEntitySeedStorageController extends TileEntityCustomWood implem
     private ArrayList<ISeedStorageControllable> controllables = new ArrayList<ISeedStorageControllable>();
     public boolean isControlling;
 
+    public TileEntitySeedStorageController() {
+        super();
+    }
+
     @Override
     public boolean addStackToInventory(ItemStack stack) {
         boolean success = false;
@@ -34,7 +38,7 @@ public class TileEntitySeedStorageController extends TileEntityCustomWood implem
 
     @Override
     public List<SeedStorageSlot> getSlots(Item seed, int meta) {
-        return this.getControllable(new ItemStack(seed, 1, meta)).getSlots(seed, meta);
+        return this.getControllable(new ItemStack(seed, 1, meta)).getSlots();
     }
 
     @Override
@@ -89,6 +93,4 @@ public class TileEntitySeedStorageController extends TileEntityCustomWood implem
         }
         return controllable;
     }
-
-
 }

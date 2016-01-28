@@ -5,7 +5,6 @@ import com.InfinityRaider.AgriCraft.init.Blocks;
 import com.InfinityRaider.AgriCraft.tileentity.TileEntityCrop;
 import net.minecraft.block.Block;
 import net.minecraft.item.ItemStack;
-import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.World;
 import powercrystals.minefactoryreloaded.api.HarvestType;
 import powercrystals.minefactoryreloaded.api.IFactoryHarvestable;
@@ -63,11 +62,6 @@ public class AgriCraftHarvestable implements IFactoryHarvestable {
         if(block==null || !(block instanceof BlockCrop)) {
             return;
         }
-        TileEntity te = world.getTileEntity(x, y, z);
-        if(te==null || !(te instanceof TileEntityCrop)) {
-            return;
-        }
         world.setBlockMetadataWithNotify(x, y, z, 2, 3);
-        ((TileEntityCrop) te).markForUpdate();
     }
 }

@@ -2,34 +2,32 @@ package com.InfinityRaider.AgriCraft.compatibility.gardenstuff;
 
 import com.InfinityRaider.AgriCraft.api.v1.BlockWithMeta;
 import com.InfinityRaider.AgriCraft.compatibility.ModHelper;
-import com.InfinityRaider.AgriCraft.farming.GrowthRequirementHandler;
-import com.jaquadro.minecraft.gardencore.block.tile.TileEntityGarden;
+import com.InfinityRaider.AgriCraft.farming.CropPlantHandler;
+import com.InfinityRaider.AgriCraft.farming.growthrequirement.GrowthRequirementHandler;
+import com.InfinityRaider.AgriCraft.reference.Names;
+import com.InfinityRaider.AgriCraft.utility.LogHelper;
+import com.InfinityRaider.AgriCraft.utility.exception.DuplicateCropPlantException;
+
 import net.minecraft.block.Block;
-import net.minecraft.item.ItemBlock;
-import net.minecraft.item.ItemStack;
+import net.minecraft.item.Item;
 
 public class GardenStuffHelper extends ModHelper {
-    public static BlockWithMeta getSoil(TileEntityGarden garden) {
-        ItemStack substrate = garden.getSubstrate();
-        BlockWithMeta block = null;
-        if(substrate!=null && substrate.getItem()!=null && substrate.getItem() instanceof ItemBlock) {
-            block = new BlockWithMeta(((ItemBlock) substrate.getItem()).field_150939_a, substrate.getItemDamage());
-        }
-        return block;
-    }
-
-    @Override
-    protected void init() {
-
-    }
-
     @Override
     protected void initPlants() {
-
+        Item seed = (Item) Item.itemRegistry.getObject("GardenTrees:candelilla_seeds");
+        Item fruit = (Item) Item.itemRegistry.getObject("GardenTrees:candelilla");
+        Block plant = (Block) Block.blockRegistry.getObject("GardenTrees:candelilla_bush");
+        if(seed != null && fruit != null && plant != null) {
+            try {
+                CropPlantHandler.registerPlant(new CropPlantGardenStuff(seed, plant, fruit));
+            } catch (DuplicateCropPlantException e) {
+                LogHelper.printStackTrace(e);
+            }
+        }
     }
 
     @Override
-    protected void postTasks() {
+    protected void onPostInit() {
         registerSoils();
     }
 
@@ -39,7 +37,7 @@ public class GardenStuffHelper extends ModHelper {
 
     @Override
     protected String modId() {
-        return null;
+        return Names.Mods.gardenStuff;
     }
 }
 

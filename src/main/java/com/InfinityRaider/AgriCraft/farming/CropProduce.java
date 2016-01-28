@@ -11,6 +11,9 @@ public class CropProduce {
     private int totalWeight;
 
     public void addProduce(ItemStack stack) {
+        if(stack==null || stack.getItem()==null) {
+            return;
+        }
         this.addProduce(stack, DEFAULT_WEIGHT);
     }
 
@@ -84,6 +87,7 @@ public class CropProduce {
     }
 
 
+    // Something funny is going on here.
     private static class Product {
         protected ItemStack product;
         protected int weight;

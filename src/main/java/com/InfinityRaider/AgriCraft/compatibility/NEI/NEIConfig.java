@@ -26,11 +26,13 @@ public class NEIConfig implements IConfigureNEI {
         //register NEI recipe handler
         LogHelper.debug("Registering NEI recipe handlers");
         //mutation handler
-        API.registerRecipeHandler(new NEICropMutationHandler());
-        API.registerUsageHandler(new NEICropMutationHandler());
+        NEICropMutationHandler mutationHandler = new NEICropMutationHandler();
+        API.registerRecipeHandler(mutationHandler);
+        API.registerUsageHandler(mutationHandler);
         //crop product handler
-        API.registerRecipeHandler(new NEICropProductHandler());
-        API.registerUsageHandler(new NEICropProductHandler());
+        NEICropProductHandler productHandler = new NEICropProductHandler();
+        API.registerRecipeHandler(productHandler);
+        API.registerUsageHandler(productHandler);
         //hide crop blocks in NEI
         hideItems();
     }
@@ -43,8 +45,8 @@ public class NEIConfig implements IConfigureNEI {
             //hide water pad
             AgriCraft.proxy.hideItemInNEI(new ItemStack(Blocks.blockWaterPad, 1, i));
             AgriCraft.proxy.hideItemInNEI(new ItemStack(Blocks.blockWaterPadFull, 1, i));
-            //hide sprinkler
-            AgriCraft.proxy.hideItemInNEI(new ItemStack(Blocks.blockSprinkler, 1, i));
+            //hide clippings
+            AgriCraft.proxy.hideItemInNEI(new ItemStack(Items.clipping, 1, i));
             //hide debugger
             if(!ConfigurationHandler.debug) {
                 AgriCraft.proxy.hideItemInNEI(new ItemStack(Items.debugItem, 1, i));
@@ -86,30 +88,28 @@ public class NEIConfig implements IConfigureNEI {
                     AgriCraft.proxy.hideItemInNEI(new ItemStack(customCrop, 1, i));
                 }
             }
-            //hide debugger
-            if (ConfigurationHandler.debug) {
-                AgriCraft.proxy.hideItemInNEI(new ItemStack(Items.debugItem, 1, i));
-            }
         }
-        LogHelper.debug("Hiding custom wood objects");
-        Field[] blocks = Blocks.class.getDeclaredFields();
-        for(Field field:blocks) {
-            if(BlockCustomWood.class.isAssignableFrom(field.getType())) {
+        if(ConfigurationHandler.condenseCustomWoodInNei) {
+            LogHelper.debug("Hiding custom wood objects");
+            Field[] blocks = Blocks.class.getDeclaredFields();
+            for (Field field : blocks) {
                 try {
-                    Block block = (Block) field.get(null);
-                    if(block==null) {
+                    Object obj = field.get(null);
+                    if(obj == null) {
                         continue;
                     }
-                    ItemStack stack = new ItemStack(block);
-                    ArrayList<ItemStack> list = new ArrayList<ItemStack>();
-                    list.add(stack);
-                    API.setItemListEntries(stack.getItem(), list);
+                    if (BlockCustomWood.class.isAssignableFrom(obj.getClass())) {
+                        Block block = (Block) obj;
+                        ItemStack stack = new ItemStack(block);
+                        ArrayList<ItemStack> list = new ArrayList<ItemStack>();
+                        list.add(stack);
+                        API.setItemListEntries(stack.getItem(), list);
+                    }
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
             }
         }
-
     }
 
     @Override

@@ -27,7 +27,7 @@ public final class MagicalCropsHelper extends ModHelper {
     private IFertiliser fertiliser;
 
     @Override
-    protected void init() {
+    protected void onInit() {
         Class magicalCropsClass=null;
         try {
            magicalCropsClass = Class.forName("com.mark719.magicalcrops.MagicalCrops");
@@ -40,6 +40,7 @@ public final class MagicalCropsHelper extends ModHelper {
             if(annotation instanceof Mod) {
                 String version = ((Mod) annotation).version();
                 newVersion = !version.contains("ALPHA");
+                break;
             }
         }
     }
@@ -66,6 +67,7 @@ public final class MagicalCropsHelper extends ModHelper {
         Field[] fields = mc_ItemRegistry.getDeclaredFields();
         for(Field field : fields) {
             if(Modifier.isStatic(field.getModifiers())) {
+                field.setAccessible(true);
                 try {
                     Object obj = field.get(null);
                     if(obj instanceof ItemSeeds) {
@@ -140,12 +142,13 @@ public final class MagicalCropsHelper extends ModHelper {
 
     @Override
     protected List<Item> getTools() {
-        if(newVersion) {
-            return null;
-        }
         fertiliser = new MagicalCropsFertiliser();
         ArrayList<Item> list = new ArrayList<Item>();
-        list.add((Item) Item.itemRegistry.getObject("magicalcrops:magicalcrops_MagicalCropFertilizer"));
+        if(newVersion) {
+            list.add((Item) Item.itemRegistry.getObject("magicalcrops:magicalcrops_MagicalFertilizer"));
+        } else {
+            list.add((Item) Item.itemRegistry.getObject("magicalcrops:magicalcrops_MagicalCropFertilizer"));
+        }
         return list;
     }
 

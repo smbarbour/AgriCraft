@@ -13,7 +13,7 @@ import java.util.List;
  * <p>
  * General notes:
  * </p>
- * 
+ *
  * <ul>
  * <li>The methods of this API will never modify the parameter objects unless
  * explicitly stated.
@@ -28,13 +28,13 @@ public interface APIv1 extends APIBase {
 	 * Return true if AgriCraft is active in the given dimension. If the
 	 * parameter is null, it will return true if AgriCraft is active in any
 	 * dimension.
-	 * 
+	 *
 	 * If this returns false, you can completely ignore AgriCraft (for the given
 	 * dimension).
-	 * 
+	 *
 	 * This may return false if AgriCraft is disabled (e.g. it is only included
 	 * in a modpack for some items), or if a dimension is blacklisted.
-	 * 
+	 *
 	 * @param world
 	 *            An optional world
 	 */
@@ -62,7 +62,7 @@ public interface APIv1 extends APIBase {
 	 * Checks if AgriCraft is configured to prevent the given seed to be used in
 	 * its normal way. Note: This method may ignore its parameter if AgriCraft
 	 * is configured to prevent all native planting it can prevent.
-	 * 
+	 *
 	 * @param seed
 	 *            Any ItemStack that is a seed.
 	 * @return True if the seed must be handled by AgriCraft.
@@ -72,7 +72,7 @@ public interface APIv1 extends APIBase {
 	/**
 	 * Checks if the given seed can be handled by AgriCraft, i.e. can be planted
 	 * in crops.
-	 * 
+	 *
 	 * @param seed
 	 *            Any ItemStack that is a seed.
 	 * @return True if the seed can be planted in crops.
@@ -81,39 +81,51 @@ public interface APIv1 extends APIBase {
 
 	/**
 	 * Gives the statistics for the given seeds.
-	 * 
+	 *
 	 * @param seed
 	 *          Any ItemStack that is a seed.
 	 * @return An ISeedStats object that describes the given seeds, or null if the
 	 *         given item was no seed.
 	 */
+	@Deprecated
 	ISeedStats getSeedStats(ItemStack seed);
 
     /**
      * Register a cropPlant for AgriCraft to recognise as a valid plant for crops
      */
-    public void registerCropPlant(ICropPlant plant);
+	@Deprecated
+    void registerCropPlant(ICropPlant plant);
+
+	/**
+	 * Gets the ICropPlant object containing all the data AgriCraft knows about this seed
+	 * @param seed Stack holding the seed
+	 * @return an ICropPlant object if the seed is considered a seed for AgriCraft, or null if not
+	 */
+	@Deprecated
+	ICropPlant getCropPlant(ItemStack seed);
 
     /**
      * Register a cropPlant for AgriCraft to recognise as a valid plant for crops
      */
-    public void registerCropPlant(IAgriCraftPlant plant);
+    void registerCropPlant(IAgriCraftPlant plant);
 
     /**
-     * Register a growth requirement for this seed
+     * Register a growth requirement for this seed,
+	 * This will effectively override the IGrowthRequirement previously registered for the given seed
+	 *
      * @return true if the registering was successful
      */
-    public boolean registerGrowthRequirement(ItemWithMeta seed, IGrowthRequirement requirement);
+    boolean registerGrowthRequirement(ItemWithMeta seed, IGrowthRequirement requirement);
 
     /**
      * Register a default soil that any crop that doesn't require a specific soil can grow on
-     * @return true if the soil was successfully regsitered
+     * @return true if the soil was successfully registered
      */
-    public boolean registerDefaultSoil(BlockWithMeta soil);
-	
+    boolean registerDefaultSoil(BlockWithMeta soil);
+
 	/**
 	 * Checks the seeds planting requirements.
-	 * 
+	 *
 	 * @param seed
 	 *            Any ItemStack that is a seed.
 	 * @return A {@link IGrowthRequirement} object or null if the parameter was no
@@ -123,12 +135,12 @@ public interface APIv1 extends APIBase {
 
 	/**
 	 * Checks if the given crops can be placed at the given position.
-	 * 
+	 *
 	 * <p>
 	 * Note that the position is the air block above the ground, not the ground
 	 * block a player would click on.
 	 * </p>
-	 * 
+	 *
 	 * @param world
 	 * @param x
 	 * @param y
@@ -143,7 +155,7 @@ public interface APIv1 extends APIBase {
 	 * Will place the given crops at the given position. On success the item
 	 * stack's size will be decreased (and may be 0). All world interaction will
 	 * be handled by this method.
-	 * 
+	 *
 	 * @param world
 	 * @param x
 	 * @param y
@@ -157,7 +169,7 @@ public interface APIv1 extends APIBase {
 
 	/**
 	 * Checks if the given position contains crops.
-	 * 
+	 *
 	 * @param world
 	 * @param x
 	 * @param y
@@ -168,7 +180,7 @@ public interface APIv1 extends APIBase {
 
 	/**
 	 * Checks if the given position contains crops with a mature plant in it.
-	 * 
+	 *
 	 * @param world
 	 * @param x
 	 * @param y
@@ -179,7 +191,7 @@ public interface APIv1 extends APIBase {
 
 	/**
 	 * Checks if the given position contains crops with weeds in them.
-	 * 
+	 *
 	 * @param world
 	 * @param x
 	 * @param y
@@ -190,11 +202,11 @@ public interface APIv1 extends APIBase {
 
 	/**
 	 * Checks if the given position contains empty crops.
-	 * 
+	 *
 	 * <p>
-	 * Note: Crops with crosscrops are NOT considered empty.
+	 * Note: Crops with crosscrops or weeds are NOT considered empty.
 	 * </p>
-	 * 
+	 *
 	 * @param world
 	 * @param x
 	 * @param y
@@ -205,7 +217,7 @@ public interface APIv1 extends APIBase {
 
 	/**
 	 * Checks if the given position contains crops with crosscrops.
-	 * 
+	 *
 	 * @param world
 	 * @param x
 	 * @param y
@@ -213,6 +225,38 @@ public interface APIv1 extends APIBase {
 	 * @return True if there are crosscrops, false otherwise.
 	 */
 	boolean isCrossCrops(World world, int x, int y, int z);
+
+	/**
+	 * Gets the seed currently planted on the crop sticks at this location
+	 *
+	 * @param world
+	 * @param x
+	 * @param y
+	 * @return an ItemStack with the seed currently planted on this crop, returns null if there is no crop there, or there is no seed planted
+	 */
+	ItemStack getPlantedSeed(World world, int x, int y, int z);
+
+	/**
+	 * Gets the Block instance of the block currently planted on the crop sticks at this location
+	 *
+	 * @param world
+	 * @param x
+	 * @param y
+	 * @return an ItemStack with the seed currently planted on this crop, returns null if there is no crop there, or there is no seed planted
+	 */
+	Block getPlantedBlock(World world, int x, int y, int z);
+
+	/**
+	 * Gets the ICropPlant object containing all the data AgriCraft knows about the seed planted on this crop
+	 *
+	 * @param world
+	 * @param x
+	 * @param y
+	 * @param z
+	 * @return an ICropPlant object if there is a seed planted here, or null if not
+	 */
+	@Deprecated
+	ICropPlant getCropPlant(World world, int x, int y, int z);
 
 	/**
 	 * Checks if the plant that is in crops at the given position can grow. A
@@ -224,7 +268,7 @@ public interface APIv1 extends APIBase {
 	 * <li>There are weeds instead of a plant
 	 * <li>Not all growth conditions are met
 	 * </ul>
-	 * 
+	 *
 	 * @param world
 	 * @param x
 	 * @param y
@@ -234,15 +278,37 @@ public interface APIv1 extends APIBase {
 	boolean canGrow(World world, int x, int y, int z);
 
 	/**
+	 *
+	 * @param world
+	 * @param x
+	 * @param y
+	 * @param z
+	 * @return true if the crop at the location is analyzed, false if not, or if there is no crop with a plant at the location
+	 */
+	boolean isAnalyzed(World world, int x, int y, int z);
+
+	/**
+	 * Returns the stats of the crop at the given location.
+	 *
+	 * @param world
+	 * @param x
+	 * @param y
+	 * @param z
+	 * @return ISeedStats object holding the stats or null if there is no crop there, or the crop doesn't have a plant
+	 */
+	@Deprecated
+	ISeedStats getStats(World world, int x, int y, int z);
+
+	/**
 	 * Checks if AgriCraft is configured to require rakes to remove weeds.
-	 * 
+	 *
 	 * @return True if weeds cannot be removed by hand.
 	 */
 	boolean isRakeRequiredForWeeding();
 
 	/**
 	 * Tries to remove the weeds at the given position.
-	 * 
+	 *
 	 * @param world
 	 * @param x
 	 * @param y
@@ -260,7 +326,7 @@ public interface APIv1 extends APIBase {
 	/**
 	 * Tries to remove the weeds at the given position with the given tool. If
 	 * the tool takes damage, this method will update the item stack.
-	 * 
+	 *
 	 * @param world
 	 * @param x
 	 * @param y
@@ -278,7 +344,7 @@ public interface APIv1 extends APIBase {
 	 * Tries to place crosscrops on the crops at the given position. On success
 	 * the item stack's size will be decreased (and may be 0). All world
 	 * interaction will be handled by this method.
-	 * 
+	 *
 	 * <p>
 	 * Possible reasons for failure:
 	 * </p>
@@ -288,7 +354,7 @@ public interface APIv1 extends APIBase {
 	 * <li>The given item is no crops
 	 * <li>The given crops don't match the existing ones
 	 * </ul>
-	 * 
+	 *
 	 * @param world
 	 * @param x
 	 * @param y
@@ -303,11 +369,11 @@ public interface APIv1 extends APIBase {
 	/**
 	 * Tries to remove crosscrops at the given position. The removed crops will
 	 * be returned.
-	 * 
+	 *
 	 * Note that the return value is the same if the removal failed and if the
 	 * removal gained to item. Check isCrosscrops() afterward if you need to
 	 * differentiate these cases.
-	 * 
+	 *
 	 * @param world
 	 * @param x
 	 * @param y
@@ -320,7 +386,7 @@ public interface APIv1 extends APIBase {
 	/**
 	 * Checks if the given seeds can be placed into the crops at the given
 	 * position. See {@link SeedRequirementStatus} for details.
-	 * 
+	 *
 	 * @param world
 	 * @param x
 	 * @param y
@@ -336,12 +402,12 @@ public interface APIv1 extends APIBase {
 	 * Tries to place the given seeds into the crops at the given position. On
 	 * success the item stack's size will be decreased (and may be 0). All world
 	 * interaction will be handled by this method.
-	 * 
+	 *
 	 * <p>
 	 * Note: There is no need to protect this method by calling canApplySeeds()
 	 * before.
 	 * </p>
-	 * 
+	 *
 	 * @param world
 	 * @param x
 	 * @param y
@@ -357,13 +423,13 @@ public interface APIv1 extends APIBase {
 	 * equates to a player right-clicking the crops; it will return a harvest
 	 * and leave the crops and the harvested plant in place. All world
 	 * interaction will be handled by this method.
-	 * 
+	 *
 	 * <p>
 	 * It will return a list of harvested items which may be empty for crops
 	 * with a chance-based harvest result. If the harvest failed for any reason,
 	 * the result will be null.
 	 * </p>
-	 * 
+	 *
 	 * @param world
 	 * @param x
 	 * @param y
@@ -377,13 +443,13 @@ public interface APIv1 extends APIBase {
 	 * player left-clicking the crops; it will return the broken crops, the seed
 	 * and possibly a harvest and set the block to air. All world interaction
 	 * will be handled by this method.
-	 * 
+	 *
 	 * <p>
 	 * It will return a list of dropped items which may be empty. If the
 	 * destroying failed for any reason, e.g. the position did not specify a
 	 * crops, the result will be null.
 	 * </p>
-	 * 
+	 *
 	 * @param world
 	 * @param x
 	 * @param y
@@ -395,12 +461,12 @@ public interface APIv1 extends APIBase {
 	/**
 	 * Checks if the given item is any form of supported fertilizer (e.g. bone
 	 * meal).
-	 * 
+	 *
 	 * <p>
 	 * Note: A "fertilizer" is any item that can be applied to a growing plant,
 	 * regardless of the effect.
 	 * </p>
-	 * 
+	 *
 	 * @param fertilizer
 	 *            Any item.
 	 * @return True if AgriCraft knows how to handle the given item as
@@ -411,7 +477,7 @@ public interface APIv1 extends APIBase {
 	/**
 	 * Checks if the given fertilizer is valid for the plant in the crop at the
 	 * given position.
-	 * 
+	 *
 	 * @param world
 	 * @param x
 	 * @param y
@@ -428,12 +494,12 @@ public interface APIv1 extends APIBase {
 	 * Tries to apply the given fertilizer to the plant in the crop at the given
 	 * position. On success the item stack's size will be decreased (and may be
 	 * 0). All world interaction will be handled by this method.
-	 * 
+	 *
 	 * <p>
 	 * Note: The return value does not state if the plant was effected by the
 	 * fertilizer, only if it was applied.
 	 * </p>
-	 * 
+	 *
 	 * @param world
 	 * @param x
 	 * @param y
@@ -496,11 +562,13 @@ public interface APIv1 extends APIBase {
 	 * @param args: Arguments can be given in any order, parameters can be:
 	 *               String name (needed)
 	 *               ItemStack fruit(needed)
-	 *               Block soil (optional)
-	 *               BlockWithMeta baseBlock (optional)
+	 *               BlockWithMeta soil (optional, pass this argument before the RequirementType, else it will be interpreted as a baseblock)
+	 *               RequirementType (optional)
+	 *               BlockWithMeta baseBlock (optional, only if a RequirementType is specified first, else it will be set a a soil)
 	 *               int tier (necessary)
 	 *               RenderMethod renderType (necessary)
 	 *               ItemStack shearDrop (optional, first ItemStack argument will be the regular fruit, second ItemStack argument is the shear drop)
+	 *               int[] brightness (optional, if not given it will default to 8, 16. Only works if the array is size 2: {minBrightness, maxBrightness})
 	 * @return
 	 * The Block corresponding with the plant, return type will always be instance of Block as well IAgriCraftPlant.
 	 * The seed is instance of Item and implements IAgriCraftSeed. It can be obtained by calling getSeed() on the returned object.

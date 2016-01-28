@@ -1,7 +1,8 @@
 package com.InfinityRaider.AgriCraft.compatibility.immersiveengineering;
 
-import com.InfinityRaider.AgriCraft.apiimpl.v1.cropplant.CropPlantTall;
-import com.InfinityRaider.AgriCraft.farming.GrowthRequirementHandler;
+import com.InfinityRaider.AgriCraft.api.v1.IGrowthRequirement;
+import com.InfinityRaider.AgriCraft.farming.cropplant.CropPlantTall;
+import com.InfinityRaider.AgriCraft.farming.growthrequirement.GrowthRequirementHandler;
 import com.InfinityRaider.AgriCraft.reference.Constants;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
@@ -9,7 +10,6 @@ import net.minecraft.block.Block;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.IIcon;
-import net.minecraft.world.World;
 
 import java.util.ArrayList;
 import java.util.Random;
@@ -45,6 +45,11 @@ public class CropPlantHemp extends CropPlantTall {
     }
 
     @Override
+    public Block getBlock() {
+        return plant;
+    }
+
+    @Override
     public ArrayList<ItemStack> getAllFruits() {
         ArrayList<ItemStack> fruits = new ArrayList<ItemStack>();
         fruits.add(new ItemStack(fruit, 1, 3));
@@ -73,14 +78,14 @@ public class CropPlantHemp extends CropPlantTall {
     }
 
     @Override
-    public boolean isFertile(World world, int x, int y, int z) {
-        return GrowthRequirementHandler.getGrowthRequirement(seed, 0).canGrow(world, x, y, z);
+    protected IGrowthRequirement initGrowthRequirement() {
+        return GrowthRequirementHandler.getNewBuilder().build();
     }
 
     @SideOnly(Side.CLIENT)
     @Override
     public float getHeight(int meta) {
-        return meta<=maxMetaBottomBlock()? Constants.unit*13:Constants.unit*32;
+        return meta<=maxMetaBottomBlock()? Constants.UNIT*13:Constants.UNIT*32;
     }
 
     @SideOnly(Side.CLIENT)

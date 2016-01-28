@@ -1,7 +1,9 @@
 package com.InfinityRaider.AgriCraft.blocks;
 
-import com.InfinityRaider.AgriCraft.AgriCraft;
 import com.InfinityRaider.AgriCraft.reference.Constants;
+import com.InfinityRaider.AgriCraft.reference.Names;
+import com.InfinityRaider.AgriCraft.renderers.blocks.RenderBlockBase;
+import com.InfinityRaider.AgriCraft.renderers.blocks.RenderWaterPad;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import net.minecraft.block.Block;
@@ -9,6 +11,7 @@ import net.minecraft.block.material.Material;
 import net.minecraft.client.renderer.texture.IIconRegister;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
+import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.IIcon;
 import net.minecraft.util.MovingObjectPosition;
@@ -21,7 +24,7 @@ import net.minecraftforge.fluids.FluidStack;
 
 import java.util.List;
 
-public class BlockWaterPad extends Block {
+public class BlockWaterPad extends BlockAgriCraft {
     public BlockWaterPad() {
         this(Material.ground);
     }
@@ -30,7 +33,24 @@ public class BlockWaterPad extends Block {
         super(mat);
         this.setHardness(0.5F);
         this.setStepSound(soundTypeGravel);
-        this.maxY = Constants.unit*8;
+        this.maxY = Constants.UNIT * (Constants.WHOLE / 2);
+    }
+
+
+    @Override
+    @SideOnly(Side.CLIENT)
+    public RenderBlockBase getRenderer() {
+        return new RenderWaterPad(this);
+    }
+
+    @Override
+    protected Class<? extends ItemBlock> getItemBlockClass() {
+        return ItemBlockWaterPad.class;
+    }
+
+    @Override
+    protected String getInternalName() {
+        return Names.Objects.waterPad;
     }
 
     @Override
@@ -79,9 +99,6 @@ public class BlockWaterPad extends Block {
     //render methods
     //--------------
     @Override
-    public int getRenderType() {return AgriCraft.proxy.getRenderId(Constants.waterPadId);}                 //get the correct renderId
-
-    @Override
     public boolean isOpaqueCube() {return false;}           //tells minecraft that this is not a block (no levers can be placed on it, it's transparent, ...)
 
     @Override
@@ -110,6 +127,7 @@ public class BlockWaterPad extends Block {
 
         @Override
         @SideOnly(Side.CLIENT)
+        @SuppressWarnings("unchecked")
         public void addInformation(ItemStack stack, EntityPlayer player, List list, boolean flag) {
             list.add(StatCollector.translateToLocal("agricraft_tooltip.waterPadDry"));
         }

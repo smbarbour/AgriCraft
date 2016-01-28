@@ -17,18 +17,13 @@ public final class AppleCoreHelper extends ModHelper {
     public static boolean hasDispatcher;
 
     @Override
-    protected void init() {
+    protected void onInit() {
         isAppleCoreLoaded = Loader.isModLoaded(AppleCoreHelper.MODID);
         try {
             hasDispatcher = isAppleCoreLoaded && Class.forName("squeek.applecore.api.IAppleCoreDispatcher") != null;
         } catch(ClassNotFoundException e) {
             hasDispatcher = false;
         }
-    }
-
-    @Override
-    protected void initPlants() {
-
     }
 
     @Override

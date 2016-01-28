@@ -2,6 +2,8 @@ package com.InfinityRaider.AgriCraft.farming.mutation;
 
 import com.InfinityRaider.AgriCraft.api.v1.IMutation;
 import com.InfinityRaider.AgriCraft.farming.CropPlantHandler;
+import com.InfinityRaider.AgriCraft.farming.cropplant.CropPlant;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 
 public class Mutation implements IMutation {
@@ -42,7 +44,8 @@ public class Mutation implements IMutation {
 
     public Mutation(ItemStack result, ItemStack parent1, ItemStack parent2) {
         this(result, parent1, parent2, 100);
-        this.chance = 1.00/ CropPlantHandler.getPlantFromStack(result).getTier();
+        CropPlant plant = CropPlantHandler.getPlantFromStack(result);
+        this.chance = plant == null? 0 : ((double) plant.getSpreadChance())/100.0D;
     }
 
     //copy constructor
@@ -69,5 +72,12 @@ public class Mutation implements IMutation {
             }
         }
         return isEqual;
+    }
+    
+    public String getFormula(){
+        String result = this.result != null ? (Item.itemRegistry.getNameForObject(this.result.getItem()) + ':' + this.result.getItemDamage()) : "null";
+        String parent1 = this.parent1.getItem() != null ? (Item.itemRegistry.getNameForObject(this.parent1.getItem())) + ':' + this.parent1.getItemDamage() : "null";
+        String parent2 = this.parent2.getItem() != null ? (Item.itemRegistry.getNameForObject(this.parent2.getItem())) + ':' + this.parent2.getItemDamage() : "null";
+        return result + " = " + parent1 + " + " + parent2;
     }
 }

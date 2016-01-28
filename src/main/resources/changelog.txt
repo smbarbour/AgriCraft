@@ -1,5 +1,96 @@
 Changelog
 ---------
+1.4.7:
+-ADDED:  Config option to render plants on crop sticks as a TESR (might improve FPS if you have FPS issues with large farms)
+-ADDED:  Config option to disable sounds when interacting with crop sticks (client side only)
+-CHANGE: Clippings can now be planted on cross crops (similarly to seeds)
+-CHANGE: Removed the compat module for RotaryCraft as Reika will be adding this from his side (you might want to remove all your canola planted on crop sticks before updating)
+-FIXED:  NPE when scanning the ore dictionary for fruits (Damn you null stacks)
+-FIXED:  Rare NPE when part of a tank multiblock is loaded, while the main component isn't
+-FIXED:  Rare NPE when breaking a tank while raining
+-FIXED:  Weird harvesting behaviour with Botania drum of the wild
+-FIXED:  Issues with witchery seeds
+-FIXED:  Wrong drops from Resourceful Crops plants
+-FIXED:  Sprinkler not spinning when particles are disabled
+-FIXED:  NPE when requesting documentation for the 'isAnalyzed()' method in the peripheral GUI
+
+1.4.6
+-ADDED:  The peripheral should now also work for OpenComputers
+-ADDED:  Support for ResourcefulCrops
+-ADDED:  API implementation example
+-ADDED:  Added config option to disable specific NEI handlers (config setting is enforced via the server)
+-ADDED:  Waila tooltips to seed storage & analyzer
+-ADDED:  Placing cross crops will make wood sound
+-ADDED:  Placing crop sticks while sneaking will now instantly create cross crops
+-ADDED:  Support for Garden Stuff's candelilla crop
+-ADDED:  Support for Millenaire's crops
+-ADDED:  Support for Pam's Harvest the Nether crops
+-ADDED:  Support for The Kitchen Mod crops
+-CHANGE: Updated Botania drum/horn of the wild interaction: crops will now be harvested instead of uprooted
+-CHANGE: Updated to Forge 10.13.4.1566
+-CHANGE: [API] IGrowthRequirement is now specified via the ICropPlant it applies to
+-FIXED:  Changed the way growth stages are rendered in the journal, fixing rendering for animated textures
+-FIXED:  Tanks in greenhouses not correctly forming a multiblock on world generation
+-FIXED:  Plants being able to be bonemealed while sneaking even though they shouldn't be
+-FIXED:  Blue Power flax not dropping fruit on harvest
+-FIXED:  NPE when storing Canola seeds in Seed Storage
+-FIXED:  Seeds no longer have to be instance of ItemSeeds to be able to change the base block with MineTweaker (no idea how this survived so long)
+-FIXED:  Seed icons rendering wrongly for some IIcons
+-FIXED:  Bugs concerning automatic input and output with Seed Storages and Analyzers
+-FIXED:  Crash when Botania is not present
+-FIXED:  Weeds being removed as long as you don't have an empty hand with rakes enabled
+-FIXED:  [HOTFIX] crash on startup when plants are registered via the API
+
+1.4.5
+-ADDED:  Support for Agriculture 2
+-ADDED:  Config option to disable mod specific fruit drops
+-ADDED:  Descriptions for the new HC and PMP seeds
+-ADDED:  Brightness bar in the journal displaying what brightness a plant needs
+-ADDED:  Missing mutations for some Harvestcraft and PMP seeds
+-FIXED:  MineTweaker support for weed raking drops having wrong import
+-FIXED:  Weird behaviour for some API methods
+-FIXED:  Weird lighting when rendering (thanks HenryLoenwind)
+-FIXED:  Lapis not growing
+
+1.4.4
+-ADDED:  Configurable option for weeds to drop certain items when raked (can be fully MineTweaked)
+-ADDED:  Client side config option to change how stats are displayed (also added an API method to change it)
+-CHANGE: Generified the way growth requirements search for metadata (fixes compatibility with GrechTech ores)
+-CHANGE: When scanning the ore dictionary for seed/fruit combinations the mod id is now taken into account (except when told not to): no more Natura berries dropping from HC crops
+-CHANGE: Rewrote ComputerCraft API methods: some will now have direction as an optional parameter, if it is not given, the method will apply to the specimen in the analyzer (this had as consequence that some methods were merged)
+-FIXED:  ArrayIndexOutOfBoundsException and NullPointerException when breaking tank multi blocks under certain conditions
+-FIXED:  Crash with Psychedelicraft coffee seeds
+-FIXED:  Quirks with the seed storage when automatically inserting item stacks (hoppers, pipes, transfer nodes, ... )
+-FIXED:  Inverted boolean return for an API method
+
+1.4.3
+-CHANGE: Entirely rewrote the multi-block code fixing a lot of bugs and improving performance.
+
+1.4.2
+-ADDED:  A recipe for the clipper
+-ADDED:  Config option to disable registering of crop products into the ore dictionary
+-ADDED:  Config option to disable particles
+-FIXED:  The soil and base block requirements for custom crops will actually have fuzzy metadata when no metadata is specified instead of defaulting to 0
+-FIXED:  Fixed error with the parent config numbers
+-FIXED:  Fruits added via MineTweaker will be registered to the OreDictionary correctly
+-FIXED:  Single tanks not accepting water
+
+1.4.1
+-CHANGE: Optimized the peripheral's performance a bit
+-CHANGE: Optimized the journal's gui code
+-CHANGE: Split the difficulty setting in two: one to define what are considered valid parents for stat inheritance, and one to define if non-parents affect stat gain negatively
+-ADDED:  When only the parents are discovered, the journal will now render a mutation with an undiscovered result
+-ADDED:  Config option to only allow stat inheritance from identical crops
+-ADDED:  Hardcore stat breeding: 1 parent: 3/4 decrement, 1/4 nothing. 2 parents: 2/4 decrement, 1/4 nothing, 1/4 increment. 3 parents: 1/4 decrement, 1/2 nothing, 1/4 increment.
+-ADDED:  Config options to disable the trowel and the magnifying glass
+-ADDED:  Clipper item: use on crops to get a clipping, a clipping can be planted on crop sticks to get an identical sprout. Success is dependent on strength stat (credits for texture to skullygamingmc)
+-ADDED:  Support for the new version of Magical Crops' fertilizer
+-FIXED:  Crash involving the peripheral
+-FIXED:  Updated fr_FR.lang (Mazdallier)
+-FIXED:  Crash when crossbreeding
+-FIXED:  Sugarcane requires sand again instead of farmland
+-FIXED:  Mutations not being synced to players connecting to a local LAN world
+
 1.4.0
 -CHANGE: Updated to Forge 10.13.4.1448
 -CHANGE: Rewrote the crop system to prevent crashing
@@ -12,6 +103,11 @@ Changelog
 -CHANGE: Clients will now use mutation configs from the server
 -CHANGE: Villager ID is now assigned to the first free id
 -CHANGE: The AgriCraft villager now has a good looking skin (thanks SkeletonPunk)
+-CHANGE: Botania crops now require podzol as soil
+-CHANGE: Changed default number of crops per craft to 4
+-CHANGE: The journal will now display parent and child mutations separated from each other
+-CHANGE: Tweaked lighting when rendering custom wood blocks
+-CHANGE: New textures for the rakes, trowel and magnifying glass (credits to MechWarrior99)
 -ADDED:  API (many thanks to HenryLoenwind)
 -ADDED:  Missing mutations for Harvestcraft crops (Strawberry, Spinach, White Mushroom)
 -ADDED:  Resource crop for nether quartz
@@ -23,13 +119,13 @@ Changelog
 -ADDED:  Crops for Ars Magica 2: cerublossom, desert nova, tarma root, aum, wakebloom
 -ADDED:  Button in Seed Analyzer GUI to read the journal
 -ADDED:  Some crops (flowers, cactus, ...) can be sheared to get the flower instead of the fruit
--ADDED:  Compatibility for PneumaticCraft crops
 -ADDED:  Compatibility for AppleMilkTea (mint)
 -ADDED:  Compatibility for RotaryCraft (canola)
 -ADDED:  Compatibility for Immersive Engineering (hemp)
 -ADDED:  Compatibility for Biomes O Plenty (turnip)
 -ADDED:  Compatibility for Extra Biomes XL (strawberries)
 -ADDED:  Compatibility for GrowthCraft Rice
+-ADDED:  Compatibility for The Lord of the Rings Mod's crops
 -ADDED:  Configuration option for a global growth rate multiplier
 -ADDED:  Crops will now allow the use of other items on them when not mature (for example the Hoe of Growth from Thaumcraft)
 -ADDED:  AgriCraft seeds can now be squeezed into seed oil with forestry
@@ -41,6 +137,15 @@ Changelog
 -ADDED:  The AgriCraft villager will now search and remove weeds from nearby crops
 -ADDED:  A recipe to convert wheat to seeds
 -ADDED:  Alternate textures for the botania crops (thanks WolfieWaffle for the textures)
+-ADDED:  Seed storage block they will hold infinite seeds of the same type, as long as they are analyzed
+-ADDED:  sugarcane can now be planted directly on crop sticks
+-ADDED:  Natura bonemeal bags will aoe bonemeal crops
+-ADDED:  Decorative blocks for every type of planks: fences, fence gates and grates
+-ADDED:  Compatibility for Advent of Ascension crops
+-ADDED:  Compatibility for crops with Ancient Warfare crop farms
+-ADDED:  Config option for irrigation channel capacity
+-ADDED:  Computercraft peripheral to read data from crops in the world
+-ADDED:  Mutating sprig from witchery will now work on wheat planted on crop sticks
 -FIXED:  Seeds added as drops from tall grass always having weight 10
 -FIXED:  Not being able to set max brightness in Minetweaker methods
 -FIXED:  Wrong error message in Minetweaker methods
@@ -60,6 +165,11 @@ Changelog
 -FIXED:  Magical Crops beta crops giving null as fruit
 -FIXED:  NPE with trowel
 -FIXED:  Some localisation issues with journal seed information
+-FIXED:  Seed Storage Container crashing on servers
+-FIXED:  Seed Storage blocks will now drop their inventory when broken
+-FIXED:  Villager "teleporting"
+-FIXED:  Weird behaviour with thaumcraft golems
+-FIXED:  Tanks and channels not having lighting
 
 1.3.1
 -ADDED:  Nitor Wart: a new crop that produces glowstone dust

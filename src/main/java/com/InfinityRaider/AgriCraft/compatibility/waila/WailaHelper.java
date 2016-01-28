@@ -6,13 +6,8 @@ import cpw.mods.fml.common.event.FMLInterModComms;
 
 public class WailaHelper extends ModHelper {
     @Override
-    protected void init() {
+    protected void onInit() {
         FMLInterModComms.sendMessage(Names.Mods.waila, "register", "com.InfinityRaider.AgriCraft.compatibility.waila.WailaRegistry.initWaila");
-    }
-
-    @Override
-    protected void initPlants() {
-
     }
 
     @Override

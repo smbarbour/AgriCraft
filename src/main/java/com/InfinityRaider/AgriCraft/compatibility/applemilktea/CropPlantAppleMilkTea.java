@@ -1,7 +1,8 @@
 package com.InfinityRaider.AgriCraft.compatibility.applemilktea;
 
-import com.InfinityRaider.AgriCraft.apiimpl.v1.cropplant.CropPlant;
-import com.InfinityRaider.AgriCraft.farming.GrowthRequirementHandler;
+import com.InfinityRaider.AgriCraft.api.v1.IGrowthRequirement;
+import com.InfinityRaider.AgriCraft.farming.cropplant.CropPlant;
+import com.InfinityRaider.AgriCraft.farming.growthrequirement.GrowthRequirementHandler;
 import com.InfinityRaider.AgriCraft.reference.Constants;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
@@ -42,6 +43,11 @@ public class CropPlantAppleMilkTea extends CropPlant {
     }
 
     @Override
+    public Block getBlock() {
+        return plant;
+    }
+
+    @Override
     public ArrayList<ItemStack> getAllFruits() {
         ArrayList<ItemStack> fruits = new ArrayList<ItemStack>();
         fruits.add(new ItemStack(fruit, 1, fruitMeta));
@@ -70,19 +76,19 @@ public class CropPlantAppleMilkTea extends CropPlant {
     }
 
     @Override
-    public boolean onAllowedGrowthTick(World world, int x, int y, int z, int oldGrowthStage) {
-        return true;
+    protected IGrowthRequirement initGrowthRequirement() {
+        return GrowthRequirementHandler.getNewBuilder().build();
     }
 
     @Override
-    public boolean isFertile(World world, int x, int y, int z) {
-        return GrowthRequirementHandler.getGrowthRequirement(seed, seedMeta).canGrow(world, x, y, z);
+    public boolean onAllowedGrowthTick(World world, int x, int y, int z, int oldGrowthStage) {
+        return true;
     }
 
     @SideOnly(Side.CLIENT)
     @Override
     public float getHeight(int meta) {
-        return Constants.unit*13;
+        return Constants.UNIT*13;
     }
 
     @SideOnly(Side.CLIENT)

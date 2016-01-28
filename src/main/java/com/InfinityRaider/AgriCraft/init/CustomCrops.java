@@ -2,6 +2,7 @@ package com.InfinityRaider.AgriCraft.init;
 
 import com.InfinityRaider.AgriCraft.api.v1.BlockWithMeta;
 import com.InfinityRaider.AgriCraft.api.v1.RenderMethod;
+import com.InfinityRaider.AgriCraft.api.v1.RequirementType;
 import com.InfinityRaider.AgriCraft.blocks.BlockModPlant;
 import com.InfinityRaider.AgriCraft.handler.ConfigurationHandler;
 import com.InfinityRaider.AgriCraft.items.ItemModSeed;
@@ -10,9 +11,7 @@ import com.InfinityRaider.AgriCraft.utility.LogHelper;
 import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.registry.LanguageRegistry;
 import cpw.mods.fml.relauncher.Side;
-import net.minecraft.block.Block;
 import net.minecraft.item.Item;
-import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.common.ForgeHooks;
 import net.minecraftforge.common.MinecraftForge;
@@ -24,6 +23,7 @@ public class CustomCrops {
     public static BlockModPlant[] customCrops;
     public static ItemModSeed[] customSeeds;
 
+    @SuppressWarnings("deprecation")
     public static void init() {
         if(ConfigurationHandler.customCrops) {
             String[] cropsRawData = IOHelper.getLinesArrayFromData(ConfigurationHandler.readCustomCrops());
@@ -44,28 +44,30 @@ public class CustomCrops {
                 LogHelper.debug(new StringBuffer("parsing ").append(cropsRawData[i]));
                 if(success) {
                     ItemStack fruitStack = IOHelper.getStack(cropData[1]);
-                    Item fruit = fruitStack!=null?fruitStack.getItem():null;
                     errorMsg = "Invalid fruit";
-                    success = (fruit!=null) || (cropData[1].equals("null")) ;
+                    success = (fruitStack!=null && fruitStack.getItem()!=null) || (cropData[1].equals("null")) ;
                     if(success) {
                         String name = cropData[0];
-                        int fruitMeta = fruit!=null?fruitStack.getItemDamage():0;
-                        Block soil = cropData[2].equalsIgnoreCase("null")?null:((Block) Block.blockRegistry.getObject(cropData[2]));
-                        ItemStack base = IOHelper.getStack(cropData[3]);
-                        Block baseBlock = base != null ? ((ItemBlock) base.getItem()).field_150939_a : null;
-                        int baseMeta = base != null ? base.getItemDamage() : 0;
+                        //soil
+                        BlockWithMeta soil =IOHelper.getBlock(cropData[2]);
+                        //baseblock
+                        BlockWithMeta base = IOHelper.getBlock(cropData[3]);
+                        //tier
                         int tier = Integer.parseInt(cropData[4]);
+                        //render method
                         RenderMethod renderType = RenderMethod.getRenderMethod(Integer.parseInt(cropData[5]));
+                        //shearable
                         ItemStack shearable = cropData.length>7?IOHelper.getStack(cropData[7]):null;
                         shearable = (shearable!=null && shearable.getItem()!=null)?shearable:null;
+                        //info
                         String info = cropData[6];
                         try {
-                            customCrops[i] = new BlockModPlant(new Object[] {name, new ItemStack(fruit, 1, fruitMeta), soil, new BlockWithMeta(baseBlock, baseMeta), tier, renderType, shearable});
+                            customCrops[i] = new BlockModPlant(name, fruitStack, soil, RequirementType.BELOW, base, tier, renderType, shearable);
                         } catch (Exception e) {
                             if(ConfigurationHandler.debug) {
-                                e.printStackTrace();
+                            	LogHelper.printStackTrace(e);
                             }
-                            return;
+                            break;
                         }
                         customSeeds[i] = customCrops[i].getSeed();
                         LanguageRegistry.addName(customCrops[i], Character.toUpperCase(name.charAt(0))+name.substring(1));

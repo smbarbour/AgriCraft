@@ -1,10 +1,9 @@
 package com.InfinityRaider.AgriCraft.network;
 
+import com.InfinityRaider.AgriCraft.farming.CropPlantHandler;
 import com.InfinityRaider.AgriCraft.reference.Names;
 import com.InfinityRaider.AgriCraft.tileentity.storage.SeedStorageSlot;
 import com.InfinityRaider.AgriCraft.tileentity.storage.TileEntitySeedStorage;
-import com.InfinityRaider.AgriCraft.utility.LogHelper;
-import com.InfinityRaider.AgriCraft.utility.SeedHelper;
 import cpw.mods.fml.client.FMLClientHandler;
 import cpw.mods.fml.common.network.simpleimpl.IMessage;
 import cpw.mods.fml.common.network.simpleimpl.IMessageHandler;
@@ -24,6 +23,7 @@ public class MessageTileEntitySeedStorage extends MessageAgriCraft {
     private int gain;
     private int strength;
 
+    @SuppressWarnings("unused")
     public MessageTileEntitySeedStorage() {}
 
     public MessageTileEntitySeedStorage(int x, int y, int z, SeedStorageSlot slot) {
@@ -45,7 +45,7 @@ public class MessageTileEntitySeedStorage extends MessageAgriCraft {
 
     private NBTTagCompound getTag() {
         NBTTagCompound tag = new NBTTagCompound();
-        SeedHelper.setNBT(tag, (short) growth, (short) gain, (short) strength, true);
+        CropPlantHandler.setSeedNBT(tag, (short) growth, (short) gain, (short) strength, true);
         return tag;
     }
 
@@ -81,13 +81,12 @@ public class MessageTileEntitySeedStorage extends MessageAgriCraft {
         @Override
         public IMessage onMessage(MessageTileEntitySeedStorage message, MessageContext context) {
             TileEntity te = FMLClientHandler.instance().getClient().theWorld.getTileEntity(message.x, message.y, message.z);
-            LogHelper.debug("Received message for "+(te==null?"null":te.toString()));
             if(te!=null && te instanceof TileEntitySeedStorage) {
                 TileEntitySeedStorage storage = (TileEntitySeedStorage) te;
                 ItemStack stack = storage.getLockedSeed();
                 stack.stackSize = message.amount;
                 stack.stackTagCompound = message.getTag();
-                storage.setInventorySlotContents(message.slotId, stack);
+                storage.setSlotContents(message.slotId, stack);
             }
             return null;
         }

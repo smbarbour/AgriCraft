@@ -1,19 +1,19 @@
 package com.InfinityRaider.AgriCraft.gui.journal;
 
 import com.InfinityRaider.AgriCraft.api.v1.BlockWithMeta;
-import com.InfinityRaider.AgriCraft.apiimpl.v1.cropplant.CropPlant;
+import com.InfinityRaider.AgriCraft.farming.cropplant.CropPlant;
 import com.InfinityRaider.AgriCraft.farming.CropPlantHandler;
-import com.InfinityRaider.AgriCraft.farming.GrowthRequirementHandler;
 import com.InfinityRaider.AgriCraft.farming.mutation.Mutation;
 import com.InfinityRaider.AgriCraft.farming.mutation.MutationHandler;
 import com.InfinityRaider.AgriCraft.gui.Component;
 import com.InfinityRaider.AgriCraft.reference.Reference;
-import com.InfinityRaider.AgriCraft.utility.RenderHelper;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.IIcon;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.StatCollector;
 
@@ -24,6 +24,9 @@ import java.util.Arrays;
 public class JournalPageSeed extends JournalPage {
     private static final ResourceLocation ICON_FRAME = new ResourceLocation(Reference.MOD_ID.toLowerCase(), "textures/gui/journal/GuiJournalSeedFrame.png");
     private static final ResourceLocation MUTATION_TEMPLATE = new ResourceLocation(Reference.MOD_ID.toLowerCase(), "textures/gui/journal/GuiJournalMutationTemplate.png");
+    private static final ResourceLocation QUESTION_MARK = new ResourceLocation(Reference.MOD_ID.toLowerCase(), "textures/gui/journal/GuiJournalQuestionMark.png");
+    private static final ResourceLocation BRIGHTNESS_BAR = new ResourceLocation(Reference.MOD_ID.toLowerCase(), "textures/gui/journal/GuiJournalBrightnessBar.png");
+    private static final ResourceLocation BRIGHTNESS_FRAME = new ResourceLocation(Reference.MOD_ID.toLowerCase(), "textures/gui/journal/GuiJournalBrightnessFrame.png");
 
     private ArrayList<ItemStack> discoveredSeeds;
     private int page;
@@ -94,9 +97,10 @@ public class JournalPageSeed extends JournalPage {
         textComponents.add(getDescriptionHead());
         textComponents.add(getSeedInformation());
         textComponents.add(getTier());
+        textComponents.add(getBrightnessTitle());
         textComponents.add(getFruitTitle());
         textComponents.add(getGrowthTitle());
-        textComponents.add(getMutationTitle());
+        textComponents.addAll(getMutationTitles());
         return textComponents;
     }
 
@@ -130,7 +134,15 @@ public class JournalPageSeed extends JournalPage {
     private Component<String> getTier() {
         String text = StatCollector.translateToLocal("agricraft_journal.tier") + ": " + plant.getTier();
         int x = 29;
-        int y = 70;
+        int y = 66;
+        float scale = 0.5F;
+        return new Component<String>(text, x , y, scale);
+    }
+
+    private Component<String> getBrightnessTitle() {
+        String text = StatCollector.translateToLocal("agricraft_journal.brightness") + ": ";
+        int x = 29;
+        int y = 76;
         float scale = 0.5F;
         return new Component<String>(text, x , y, scale);
     }
@@ -138,7 +150,7 @@ public class JournalPageSeed extends JournalPage {
     private Component<String> getFruitTitle() {
         String text = StatCollector.translateToLocal("agricraft_journal.fruits") + ": ";
         int x = 29;
-        int y = 84;
+        int y = 95;
         float scale = 0.5F;
         return new Component<String>(text, x, y, scale);
     }
@@ -146,17 +158,19 @@ public class JournalPageSeed extends JournalPage {
     private Component<String> getGrowthTitle() {
         String text = StatCollector.translateToLocal("agricraft_journal.growthStages") + ": ";
         int x = 29;
-        int y = 117;
+        int y = 122;
         float scale = 0.5F;
         return new Component<String>(text, x, y, scale);
     }
 
-    private Component<String> getMutationTitle() {
+    private ArrayList<Component<String>> getMutationTitles() {
         String text = StatCollector.translateToLocal("agricraft_journal.mutations") + ": ";
         int x = 132;
         int y = 13;
         float scale = 0.5F;
-        return new Component<String>(text, x, y, scale);
+        ArrayList<Component<String>> list = new ArrayList<Component<String>>();
+        list.add(new Component<String>(text, x, y, scale));
+        return list;
     }
 
 
@@ -191,7 +205,7 @@ public class JournalPageSeed extends JournalPage {
                 ItemStack stack = allFruits.get(i);
                 if (stack != null && stack.getItem() != null) {
                     int x = 30 + 24 * i;
-                    int y = 91;
+                    int y = 102;
                     fruits.add(new Component<ItemStack>(stack, x, y, 16, 16));
                 }
             }
@@ -200,12 +214,13 @@ public class JournalPageSeed extends JournalPage {
     }
 
     private ArrayList<Component<ItemStack>> getSeeds() {
-        ArrayList<Mutation> mutations = getDiscoveredMutations();
+        ArrayList<Mutation> completedMutations = getCompletedMutations();
+        ArrayList<Mutation> uncompletedMutations = getUncompleteMutations();
         ArrayList<Component<ItemStack>> seeds = new ArrayList<Component<ItemStack>>();
-        for(int i = 0;i<mutations.size();i++) {
-            Mutation mutation = mutations.get(i);
-            int y = 21 + i*20;
-            int x = 132;
+        int y = 1;
+        int x = 132;
+        for (Mutation mutation : completedMutations) {
+            y = y + 20;
             ItemStack resultStack = mutation.getResult();
             ItemStack parent1Stack = mutation.getParents()[0];
             ItemStack parent2Stack = mutation.getParents()[1];
@@ -213,13 +228,37 @@ public class JournalPageSeed extends JournalPage {
             seeds.add(new Component<ItemStack>(parent2Stack, x + 35, y, 16, 16));
             seeds.add(new Component<ItemStack>(resultStack, x + 69, y, 16, 16));
         }
+        for (Mutation mutation : uncompletedMutations) {
+            y = y + 20;
+            ItemStack parent1Stack = mutation.getParents()[0];
+            ItemStack parent2Stack = mutation.getParents()[1];
+            seeds.add(new Component<ItemStack>(parent1Stack, x, y, 16, 16));
+            seeds.add(new Component<ItemStack>(parent2Stack, x + 35, y, 16, 16));
+        }
         return seeds;
     }
 
-    private ArrayList<Mutation> getDiscoveredMutations() {
+    private ArrayList<Mutation> getCompletedMutations() {
+        ArrayList<Mutation> mutations = getDiscoveredParentMutations();
+        mutations.addAll(getDiscoveredChildMutations());
+        return mutations;
+    }
+
+    private ArrayList<Mutation> getDiscoveredParentMutations() {
         ArrayList<Mutation> allMutations = new ArrayList<Mutation>();
         ArrayList<Mutation> mutations = new ArrayList<Mutation>();
         allMutations.addAll(Arrays.asList(MutationHandler.getMutationsFromParent(discoveredSeeds.get(page))));
+        for(Mutation mutation:allMutations) {
+            if(isMutationDiscovered(mutation)) {
+                mutations.add(mutation);
+            }
+        }
+        return mutations;
+    }
+
+    private ArrayList<Mutation> getDiscoveredChildMutations() {
+        ArrayList<Mutation> allMutations = new ArrayList<Mutation>();
+        ArrayList<Mutation> mutations = new ArrayList<Mutation>();
         allMutations.addAll(Arrays.asList(MutationHandler.getMutationsFromChild(discoveredSeeds.get(page))));
         for(Mutation mutation:allMutations) {
             if(isMutationDiscovered(mutation)) {
@@ -229,11 +268,33 @@ public class JournalPageSeed extends JournalPage {
         return mutations;
     }
 
+    private ArrayList<Mutation> getUncompleteMutations() {
+        ArrayList<Mutation> allMutations = new ArrayList<Mutation>();
+        ArrayList<Mutation> mutations = new ArrayList<Mutation>();
+        allMutations.addAll(Arrays.asList(MutationHandler.getMutationsFromParent(discoveredSeeds.get(page))));
+        for(Mutation mutation:allMutations) {
+            if(isMutationHalfDiscovered(mutation)) {
+                mutations.add(mutation);
+            }
+        }
+        return mutations;
+    }
+
     private boolean isMutationDiscovered(Mutation mutation) {
         ItemStack resultStack = mutation.getResult();
+        return areParentsDiscovered(mutation) && isSeedDiscovered(resultStack);
+    }
+
+    private boolean isMutationHalfDiscovered(Mutation mutation) {
+        ItemStack resultStack = mutation.getResult();
+        return areParentsDiscovered(mutation) && !isSeedDiscovered(resultStack);
+
+    }
+
+    private boolean areParentsDiscovered(Mutation mutation) {
         ItemStack parent1Stack = mutation.getParents()[0];
         ItemStack parent2Stack = mutation.getParents()[1];
-        return isSeedDiscovered(parent1Stack) && isSeedDiscovered(parent2Stack) && isSeedDiscovered(resultStack);
+        return isSeedDiscovered(parent1Stack) && isSeedDiscovered(parent2Stack);
     }
 
     private boolean isSeedDiscovered(ItemStack seed) {
@@ -254,7 +315,7 @@ public class JournalPageSeed extends JournalPage {
     public ArrayList<Component<ResourceLocation>> getTextureComponents() {
         ArrayList<Component<ResourceLocation>> textureComponents = new ArrayList<Component<ResourceLocation>>();
         textureComponents.add(getSoil());
-        textureComponents.addAll(getGrowthStages());
+        textureComponents.addAll(getBrightnessTextures());
         textureComponents.addAll(getFruitIconFrames());
         textureComponents.addAll(getMutationTemplates());
         return textureComponents;
@@ -262,27 +323,48 @@ public class JournalPageSeed extends JournalPage {
 
     private Component<ResourceLocation> getSoil() {
         ItemStack seed = plant.getSeed();
-        BlockWithMeta soil = GrowthRequirementHandler.getGrowthRequirement(seed.getItem(), seed.getItemDamage()).getSoil();
+        BlockWithMeta soil = CropPlantHandler.getGrowthRequirement(seed.getItem(), seed.getItemDamage()).getSoil();
         ResourceLocation texture;
         if (soil != null) {
-            texture = RenderHelper.getBlockResource(soil.getBlock().getIcon(1, soil.getMeta()));
+            texture = getBlockResource(soil.getBlock().getIcon(1, soil.getMeta()));
         } else {
-            texture = RenderHelper.getBlockResource(Blocks.farmland.getIcon(1, 7));
+            texture = getBlockResource(Blocks.farmland.getIcon(1, 7));
         }
         int x = 26;
         int y = 11;
         return new Component<ResourceLocation>(texture, x, y, 16, 16);
     }
 
-    private ArrayList<Component<ResourceLocation>> getGrowthStages() {
-        ArrayList<Component<ResourceLocation>> growthStages = new ArrayList<Component<ResourceLocation>>();
-        for(int i=0;i<8;i++) {
-            ResourceLocation texture = RenderHelper.getBlockResource(plant.getPlantIcon(i));
-            int x = 30 + 24 * (i % 4);
-            int y = 124 + 24 * (i / 4);
-            growthStages.add(new Component<ResourceLocation>(texture, x, y, 16, 16));
+    /**
+     * Retrieves a resource location from a <em>block</em> icon.
+     *
+     * @param icon the icon to get the resource location from.
+     * @return the resource location for the icon, or null.
+     */
+    //TODO: get rid of this method and do it the legit way
+    private ResourceLocation getBlockResource(IIcon icon) {
+        if(icon==null) {
+            return null;
         }
-        return growthStages;
+        String path = icon.getIconName();
+        String domain = path.substring(0, path.indexOf(":") + 1);
+        String file = path.substring(path.indexOf(':') + 1);
+        return new ResourceLocation(domain + "textures/blocks/" + file + ".png");
+    }
+
+    private ArrayList<Component<ResourceLocation>> getBrightnessTextures() {
+        ArrayList<Component<ResourceLocation>> textures = new ArrayList<Component<ResourceLocation>>();
+        int x = 29;
+        int y = 81;
+        int u = 4;
+        int v = 8;
+        int[] brightnessRange = plant.getGrowthRequirement().getBrightnessRange();
+        textures.add(new Component<ResourceLocation>(BRIGHTNESS_BAR, x, y, 2+16*u, v));
+        textures.add(new Component<ResourceLocation>(BRIGHTNESS_FRAME, x+u*brightnessRange[0], y, 1, v));
+        textures.add(new Component<ResourceLocation>(BRIGHTNESS_FRAME, x+u*brightnessRange[1]+1, y, 1, v));
+        textures.add(new Component<ResourceLocation>(BRIGHTNESS_FRAME, x+u*brightnessRange[0]+1, y, u*(brightnessRange[1]-brightnessRange[0]), 1));
+        textures.add(new Component<ResourceLocation>(BRIGHTNESS_FRAME, x+u*brightnessRange[0]+1, y+v-1, u*(brightnessRange[1]-brightnessRange[0]), 1));
+        return textures;
     }
 
     private ArrayList<Component<ResourceLocation>> getFruitIconFrames() {
@@ -291,20 +373,55 @@ public class JournalPageSeed extends JournalPage {
         }
         ArrayList<Component<ResourceLocation>> components = new ArrayList<Component<ResourceLocation>>();
         for(int i=0;i<fruits.size();i++) {
-            components.add(new Component<ResourceLocation>(ICON_FRAME, 29+24*i, 90, 18, 18));
+            components.add(new Component<ResourceLocation>(ICON_FRAME, 29+24*i, 101, 18, 18));
         }
         return components;
     }
 
     private ArrayList<Component<ResourceLocation>> getMutationTemplates() {
-        if(this.seeds == null) {
-            this.seeds = getSeeds();
-        }
+        int n = getCompletedMutations().size();
+        int l = getUncompleteMutations().size();
         ArrayList<Component<ResourceLocation>> components = new ArrayList<Component<ResourceLocation>>();
-        for(int i=0;i<seeds.size()/3;i++) {
-            components.add(new Component<ResourceLocation>(MUTATION_TEMPLATE, 132, 20+20*i, 86, 18));
+        int y = 0;
+        for(int i=0;i<n;i++) {
+            y = y + 20;
+            components.add(new Component<ResourceLocation>(MUTATION_TEMPLATE, 132, y, 86, 18));
+        }
+        for(int i=0;i<l;i++) {
+            y = y + 20;
+            components.add(new Component<ResourceLocation>(MUTATION_TEMPLATE, 132, y, 86, 18));
+            components.add(new Component<ResourceLocation>(QUESTION_MARK, 201, y+1, 16, 16));
         }
         return components;
     }
 
+
+    // ******************************* //
+    // TEXTURES TO RENDER ON THIS PAGE //
+    // ******************************* //
+
+    @Override
+    public ArrayList<ResourceLocation> getTextureMaps() {
+        ArrayList<ResourceLocation> list = new ArrayList<ResourceLocation>();
+        list.add(TextureMap.locationBlocksTexture);
+        return list;
+    }
+
+    @Override
+    public ArrayList<Component<IIcon>> getIconComponents(ResourceLocation textureMap) {
+        if(textureMap != TextureMap.locationBlocksTexture) {
+            return null;
+        }
+        return getGrowthStageIcons();
+    }
+
+    private ArrayList<Component<IIcon>> getGrowthStageIcons() {
+        ArrayList<Component<IIcon>> growthStages = new ArrayList<Component<IIcon>>();
+        for(int i=0;i<8;i++) {
+            int x = 30 + 24 * (i % 4);
+            int y = 129 + 24 * (i / 4);
+            growthStages.add(new Component<IIcon>(plant.getPlantIcon(i), x, y, 16, 16));
+        }
+        return growthStages;
+    }
 }

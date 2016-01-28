@@ -28,7 +28,13 @@ public final class Names {
         public static final String x = "agricraftX";
         public static final String y = "agricraftY";
         public static final String z = "agricraftZ";
+        public static final String x2 = "agricraftX2";
+        public static final String y2 = "agricraftY2";
+        public static final String z2 = "agricraftZ2";
         public static final String override = "override";
+        public static final String flag = "ac_Flag";
+        public static final String direction = "direction";
+        public static final String multiBlock = "agricraft_MultiBlock";
     }
 
     //mod objects
@@ -56,6 +62,13 @@ public final class Names {
         public static final String seedStorageController = "seedStorageController";
         public static final String handRake = "handRake";
         public static final String villager = "villagerFarmer";
+        public static final String peripheral = "peripheral";
+        public static final String fence = "fence";
+        public static final String fenceGate = "fenceGate";
+        public static final String grate = "grate";
+        public static final String leash = "leash";
+        public static final String clipper = "clipper";
+        public static final String clipping = "clipping";
     }
 
     //tile entities
@@ -72,37 +85,44 @@ public final class Names {
 
     //mod ids
     public static class Mods {
+        public static final String adventOfAscension = "nevermine";
+        public static final String agriculture = "Agriculture";
+        public static final String ancientWarfare = "AncientWarfare";
         public static final String arsMagica = "arsmagica2";
         public static final String bloodMagic = "AWWayofTime";
         public static final String bluePower = "bluepower";
-        public static final String harvestcraft = "harvestcraft";
-        public static final String natura = "Natura";
-        public static final String weeeFlowers = "weeeflowers";
-        public static final String forestry = "Forestry";
-        public static final String growthcraft= "Growthcraft";
-        public static final String nei = "NotEnoughItems";
-        public static final String thaumicTinkerer = "ThaumicTinkerer";
-        public static final String hungerOverhaul= "HungerOverhaul";
-        public static final String exNihilo = "exnihilo";
-        public static final String plantMegaPack = "plantmegapack";
-        public static final String magicalCrops = "magicalcrops";
-        public static final String railcraft = "Railcraft";
-        public static final String thaumcraft = "Thaumcraft";
-        public static final String mfr = "MineFactoryReloaded";
-        public static final String waila = "Waila";
-        public static final String chococraft = "chococraft";
-        public static final String mcMultipart = "McMultipart";
-        public static final String minetweaker = "MineTweaker3";
-        public static final String extraUtilities = "ExtraUtilities";
         public static final String botania = "Botania";
-        public static final String tconstruct = "TConstruct";
+        public static final String chococraft = "chococraft";
+        public static final String computerCraft = "ComputerCraft";
+        public static final String etFuturum = "etfuturum";
+        public static final String extraUtilities = "ExtraUtilities";
+        public static final String exNihilo = "exnihilo";
+        public static final String forestry = "Forestry";
+        public static final String ganysNether = "ganysnether";
+        public static final String ganysSurface = "ganyssurface";
         public static final String gardenStuff = "GardenCore";
+        public static final String growthcraft= "Growthcraft";
+        public static final String harvestcraft = "harvestcraft";
+        public static final String harvestTheNether = "harvestthenether";
+        public static final String hungerOverhaul= "HungerOverhaul";
+        public static final String kitchenMod = "kitchen";
+        public static final String lordOfTheRingsMod = "lotr";
+        public static final String magicalCrops = "magicalcrops";
+        public static final String mcMultipart = "McMultipart";
+        public static final String mfr = "MineFactoryReloaded";
+        public static final String millenaire = "millenaire";
+        public static final String minetweaker = "MineTweaker3";
+        public static final String natura = "Natura";
+        public static final String nei = "NotEnoughItems";
+        public static final String openComputers = "OpenComputers";
+        public static final String plantMegaPack = "plantmegapack";
         public static final String psychedelicraft = "psychedelicraft";
+        public static final String railcraft = "Railcraft";
+        public static final String resourcefulCrops = "ResourcefulCrops";
+        public static final String tconstruct = "TConstruct";
+        public static final String thaumcraft = "Thaumcraft";
+        public static final String waila = "Waila";
+        public static final String weeeFlowers = "weeeflowers";
         public static final String witchery = "witchery";
     }
-
-    //item registry keywords
-    public static final String seedItem = "seedItem";
-
-
 }

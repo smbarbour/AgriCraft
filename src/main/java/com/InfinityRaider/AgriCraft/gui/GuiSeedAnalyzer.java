@@ -17,6 +17,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.StatCollector;
 import org.lwjgl.opengl.GL11;
 
 @SideOnly(Side.CLIENT)
@@ -35,15 +36,21 @@ public class GuiSeedAnalyzer extends GuiContainer {
         this.journalOpen = false;
     }
 
+    @Override
+    @SuppressWarnings("unchecked")
+    public void initGui() {
+        super.initGui();
+        this.buttonList.add(new GuiButton(0, this.guiLeft + 131, this.guiTop + 67, 18, 18, ""));
+    }
+
     //draw foreground
     @Override
     public void drawGuiContainerForegroundLayer(int x, int y) {
-        String name = "Seed Analyzer";
+        String name = StatCollector.translateToLocal("agricraft_gui.seedAnalyzer");
         int white = 4210752;        //the number for white
         //write name: x coordinate is in the middle, 6 down from the top, and setting color to white
         this.fontRendererObj.drawString(name, this.xSize/2 - this.fontRendererObj.getStringWidth(name)/2, 6, white);
-        this.fontRendererObj.drawString(I18n.format("container.inventory", new Object[0]), 8, this.ySize - 96 + 2, white);
-        this.buttonList.add(new GuiButton(0, this.guiLeft + 131, this.guiTop + 67, 18, 18, ""));
+        this.fontRendererObj.drawString(I18n.format("container.inventory"), 9, this.ySize - 96 + 2, white);
     }
 
     //draw background
@@ -52,7 +59,7 @@ public class GuiSeedAnalyzer extends GuiContainer {
         GL11.glColor4f(1F, 1F, 1F, 1F);
         Minecraft.getMinecraft().getTextureManager().bindTexture(texture);
         drawTexturedModalRect(this.guiLeft, this.guiTop, 0, 0, this.xSize, this.ySize);
-        if(this.seedAnalyzer.progress > 0) {
+        if(this.seedAnalyzer.getProgress() > 0) {
             int state = this.seedAnalyzer.getProgressScaled(40);
             drawTexturedModalRect(this.guiLeft + 68, this.guiTop + 79, this.xSize, 0, state, 5);
         }
@@ -70,7 +77,10 @@ public class GuiSeedAnalyzer extends GuiContainer {
 
     @Override
     protected void actionPerformed(GuiButton button) {
-        ItemStack journal = seedAnalyzer.journal;
+        if(journalOpen) {
+            return;
+        }
+        ItemStack journal = seedAnalyzer.getStackInSlot(ContainerSeedAnalyzer.journalSlotId);
         if(journal != null) {
             if (journal.hasTagCompound()) {
                 NBTTagCompound tag = journal.stackTagCompound;
@@ -111,7 +121,8 @@ public class GuiSeedAnalyzer extends GuiContainer {
     protected void mouseClicked(int x, int y, int rightClick) {
         if(journalOpen) {
             guiJournal.mouseClicked(x, y, rightClick);
-        } else {
+        }
+        else {
             super.mouseClicked(x, y, rightClick);
         }
     }

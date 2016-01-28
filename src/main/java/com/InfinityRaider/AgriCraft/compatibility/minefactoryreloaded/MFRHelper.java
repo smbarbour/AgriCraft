@@ -6,13 +6,8 @@ import powercrystals.minefactoryreloaded.api.FactoryRegistry;
 
 public class MFRHelper extends ModHelper {
     @Override
-    protected void init() {
+    protected void onInit() {
         FactoryRegistry.sendMessage("registerHarvestable", new AgriCraftHarvestable());
-    }
-
-    @Override
-    protected void initPlants() {
-
     }
 
     @Override

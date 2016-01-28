@@ -11,7 +11,7 @@ import net.minecraft.util.ResourceLocation;
 import org.lwjgl.opengl.GL11;
 
 @SideOnly(Side.CLIENT)
-public class GuiSeedStorageController extends GuiSeedStorageDummy {
+public class GuiSeedStorageController extends GuiSeedStorageBase {
     private static final ResourceLocation texture = new ResourceLocation(Reference.MOD_ID.toLowerCase(), "textures/gui/GuiSeedStorageController.png");
     private static final int sizeX = 250;
     private static final int sizeY = 176;
@@ -25,16 +25,15 @@ public class GuiSeedStorageController extends GuiSeedStorageDummy {
     @Override
     protected void drawGuiContainerBackgroundLayer(float opacity, int x, int y) {
         GL11.glColor4f(1F, 1F, 1F, 1F);
-        Minecraft.getMinecraft().getTextureManager().bindTexture(this.texture);
+        Minecraft.getMinecraft().getTextureManager().bindTexture(texture);
         drawTexturedModalRect(this.guiLeft, this.guiTop, 0, 0, this.xSize, this.ySize);
     }
 
     //draw foreground
     @Override
     public void drawGuiContainerForegroundLayer(int x, int y) {
-        this.loadButtons();
         if(this.activeSeed!=null) {
-            this.drawActiveEntries(x, y,  this.texture, 82, 35);
+            this.drawActiveEntries(texture, 82, 35);
         }
     }
 }

@@ -1,61 +1,222 @@
 package com.InfinityRaider.AgriCraft.utility;
 
+import com.InfinityRaider.AgriCraft.api.v1.BlockWithMeta;
 import com.InfinityRaider.AgriCraft.compatibility.ModHelper;
+import com.InfinityRaider.AgriCraft.farming.CropPlantHandler;
+import com.InfinityRaider.AgriCraft.farming.cropplant.CropPlant;
 import com.InfinityRaider.AgriCraft.handler.ConfigurationHandler;
 import com.InfinityRaider.AgriCraft.reference.Names;
 import cpw.mods.fml.common.registry.GameRegistry;
+import net.minecraft.block.Block;
+import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 
-import java.io.*;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 
-//class containing the default mutations for each supported mod
+//helper class to read, write and parse data to and from the config files
 public abstract class IOHelper {
-    //reads and writes text files
+    public static String getModId(ItemStack stack) {
+        if(stack == null || stack.getItem() == null) {
+            return null;
+        }
+        String name = Item.itemRegistry.getNameForObject(stack.getItem());
+        int split = name.indexOf(':');
+        if(split>=0) {
+            name = name.substring(0, split);
+        }
+        return name;
+    }
+	
+	/**
+	 * <p>
+	 * Attempts to read or write data from or to a file.
+	 * </p><p>
+	 * If the file is found to be missing,
+	 * the file will be written with the default data, and the default data will be returned.
+	 * </p><p>
+	 * If the file is found to be a regular, readable file, the file is read in, and its contents returned.
+	 * </p><p>
+	 * If the method runs into an error while attempting any of this, a message is printed to the log,
+	 * and the default data is returned.
+	 * </p>
+	 * @param directory the directory the file is in.
+	 * @param fileName the name of the file, without the .txt ending.
+	 * @param defaultData the data to write to the file, or default to.
+	 * @return the data contained in the file, or the default data.
+	 */
     public static String readOrWrite(String directory, String fileName, String defaultData) {
         return readOrWrite(directory, fileName, defaultData, false);
     }
 
-    //reads and writes text files
-    public static String readOrWrite(String directory, String fileName, String defaultData, boolean reset) {
-        File file = new File(directory, fileName+".txt");
-        if(file.exists() && !file.isDirectory() && !reset) {
-            try {
-                FileInputStream inputStream = new FileInputStream(file);
-                byte[] input = new byte[(int) file.length()];
-                try {
-                    inputStream.read(input);
-                    inputStream.close();
-                    return new String(input, "UTF-8");
-                } catch (IOException e) {
-                    LogHelper.info("Caught IOException when reading "+fileName+".txt");
+	/**
+	 * <p>
+	 * Attempts to read or write data from or to a file.
+	 * </p><p>
+	 * If the file is found to be missing or the reset parameter is set to true,
+	 * the file will be written with the default data, and the default data will be returned.
+	 * </p><p>
+	 * If the file is found to be a regular, readable file, the file is read in, and its contents returned.
+	 * </p><p>
+	 * If the method runs into an error while attempting any of this, a message is printed to the log,
+	 * and the default data is returned.
+	 * </p>
+	 * @param directory the directory the file is in.
+	 * @param fileName the name of the file, without the .txt ending.
+	 * @param defaultData the data to write to the file, or default to.
+	 * @param reset if the file should be overwritten with the default data.
+	 * @return the data contained in the file, or the default data.
+	 */
+	public static String readOrWrite(String directory, String fileName, String defaultData, boolean reset) {
+		Path path = Paths.get(directory, fileName + ".txt");
+		try {
+			if (Files.isRegularFile(path) && !reset) {
+				return new String(Files.readAllBytes(path));
+			} else {
+				Files.write(path, defaultData.getBytes());
+			}
+		} catch (IOException e) {
+			LogHelper.info("Caught IOException when reading " + path.getFileName());
+		}
+		return defaultData;
+	}
+
+    /**
+     * Utility method: splits the string in different lines so it will fit on the page.
+     *
+     * @param fontRendererObj the font renderer to check against.
+     * @param input the line to split up.
+     * @param maxWidth the maximum allowable width of the line before being wrapped.
+     * @param scale the scale of the text to the width.
+     * @return the string split up into lines by the '\n' character.
+     */
+    public static String splitInLines(FontRenderer fontRendererObj, String input, float maxWidth, float scale) {
+        maxWidth = maxWidth / scale;
+        String notProcessed = input;
+        String output = "";
+        while (fontRendererObj.getStringWidth(notProcessed) > maxWidth) {
+            int index = 0;
+            if (notProcessed != null && !notProcessed.equals("")) {
+                //find the first index at which the string exceeds the size limit
+                while (notProcessed.length() - 1 > index && fontRendererObj.getStringWidth(notProcessed.substring(0, index)) < maxWidth) {
+                    index = (index + 1) < notProcessed.length() ? index + 1 : index;
                 }
-            } catch(FileNotFoundException e) {
-                LogHelper.info("Caught IOException when reading "+fileName+".txt");
+                //go back to the first space to cut the string in two lines
+                while (index>0 && notProcessed.charAt(index) != ' ') {
+                    index--;
+                }
+                //update the data for the next iteration
+                output = output.equals("") ? output : output + '\n';
+                output = output + notProcessed.substring(0, index);
+                notProcessed = notProcessed.length() > index + 1 ? notProcessed.substring(index + 1) : notProcessed;
             }
         }
-        else {
-            BufferedWriter writer;
-            try {
-                writer = new BufferedWriter(new FileWriter(file));
-                try {
-                    writer.write(defaultData);
-                    writer.close();
-                    return defaultData;
-                }
-                catch(IOException e) {
-                    LogHelper.info("Caught IOException when writing "+fileName+".txt");
-                }
+        return output + '\n' + notProcessed;
+    }
+
+    //finds blacklisted crops
+    public static void initSeedBlackList() {
+        String[] data = IOHelper.getLinesArrayFromData(ConfigurationHandler.readSeedBlackList());
+        for(String line:data) {
+            LogHelper.debug(new StringBuffer("parsing ").append(line));
+            ItemStack seedStack = IOHelper.getStack(line);
+            boolean success = seedStack != null && seedStack.getItem() != null;
+            String errorMsg = "Invalid seed";
+            if(success) {
+                CropPlantHandler.addSeedToBlackList(seedStack);
             }
-            catch(IOException e) {
-                LogHelper.info("Caught IOException when writing "+fileName+".txt");
+            else {
+                LogHelper.info(new StringBuffer("Error when adding seed to blacklist: ").append(errorMsg).append(" (line: ").append(line).append(")"));
             }
         }
-        return null;
+    }
+
+    //initializes the seed tier overrides
+    public static void initSeedTiers() {
+        String[] input = IOHelper.getLinesArrayFromData(ConfigurationHandler.readSeedTiers());
+        LogHelper.debug("reading seed tier overrides");
+        for(String line:input) {
+            String[] data = IOHelper.getData(line);
+            boolean success = data.length==2;
+            String errorMsg = "Incorrect amount of arguments";
+            LogHelper.debug("parsing "+line);
+            if(success) {
+                ItemStack seedStack = IOHelper.getStack(data[0]);
+                CropPlant plant = CropPlantHandler.getPlantFromStack(seedStack);
+                success = plant != null;
+                errorMsg = "Invalid seed";
+                if(success) {
+                    int tier = Integer.parseInt(data[1]);
+                    success = tier>=1 && tier<=5;
+                    errorMsg = "Tier should be between 1 and 5";
+                    if(success) {
+                        plant.setTier(tier);
+                        LogHelper.info(" - " + Item.itemRegistry.getNameForObject(plant.getSeed().getItem()) + ':' + plant.getSeed().getItemDamage() + " - tier: " + tier);
+                    }
+                }
+            }
+            if(!success) {
+                LogHelper.info(new StringBuffer("Error when adding seed tier override: ").append(errorMsg).append(" (line: ").append(line).append(")"));
+            }
+        }
+    }
+
+    public static void initSpreadChancesOverrides() {
+        //read mutation chance overrides & initialize the arrays
+        String[] input = IOHelper.getLinesArrayFromData(ConfigurationHandler.readSpreadChances());
+        LogHelper.debug("reading mutation chance overrides");
+        for(String line:input) {
+            String[] data = IOHelper.getData(line);
+            boolean success = data.length==2;
+            String errorMsg = "Incorrect amount of arguments";
+            LogHelper.debug("parsing "+line);
+            if(success) {
+                ItemStack seedStack = IOHelper.getStack(data[0]);
+                CropPlant plant = CropPlantHandler.getPlantFromStack(seedStack);
+                success = plant != null;
+                errorMsg = "Invalid seed";
+                if(success) {
+                    int chance = Integer.parseInt(data[1]);
+                    success = chance>=0 && chance<=100;
+                    errorMsg = "Chance should be between 0 and 100";
+                    if(success) {
+                        plant.setSpreadChance(chance);
+                        LogHelper.debug("Set spread chance for " + Item.itemRegistry.getNameForObject(plant.getSeed().getItem()) + ':' + plant.getSeed().getItemDamage() + " to " + chance + '%');
+                    }
+                }
+            }
+            if(!success) {
+                LogHelper.debug("Error when adding mutation chance override: " + errorMsg + " (line: " + line + ")");
+            }
+        }
+        LogHelper.debug("Registered Mutations Chances overrides:");
+    }
+
+    public static void initVannilaPlantingOverrides() {
+        LogHelper.debug("Registered seeds ignoring vanilla planting rule:");
+        String[] data = IOHelper.getLinesArrayFromData(ConfigurationHandler.readVanillaOverrides());
+        for(String line:data) {
+            LogHelper.debug(new StringBuffer("parsing ").append(line));
+            ItemStack seedStack = IOHelper.getStack(line);
+            CropPlant plant = CropPlantHandler.getPlantFromStack(seedStack);
+            boolean success = plant != null;
+            String errorMsg = "Invalid seed";
+            if(success) {
+                plant.setIgnoreVanillaPlantingRule(true);
+                LogHelper.debug(Item.itemRegistry.getNameForObject(plant.getSeed().getItem()) + ":" + plant.getSeed().getItemDamage());
+            }
+            else {
+                LogHelper.debug("Error when adding seed to vanilla overrides: " + errorMsg + " (line: " + line + ")");
+            }
+        }
     }
 
     //get the mutations file contents
+	//This should probably be a loop...
     public static String getDefaultMutations() {
         String data = mutationInstructions;                                     //mutationInstructions
         data = data + '\n' + minecraftMutations;                                 //minecraft mutations
@@ -134,7 +295,8 @@ public abstract class IOHelper {
 
     //get the grass drops file contents
     public static String getGrassDrops() {
-        return grassDropInstructions + "\n" + "AgriCraft:seedCarrot,10" + "\n" + "AgriCraft:seedPotato,10";
+    	//This is bad...
+        return grassDropInstructions;
     }
 
     //mutation chances overrides file contents
@@ -170,18 +332,21 @@ public abstract class IOHelper {
                 count++;
             }
         }
-        ArrayList<String> data = new ArrayList<String>();
+        ArrayList<String> data = new ArrayList<String>(count + 1); // There will be no more than count plus + lines, thereby preventing resizing.
         if (unprocessed.length()>0) {
             for (int i=0;i<count;i++) {
                 String line = (unprocessed.substring(0,unprocessed.indexOf('\n'))).trim();
-                if ((line.trim()).length() > 0 && line.charAt(0) != '#') {
-                    data.add(line.trim());
+                if (line.length() > 0 && line.charAt(0) != '#') {
+                    data.add(line); // The string line was already trimmed in its declaration.
                 }
                 unprocessed = unprocessed.substring(unprocessed.indexOf('\n')+1);
             }
         }
-        if ((unprocessed.trim()).length()>0 && unprocessed.charAt(0)!='#') {
-            data.add(unprocessed.trim());
+        
+        unprocessed = unprocessed.trim();
+        
+        if (unprocessed.length()>0 && unprocessed.charAt(0)!='#') {
+            data.add(unprocessed);
         }
         return data.toArray(new String[data.size()]);
     }
@@ -209,32 +374,55 @@ public abstract class IOHelper {
         return output.toArray(new String[output.size()]);
     }
 
-    //gets an itemstack from a string: name:meta
+    /**
+     * Retrieves an itemstack from a string representation.
+     * The string must be formatted as "modid:name:meta".
+     * The meta is not required in all cases.
+     * 
+     * @param input the string representation of the item to get.
+     * @return the item as an itemstack, or null.
+     */
     public static ItemStack getStack(String input) {
-        if(input.equalsIgnoreCase("null")) {
-            return null;
+		String[] data = input.split(":");
+		if (data.length <= 1) {
+			return null;
+		}
+		int meta = data.length==3?Integer.parseInt(data[2]):0;
+        ItemStack stack = GameRegistry.findItemStack(data[0], data[1], 1);
+        if(stack!=null && stack.getItem()!=null) {
+            stack.setItemDamage(meta);
         }
-        String[] data = input.split(":");
-        int meta = 0;
+        return stack;
+    }
 
+    /**
+     * Retrieves a a block from a string representation.
+     * The string must be formatted as "modid:name:meta".
+     * The meta is not required in all cases.
+     *
+     * @param input the string representation of the block to get.
+     * @return the block as a blockWithMeta, or null.
+     */
+    public static BlockWithMeta getBlock(String input) {
+        String[] data = input.split(":");
         if (data.length <= 1) {
             return null;
         }
-        if (data.length == 3) {
-            meta = Integer.parseInt(data[2]);
+        int meta = data.length==3?Integer.parseInt(data[2]):-1;
+        Block block = GameRegistry.findBlock(data[0], data[1]);
+        if(block == null) {
+            return null;
         }
-
-        Item item = GameRegistry.findItem(data[0], data[1]);
-        if (item != null) {
-            return new ItemStack(item, 1, meta);
-        }
-        return null;
+        return meta<0?new BlockWithMeta(block):new BlockWithMeta(block, meta);
     }
 
+    //TODO: move all this crap to asset files
     private static final String grassDropInstructions =
             "#Put a list of seeds here that will drop from tall grass with the following schematic: <seedname:seedmeta>,<weight>\n" +
             "#The seedname should be the name NEI gives you, the weight is the weighted chance for this seed to drop (for reference, minecraft wheat seeds have weight 10)\n" +
-            "#Only define one seed per line, meta is optional. Example: minecraft:melon_seeds,10";
+            "#Only define one seed per line, meta is optional. Example: minecraft:melon_seeds,10\n" + 
+            "AgriCraft:seedCarrot,10\n" +
+            "AgriCraft:seedPotato,10\n";
 
     private static final String customCropInstructions =
             "#Define custom crops here: <name>,<fruit:fruitmeta>,<soil>,<baseblock:baseblockmeta>,<tier>,<rendermethod>,<information>,<shearable>\n" +
@@ -318,7 +506,7 @@ public abstract class IOHelper {
             "harvestcraft:kiwiseedItem=harvestcraft:cantaloupeseedItem+harvestcraft:strawberryseedItem\n" +
             "harvestcraft:leekseedItem=harvestcraft:scallionseedItem+harvestcraft:celeryseedItem\n" +
             "harvestcraft:lettuceseedItem=AgriCraft:seedDaisy+harvestcraft:celeryseedItem\n" +
-            "harvestcraft:spinachseedItem=harvestcraft:lettuceseedItem+AgriCraft:seedCactus\n" +
+            "harvestcraft:spinachseedItem=harvestcraft:lettuceseedItem+AgriCraft:seedCactus\n" + // This line seems not to be valid, in my testing.
             "harvestcraft:mustardseedItem=harvestcraft:chilipepperseedItem+harvestcraft:beanseedItem\n" +
             "harvestcraft:oatsseedItem=harvestcraft:cornseedItem+harvestcraft:riceseedItem\n" +
             "harvestcraft:okraseedItem=harvestcraft:beanseedItem+harvestcraft:leekseedItem\n" +
@@ -343,7 +531,10 @@ public abstract class IOHelper {
             "harvestcraft:turnipseedItem=harvestcraft:parsnipseedItem+harvestcraft:radishseedItem\n" +
             "harvestcraft:wintersquashseedItem=minecraft:pumpkin_seeds+harvestcraft:zucchiniseedItem\n" +
             "harvestcraft:zucchiniseedItem=minecraft:pumpkin_seeds+harvestcraft:cucumberseedItem\n" +
-            "harvestcraft:whitemushroomseedItem=AgriCraft:seedShroomRed+AgriCraft:seedShroomBrown";
+            "harvestcraft:whitemushroomseedItem=AgriCraft:seedShroomRed+AgriCraft:seedShroomBrown\n" +
+            "harvestcraft:curryleafseedItem=harvestcraft:spiceleafseedItem+harvestcraft:mustardseedItem\n" +
+            "harvestcraft:sesameseedsseedItem=harvestcraft:riceseedItem+harvestcraft:coffeeseedItem\n" +
+            "harvestcraft:waterchestnutseedItem=harvestcraft:sesameseedsseedItem+harvestcraft:seaweedseedItem";
 
     private static final String weeeFlowersMutations =
             "weeeflowers:Red Flower Seed=AgriCraft:seedPoppy+AgriCraft:seedCarrot\n" +
@@ -440,10 +631,11 @@ public abstract class IOHelper {
             "plantmegapack:seedBellPepperOrange=plantmegapack:seedBellPepperYellow+plantmegapack:seedTomato\n" +
             "plantmegapack:seedBellPepperRed=plantmegapack:seedBellPepperOrange+plantmegapack:seedTomato\n" +
             "plantmegapack:seedSorrel=plantmegapack:seedBroccoli+plantmegapack:seedCassava\n" +
-            "plantmegapack:seedCucumber=plantmegapack:seedBeet+plantmegapack:seedBellPepperYellow";
+            "plantmegapack:seedCucumber=plantmegapack:seedBeet+plantmegapack:seedBellPepperYellow\n" +
+            "plantmegapack:seedEggplant=plantmegapack:seedBeet+plantmegapack:seedCucumber";
 
     private static final String chococraftMutations =
-            "chococraft:Gysahl_Seeds=Agricraft:seedPotato+AgriCraft:seedTulipRed";
+            "chococraft:Gysahl_Seeds=AgriCraft:seedPotato+AgriCraft:seedTulipRed";
 
     private static final String chococraft_harvestcraftMutations =
             "chococraft:Gysahl_Seeds=harvestcraft:rutabagaseedItem+harvestcraft:beetseedItem";
@@ -451,8 +643,9 @@ public abstract class IOHelper {
     private static final String psychedelicraftMutations =
             "psychedelicraft:tobaccoSeeds=AgriCraft:seedShroomBrown+minecraft:nether_wart\n" +
             "psychedelicraft:hop_seeds=psychedelicraft:tobaccoSeeds+minecraft:wheat_seeds\n" +
-            "psychedelicraft:cannabisSeeds=psychedelicraft:tobaccoSeeds+psychedelicraft:hop_seeds\n" +
-            "psychedelicraft:cocaSeeds=psychedelicraft:cannabisSeeds+psychedelicraft:hop_seeds";
+            "psychedelicraft:cannabisSeeds=psychedelicraft:coffeaCherries+psychedelicraft:hop_seeds\n" +
+            "psychedelicraft:cocaSeeds=psychedelicraft:cannabisSeeds+psychedelicraft:hop_seeds\n" +
+            "psychedelicraft:coffeaCherries=psychedelicraft:hop_seeds+psychedelicraft:tobaccoSeeds";
 
     private static final String thaumcraft_ArsMagicaMutations =
             "AgriCraft:seedCinderpearl=AgriCraft:seedCactus+AgriCraft:seedTulipRed\n" +
@@ -475,7 +668,7 @@ public abstract class IOHelper {
             "AgriCraft:seedDesertNova=AgriCraft:seedCactus+AgriCraft:seedTulipRed\n" +
             "AgriCraft:seedCerublossom=AgriCraft:seedDesertNova+AgriCraft:seedOrchid\n" +
             "AgriCraft:seedAum=AgriCraft:seedCerublossom+AgriCraft:seedTulipWhite\n" +
-            "AgriCraft:seedTarmaRoot=seedDesertNova+AgriCraft:seedShroomBrown\n" +
+            "AgriCraft:seedTarmaRoot=AgriCraft:seedDesertNova+AgriCraft:seedShroomBrown\n" +
             "AgriCraft:seedWakebloom=AgriCraft:seedAum+AgriCraft:seedCerublossom";
 
     private static final String copperMutation =
@@ -501,5 +694,4 @@ public abstract class IOHelper {
 
     private static final String osmiumMutation =
             "AgriCraft:seedOsmonium=AgriCraft:seedFerranium+AgriCraft:seedOrchid";
-
 }

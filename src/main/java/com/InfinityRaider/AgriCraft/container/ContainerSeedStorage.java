@@ -7,10 +7,9 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 
-import java.util.ArrayList;
 import java.util.List;
 
-public class ContainerSeedStorage extends ContainerSeedStorageDummy {
+public class ContainerSeedStorage extends ContainerSeedStorageBase {
     private static final int invOffsetX = 6;
     private static final int invOffsetY = 49;
     private TileEntitySeedStorage te;
@@ -25,14 +24,14 @@ public class ContainerSeedStorage extends ContainerSeedStorageDummy {
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public List<ItemStack> getSeedEntries() {
-        ArrayList<ItemStack> list = this.te.getInventory();
-        return list;
+        return this.te.getInventory();
     }
 
     @Override
     public List<SeedStorageSlot> getSeedSlots(Item seed, int meta) {
-        return this.te.getSlots(seed, meta);
+        return this.te.getSlots();
     }
 
     @Override
